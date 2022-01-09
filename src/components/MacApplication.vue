@@ -1,8 +1,8 @@
 <template>
-    <div class="mac-application">
+    <div class="mac-application" v-if="opened">
         <div class="top-bar" ref="topBar">
             <div class="left-bloc">
-                <button class="btn-close"></button>
+                <button class="btn-close" @click.prevent="closeApp"></button>
                 <button class="btn-minmax"></button>
                 <button class="btn-todock"></button>
             </div>
@@ -26,26 +26,40 @@ const props = defineProps({
     dockHeight: Number
 });
 
+const opened = ref(true);
+
 const topBar = ref(null);
 const topBarHeight = ref('0px');
 
 watch(topBar, () => {
-    topBarHeight.value = topBar.value.offsetHeight + 'px';
+    topBarHeight.value = topBar.value?.offsetHeight + 'px';
 })
 
-const dockHeight = computed(() => props.dockHeight + 'px');
+const dockHeight = computed(() => document.querySelector('.dock__wrapper')?.offsetHeight + 'px');
+const desktopTopBarHeight = computed(() => document.querySelector('#desktop > .top-bar')?.offsetHeight + 'px');
+
+const closeApp = () => {
+    opened.value = false;
+};
+const minApp = () => {};
+const maxApp = () => {};
+const appToDock = () => {};
 </script>
 
 <style lang="scss" scoped>
 .mac-application {
-    height: calc(100vh - v-bind(dockHeight) - v-bind(topBarHeight) - 5px);
+    height: calc(100vh - v-bind(dockHeight) - v-bind(topBarHeight) - v-bind(desktopTopBarHeight) - 5px);
 
     .top-bar {
         display: flex;
         background: whitesmoke;
+        font-size: 12px;
 
         .left-bloc {
             padding-left: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
 
             button {
                 cursor: pointer;

@@ -1,7 +1,12 @@
 <template>
-  <MacDesktop :apps="[]" background-image="/img/wallpapers/macos-wallpaper.jpg">
+  <MacDesktop
+    :apps="[]"
+    :current-app-name="currentApp"
+    background-image="/img/wallpapers/macos-wallpaper.jpg"
+    :top-bar="desktopTopBar"
+  >
     <div class="page">
-      <router-view/>
+      <router-view />
     </div>
   </MacDesktop>
 
@@ -9,8 +14,32 @@
 </template>
 
 <script setup>
-import MacOsDock from '@/components/MacOsDock.vue';
-import MacDesktop from '@/components/MacDesktop.vue';
+import MacOsDock from "@/components/MacOsDock.vue";
+import MacDesktop from "@/components/MacDesktop.vue";
+
+import { reactive } from "vue";
+import { useNetwork, useBattery } from "@vueuse/core";
+
+import { useCurrentApp } from "@/hooks/apps";
+
+const { isOnline } = useNetwork();
+const { charging, chargingTime, dischargingTime, level } = useBattery();
+
+const { currentApp } = useCurrentApp();
+
+const desktopTopBar = reactive({
+  network: {
+    wifi: {
+      online: isOnline.value,
+    },
+  },
+  batterie: {
+    charging: charging.value,
+    chargingTime: chargingTime.value,
+    dischargingTime: dischargingTime.value,
+    level: level.value,
+  },
+});
 </script>
 
 <style>
@@ -23,6 +52,7 @@ body,
 #app,
 .page {
   height: 100vh;
+  overflow: hidden;
 }
 </style>
 
