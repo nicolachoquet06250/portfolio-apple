@@ -34,12 +34,13 @@ const bigCursor = ref(false);
 const displayBigCursor = computed(() => bigCursor.value ? 'block' : 'none');
 
 watch([x, y], () => {
-  // console.log('x', x.value, 'y', y.value, new Date().getHours() + ':' + new Date().getMinutes() + ':' + new Date().getSeconds());
   cursorPositionsFor1second.value++;
 });
 
 setInterval(() => {
-  if (cursorPositionsFor1second.value > 45) {
+  //console.log(cursorPositionsFor1second.value);
+
+  if (cursorPositionsFor1second.value >= 30) {
     document.querySelector('#app').classList.add('show-big-cursor')
     bigCursor.value = true;
   } else {
@@ -47,7 +48,7 @@ setInterval(() => {
     bigCursor.value = false;
   }
   cursorPositionsFor1second.value = 0;
-}, 1000);
+}, 500);
 
 const cursorX = computed(() => x.value + 'px');
 const cursorY = computed(() => y.value + 'px');
@@ -81,8 +82,6 @@ body, #app, .page {
 }
 
 #app {
-  /*cursor: none!important;
-  --cursor-img: url('/cursors/_normal.png');*/
   cursor: url('/cursors/_normal.png'), default!important;
 }
 
@@ -93,8 +92,6 @@ body, #app, .page {
 #app a, #app a *,
 #app button, #app button *,
 #app [clickable] {
-  /*cursor: none!important;
-  --cursor-img: url('/cursors/_pointer.png');*/
   cursor: url('/cursors/_pointer.png'), pointer!important;
 }
 
