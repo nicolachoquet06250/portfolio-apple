@@ -36,12 +36,45 @@ const desktopTopBar = reactive({
       online: isOnline.value,
     },
   },
-  batterie: {
+  battery: {
     charging: charging.value,
     chargingTime: chargingTime.value,
     dischargingTime: dischargingTime.value,
     level: level.value,
   },
+  menu: [
+    {
+      name: 'Fichier',
+      children: [
+        {
+          name: 'Nouveau fichier'
+        },
+        {
+          name: 'Nouveau dossier'
+        }
+      ]
+    },
+    {
+      name: 'Edition',
+      children: []
+    },
+    {
+      name: 'Voir',
+      children: []
+    },
+    {
+      name: 'Aller',
+      children: []
+    },
+    {
+      name: 'Fenêtre',
+      children: []
+    },
+    {
+      name: 'Aide',
+      children: []
+    },
+  ]
 });
 </script>
 

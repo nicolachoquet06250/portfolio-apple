@@ -10,6 +10,23 @@
               <li>
                   {{ currentAppName }}
               </li>
+
+              <li>
+                  <ul>
+                      <li v-for="(item, i) of topBar.menu" 
+                          :key="item.name"
+                          :class="`menu-item menu-item-${i}`" 
+                          clickable @click="handleMenuClick($event, item.name)">
+                          {{ item.name }}
+                          
+                          <ul :class="`sub-menu ${selectedMenu === item.name ? 'show' : ''}`" v-if="item.children.length > 0">
+                            <li v-for="(_item, _i) of (item?.children ?? [])" :key="_i">
+                              {{ _item.name }}
+                            </li>
+                          </ul>
+                      </li>
+                  </ul>
+              </li>
           </ul>
       </div>
 
@@ -20,23 +37,23 @@
           </li>
 
           <li>
-            {{ topBar.batterie.level * 100 }}%
+            {{ topBar.battery.level * 100 }}%
             <i
               :class="{
                 fas: true,
-                'fa-battery-empty': topBar.batterie.level * 100 === 0,
-                'fa-battery-quarter': topBar.batterie.level * 100 <= 25,
-                'fa-battery-half': topBar.batterie.level * 100 === 50,
-                'fa-battery-full': topBar.batterie.level * 100 > 50,
+                'fa-battery-empty': topBar.battery.level * 100 === 0,
+                'fa-battery-quarter': topBar.battery.level * 100 <= 25,
+                'fa-battery-half': topBar.battery.level * 100 === 50,
+                'fa-battery-full': topBar.battery.level * 100 > 50,
               }"
-              :title="topBar.batterie.dischargingTime"
-              v-if="!topBar.batterie.charging"
+              :title="topBar.battery.dischargingTime"
+              v-if="!topBar.battery.charging"
             ></i>
-            <span v-else :title="topBar.batterie.chargingTime"></span>
+            <span v-else :title="topBar.battery.chargingTime"></span>
           </li>
 
           <li>
-            {{ formatedDate }}
+            {{ formattedDate }}
           </li>
 
           <li>
@@ -78,18 +95,19 @@ const props = defineProps({
         online: Boolean,
       }),
     }),
-    batterie: () => ({
+    battery: () => ({
       charging: Boolean,
       chargingTime: Number,
       dischargingTime: Number,
       level: Number,
     }),
+    menu: Array
   }),
 });
 
 const topBarFontSize = computed(() => '10px');
 const backgroundImage = computed(() => `url(${props.backgroundImage})`);
-const formatedDate = ref(
+const formattedDate = ref(
   new Date().toLocaleDateString("fr-FR", {
     weekday: "short",
     hour12: false,
@@ -99,13 +117,49 @@ const formatedDate = ref(
 );
 
 setInterval(() => {
-  formatedDate.value = new Date(Date.now()).toLocaleDateString("fr-FR", {
+  formattedDate.value = new Date(Date.now()).toLocaleDateString("fr-FR", {
     weekday: "short",
     hour12: false,
     hour: "2-digit",
     minute: "2-digit",
   });
 }, 1000);
+
+const oldSecondClass = ref(null);
+const nbIdenticSecondClass = ref(0);
+const selectedMenu = ref('');
+
+const handleMenuClick = (e, name) => {
+  const firstClass = e.target.classList[0];
+  const secondClass = e.target.classList[1];
+
+  if (firstClass === 'menu-item') {
+    Array.from(document.querySelectorAll('.menu .menu-item')).map(c => {
+      c.style.backgroundColor = 'white';
+      c.style.color = 'unset';
+    });
+
+    if (secondClass !== oldSecondClass.value) {
+      e.target.style.backgroundColor = 'blue';
+      e.target.style.color = 'white';
+      nbIdenticSecondClass.value = 0;
+      selectedMenu.value = name;
+    } else {
+      if (nbIdenticSecondClass.value % 2 === 1) {
+        e.target.style.backgroundColor = 'blue';
+        e.target.style.color = 'white';
+      selectedMenu.value = name;
+      } else {
+        e.target.style.backgroundColor = 'white';
+        e.target.style.color = 'unset';
+      selectedMenu.value = '';
+      }
+      nbIdenticSecondClass.value++;
+    }
+    
+    oldSecondClass.value = secondClass;
+  }
+}
 </script>
 
 <style lang="scss" scoped>
@@ -125,6 +179,7 @@ setInterval(() => {
         flex: 2;
 
         ul {
+            height: 100%;
             margin: 0;
             padding-left: 0;
             display: flex;
@@ -134,10 +189,66 @@ setInterval(() => {
             list-style: none;
 
             li {
+                height: 100%;
                 padding: 5px;
+                padding-top: 0;
+                padding-bottom: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
 
                 &:first-child {
                     padding-left: 10px;
+                }
+
+                ul {
+                    display: flex;
+                    flex-direction: row;
+
+                    li.menu-item {
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        position: relative;
+
+                        &:first-child {
+                          padding-left: 5px;
+                        }
+
+                        ul.sub-menu {
+                            display: none;
+                            
+                            &.show {
+                                display: flex;
+                            }
+
+                            flex-direction: column;
+                            justify-content: center;
+                            align-items: flex-start;
+                            position: absolute;
+                            top: 100%;
+                            left: 0;
+                            background: #DFDDE0;
+                            border-bottom-left-radius: 5px;
+                            border-bottom-right-radius: 5px;
+                            height: auto;
+
+                            li {
+                                padding: 0;
+                                padding-left: 5px;
+                                padding-right: 10px;
+                                padding-top: 5px;
+                                width: max-content;
+                                display: flex;
+                                justify-content: flex-start;
+                                align-items: flex-start;
+                            
+                                &:last-child {
+                                  padding-bottom: 5px;
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
