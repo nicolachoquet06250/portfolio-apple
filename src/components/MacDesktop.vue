@@ -174,6 +174,7 @@ const handleMenuClick = (e, name) => {
     background: white;
     display: flex;
     font-size: v-bind(topBarFontSize);
+    height: 25px;
 
     .menu {
         flex: 2;
