@@ -148,11 +148,11 @@ const handleMenuClick = (e, name) => {
       if (nbIdenticSecondClass.value % 2 === 1) {
         e.target.style.backgroundColor = 'blue';
         e.target.style.color = 'white';
-      selectedMenu.value = name;
+        selectedMenu.value = name;
       } else {
         e.target.style.backgroundColor = 'white';
         e.target.style.color = 'unset';
-      selectedMenu.value = '';
+        selectedMenu.value = '';
       }
       nbIdenticSecondClass.value++;
     }
