@@ -62,8 +62,11 @@
 
 <script setup>
 import { defineProps, ref, computed } from "vue";
+import { CURSOR, useCursor } from '@/hooks/cursor';
 
 import siriIcon from "@/assets/icons/siri.png";
+
+const { setCursor } = useCursor();
 
 const props = defineProps({
   backgroundImage: String,

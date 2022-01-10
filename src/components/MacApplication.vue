@@ -20,6 +20,11 @@
 
 <script setup>
 import { defineProps, computed, ref, watch } from 'vue';
+import { useCurrentApp } from '@/hooks/apps';
+import { CURSOR, useCursor } from '@/hooks/cursor';
+
+const { setCurrentApp } = useCurrentApp();
+const { setCursor } = useCursor();
 
 const props = defineProps({
     appName: String,
@@ -40,6 +45,7 @@ const desktopTopBarHeight = computed(() => document.querySelector('#desktop > .t
 
 const closeApp = () => {
     opened.value = false;
+    setCurrentApp('Finder');
 };
 const minApp = () => {};
 const maxApp = () => {};

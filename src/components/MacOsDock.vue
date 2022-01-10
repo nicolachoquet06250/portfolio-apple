@@ -1,39 +1,22 @@
 <template>
     <div class="dock__wrapper">
         <div class="dock" ref="dock">
-            <router-link to="/" class="dock-icon">
-                <img :src="finder" />
-            </router-link>
+            <template v-for="icon of icons" :key="icon">
+                <a v-if="icon.href === '#'" href="#" class="dock-icon" @mouseover="icon.mouseover" @mouseout="icon.mouseout">
+                    <img :src="icon.img" />
+                </a>
 
-            <router-link to="/about" class="dock-icon">
-                <img :src="appstore" />
-            </router-link>
-
-            <a href="#" class="dock-icon">
-                <img :src="mail" />
-            </a>
-
-            <a href="#" class="dock-icon">
-                <img :src="messages" />
-            </a>
-
-            <a href="#" class="dock-icon">
-                <img :src="preferences" />
-            </a>
-
-            <a href="#" class="dock-icon">
-                <img :src="terminal" />
-            </a>
-
-            <a href="#" class="dock-icon">
-                <img :src="trash" />
-            </a>
+                <router-link v-else :to="icon.href" class="dock-icon" @mouseover="icon.mouseover" @mouseout="icon.mouseout">
+                    <img :src="icon.img" />
+                </router-link>
+            </template>
         </div>
     </div>
 </template>
 
 <script setup>
 import { ref, watch } from 'vue';
+import { CURSOR, useCursor } from '@/hooks/cursor';
 import { Dock } from '@/services/dock';
 
 import finder from '@/assets/dock/finder.png';
@@ -44,7 +27,54 @@ import preferences from '@/assets/dock/systempreferences.png';
 import terminal from '@/assets/dock/terminal.png';
 import trash from '@/assets/dock/trashbin.png';
 
+const { setCursor } = useCursor();
+
 const dock = ref(null);
+
+const icons = ref([
+    {
+        href: '/',
+        mouseover: () => setCursor(CURSOR.POINTER),
+        mouseout: () => setCursor(CURSOR.DEFAULT),
+        img: finder
+    },
+    {
+        href: '/about',
+        mouseover: () => setCursor(CURSOR.POINTER),
+        mouseout: () => setCursor(CURSOR.DEFAULT),
+        img: appstore
+    },
+    {
+        href: '#',
+        mouseover: () => setCursor(CURSOR.POINTER),
+        mouseout: () => setCursor(CURSOR.DEFAULT),
+        img: mail
+    },
+    {
+        href: '#',
+        mouseover: () => setCursor(CURSOR.POINTER),
+        mouseout: () => setCursor(CURSOR.DEFAULT),
+        img: messages
+    },
+    {
+        href: '#',
+        mouseover: () => setCursor(CURSOR.POINTER),
+        mouseout: () => setCursor(CURSOR.DEFAULT),
+        img: preferences
+    },
+    {
+        href: '#',
+        mouseover: () => setCursor(CURSOR.POINTER),
+        mouseout: () => setCursor(CURSOR.DEFAULT),
+        img: terminal
+    },
+    {
+        href: '#',
+        mouseover: () => setCursor(CURSOR.POINTER),
+        mouseout: () => setCursor(CURSOR.DEFAULT),
+        img: trash
+    }
+]);
 
 watch(dock, () => {
     new Dock(dock.value);
