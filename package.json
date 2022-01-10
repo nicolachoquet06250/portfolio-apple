@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "update-prod": "git pull && npm run build",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build"
   },
