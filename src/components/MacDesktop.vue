@@ -57,7 +57,7 @@
           </li>
 
           <li>
-            <button>
+            <button class="search-btn">
               <i class="fas fa-search"></i>
             </button>
           </li>
@@ -268,6 +268,8 @@ const handleMenuClick = (e, name) => {
 
         button {
             font-size: v-bind(topBarFontSize);
+            background: none;
+            border: none;
         }
 
         img {
