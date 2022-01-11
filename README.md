@@ -85,6 +85,7 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 - [<span style="color: green">&check;</span>] Fonctionnalité "Secouer pour trouver le curseur"
 - [<span style="color: green">&check;</span>] Barre de menus du bureau
 - [<span style="color: green">&check;</span>] Design d'une application
+- [<span style="color: gray"> ? </span>] Fonctionalité de fermeture / minification / maximisation d'une application
 - [<span style="color: red">&cross;</span>] Animation d'ouverture / fermeture / minification d'une application
 - [<span style="color: red">&cross;</span>] Applications à développer :
     - [<span style="color: red">&cross;</span>] Paramètres
