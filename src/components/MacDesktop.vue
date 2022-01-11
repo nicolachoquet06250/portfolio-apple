@@ -83,10 +83,6 @@
         {{ openedApplications[app].name }}
       </h1>
     </MacApplication>
-
-    <!--<div style="background: white; position: absolute; bottom: 50px; z-index: 999999999999">
-        {{ openedApplications }}
-    </div>-->
   </div>
 </template>
 
@@ -95,6 +91,14 @@ import { defineProps, ref, computed } from "vue";
 import { CURSOR, useCursor } from '@/hooks/cursor';
 import { APPLICATION_STATE, useOpenedApplications, useCurrentApp } from '@/hooks/apps';
 import MacApplication from '@/components/MacApplication.vue';
+
+import FinderApp from '@/applications/Finder.vue';
+import StoreApp from '@/applications/Store.vue';
+import MailApp from '@/applications/Mail.vue';
+import MessagesApp from '@/applications/Messages.vue';
+import SettingsApp from '@/applications/Settings.vue';
+import TerminalApp from '@/applications/Terminal.vue';
+import TrashApp from '@/applications/Trash.vue';
 
 import siriIcon from "@/assets/icons/siri.png";
 

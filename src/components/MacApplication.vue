@@ -84,6 +84,12 @@ const showContextMenu = () => {
     left: 0;
     right: 0;
 
+    &.full-screen {
+        top: 0;
+        height: 100vh;
+        z-index: 9;
+    }
+
     .top-bar {
         display: flex;
         background: whitesmoke;

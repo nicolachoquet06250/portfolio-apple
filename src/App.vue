@@ -3,12 +3,7 @@
     :apps="[]"
     :current-app-name="currentApp"
     background-image="/img/wallpapers/macos-wallpaper.jpg"
-    :top-bar="desktopTopBar"
-  >
-    <div class="page">
-      <router-view />
-    </div>
-  </MacDesktop>
+    :top-bar="desktopTopBar" />
 
   <MacOsDock position="right" />
 
