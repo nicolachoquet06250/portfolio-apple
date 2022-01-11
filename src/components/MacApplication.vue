@@ -2,7 +2,7 @@
     <div :class="{
             'mac-application': true,
             'full-screen': openedApplications[appName.toLowerCase()].full_screen
-        }" v-if="opened">
+        }" v-if="opened" @contextmenu.prevent.stop="showContextMenu()">
         <div class="top-bar" ref="topBar">
             <div class="left-bloc">
                 <button class="btn-close" @click.prevent="closeApp"></button>
@@ -68,6 +68,10 @@ const maxApp = () => {
 const appToDock = () => {
     applicationToDock(props.appName);
     setCurrentApp(lastApplicationOpened.value);
+};
+
+const showContextMenu = () => {
+  console.log('context menu on ' + props.appName + ' application');
 };
 </script>
 

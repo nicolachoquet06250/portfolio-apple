@@ -1,5 +1,5 @@
 <template>
-  <div id="desktop">
+  <div id="desktop" @contextmenu.prevent.stop="showContextMenu()">
     <div class="top-bar">
       <div class="menu">
           <ul>
@@ -178,7 +178,11 @@ const handleMenuClick = (e, name) => {
     
     oldSecondClass.value = secondClass;
   }
-}
+};
+
+const showContextMenu = () => {
+  console.log('context menu on desktop');
+};
 </script>
 
 <style lang="scss" scoped>
