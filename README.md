@@ -77,3 +77,29 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
         </tr>
     </tbody>
 </table>
+
+### Objectifs
+
+- [<span style="color: green">&check;</span>] Dock macOS
+- [<span style="color: green">&check;</span>] Bureau macOS
+- [<span style="color: green">&check;</span>] Fonctionnalité "Secouer pour trouver le curseur"
+- [<span style="color: green">&check;</span>] Barre de menus du bureau
+- [<span style="color: green">&check;</span>] Design d'une application
+- [<span style="color: red">&cross;</span>] Animation d'ouverture / fermeture / minification d'une application
+- [<span style="color: red">&cross;</span>] Applications à développer :
+    - [<span style="color: red">&cross;</span>] Paramètres
+    - [<span style="color: red">&cross;</span>] Finder
+      - [<span style="color: red">&cross;</span>] Système d'arboraissence virtuelle pour pouvoir stocker des fichier sous forme base64 dans la base de données localDB du navigateur de sorte que les données des utilisateurs ne sortent pas de l'application
+    - [<span style="color: red">&cross;</span>] Images
+    - [<span style="color: red">&cross;</span>] Mails
+    - [<span style="color: red">&cross;</span>] Messages
+    - [<span style="color: red">&cross;</span>] Terminal
+      - [<span style="color: red">&cross;</span>] Véritable interprétation de commandes bash
+    - [<span style="color: red">&cross;</span>] Corbeille
+      - Système de mise à la corbeille des fichiers que l'on veux supprimer
+- [<span style="color: red">&cross;</span>] Customiser le menu contextuel
+
+#### Legend
+- [<span style="color: red">&cross;</span>] not works 
+- [<span style="color: green">&check;</span>] works 
+- [<span style="color: gray"> ? </span>] in progress
