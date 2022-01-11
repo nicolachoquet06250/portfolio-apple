@@ -74,16 +74,35 @@
     </div>
 
     <slot></slot>
+
+    <MacApplication v-for="app of Object.keys(openedApplications)" 
+                    :key="openedApplications[app].name"
+                    :opened="openedApplications[app].state === APPLICATION_STATE.OPENED"
+                    :app-name="openedApplications[app].name">
+      <h1 style="margin: 0;">
+        {{ openedApplications[app].name }}
+      </h1>
+    </MacApplication>
+
+    <!--<div style="background: white; position: absolute; bottom: 50px; z-index: 999999999999">
+        {{ openedApplications }}
+    </div>-->
   </div>
 </template>
 
 <script setup>
 import { defineProps, ref, computed } from "vue";
 import { CURSOR, useCursor } from '@/hooks/cursor';
+import { APPLICATION_STATE, useOpenedApplications, useCurrentApp } from '@/hooks/apps';
+import MacApplication from '@/components/MacApplication.vue';
 
 import siriIcon from "@/assets/icons/siri.png";
 
 const { setCursor } = useCursor();
+const { setCurrentApp } = useCurrentApp();
+const { openedApplications, initApplicationHistory } = useOpenedApplications();
+
+initApplicationHistory();
 
 const props = defineProps({
   backgroundImage: String,

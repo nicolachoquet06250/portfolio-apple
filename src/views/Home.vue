@@ -1,10 +1,10 @@
 <template>
   <div class="home">
-    <MacApplication app-name="Application Home">
+    <!--<MacApplication app-name="Application Home">
       <div class="app-home">
         <h1>Home</h1>
       </div>
-    </MacApplication>
+    </MacApplication>-->
     
   </div>
 </template>
@@ -15,7 +15,7 @@ import { useCurrentApp } from '@/hooks/apps';
 
 const { setCurrentApp } = useCurrentApp();
 
-setCurrentApp('Application Home');
+setCurrentApp('finder');
 </script>
 
 <style lang="scss" scoped>

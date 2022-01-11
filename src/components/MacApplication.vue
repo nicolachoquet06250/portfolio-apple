@@ -1,10 +1,13 @@
 <template>
-    <div class="mac-application" v-if="opened">
+    <div :class="{
+            'mac-application': true,
+            'full-screen': openedApplications[appName.toLowerCase()].full_screen
+        }" v-if="opened">
         <div class="top-bar" ref="topBar">
             <div class="left-bloc">
                 <button class="btn-close" @click.prevent="closeApp"></button>
-                <button class="btn-minmax"></button>
-                <button class="btn-todock"></button>
+                <button class="btn-minmax" @click.prevent="() => (openedApplications[appName.toLowerCase()].full_screen ? minApp() : maxApp())"></button>
+                <button class="btn-todock" @click.prevent="appToDock"></button>
             </div>
             
             <div class="right-bloc">
@@ -20,41 +23,62 @@
 
 <script setup>
 import { defineProps, computed, ref, watch } from 'vue';
-import { useCurrentApp } from '@/hooks/apps';
+import { APPLICATION_STATE, useCurrentApp, useOpenedApplications } from '@/hooks/apps';
 import { CURSOR, useCursor } from '@/hooks/cursor';
 
 const { setCurrentApp } = useCurrentApp();
 const { setCursor } = useCursor();
+const { lastApplicationOpened, closeApplication, applicationToDock, minifyApplication, maximizeApplication, openedApplications } = useOpenedApplications();
 
 const props = defineProps({
     appName: String,
-    dockHeight: Number
+    dockHeight: Number,
+    opened: Boolean
 });
 
-const opened = ref(true);
+const opened = ref(props.opened);
 
 const topBar = ref(null);
 const topBarHeight = ref('0px');
 
 watch(topBar, () => {
     topBarHeight.value = topBar.value?.offsetHeight + 'px';
-})
+});
+
+watch(() => props.opened, () => {
+    opened.value = props.opened;
+});
 
 const dockHeight = computed(() => document.querySelector('.dock__wrapper')?.offsetHeight + 'px');
 const desktopTopBarHeight = computed(() => document.querySelector('#desktop > .top-bar')?.offsetHeight + 'px');
 
 const closeApp = () => {
     opened.value = false;
-    setCurrentApp('Finder');
+    closeApplication(props.appName);
+    setCurrentApp(lastApplicationOpened.value);
 };
-const minApp = () => {};
-const maxApp = () => {};
-const appToDock = () => {};
+const minApp = () => {
+    minifyApplication(props.appName);
+    setCurrentApp(lastApplicationOpened.value);
+};
+const maxApp = () => {
+    maximizeApplication(props.appName);
+    setCurrentApp(lastApplicationOpened.value);
+};
+const appToDock = () => {
+    applicationToDock(props.appName);
+    setCurrentApp(lastApplicationOpened.value);
+};
 </script>
 
 <style lang="scss" scoped>
 .mac-application {
     height: calc(100vh - v-bind(dockHeight) - v-bind(topBarHeight) - v-bind(desktopTopBarHeight) - 5px);
+    position: absolute;
+    top: v-bind(desktopTopBarHeight);
+    bottom: calc(v-bind(dockHeight) + 5px);
+    left: 0;
+    right: 0;
 
     .top-bar {
         display: flex;
@@ -102,6 +126,7 @@ const appToDock = () => {};
 
     .application-body {
         height: 100%;
+        background: white;
     }
 }
 </style>

@@ -19,8 +19,6 @@ watch([x, y], () => {
 });
 
 setInterval(() => {
-  //console.log(cursorPositionsFor1second.value);
-
   if (cursorPositionsFor1second.value >= 30) {
     document.querySelector('#app').classList.add('show-big-cursor')
     bigCursor.value = true;
