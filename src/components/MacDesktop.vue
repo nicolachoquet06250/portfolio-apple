@@ -282,25 +282,29 @@ const showContextMenu = () => {
         }
     }
 
-    .connectivity ul {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-around;
-      align-items: center;
-      list-style: none;
-      margin: 0;
+    .connectivity {
+      margin-right: 5px;
 
-      li {
-        padding: 5px;
+      ul {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        align-items: center;
+        list-style: none;
+        margin: 0;
 
-        button {
-            font-size: v-bind(topBarFontSize);
-            background: none;
-            border: none;
-        }
+        li {
+          padding: 5px;
 
-        img {
-            width: 15px;
+          button {
+              font-size: v-bind(topBarFontSize);
+              background: none;
+              border: none;
+          }
+
+          img {
+              width: 15px;
+          }
         }
       }
     }
