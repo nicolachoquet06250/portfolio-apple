@@ -41,15 +41,14 @@
             <i
               :class="{
                 fas: true,
-                'fa-battery-empty': topBar.battery.level * 100 === 0,
-                'fa-battery-quarter': topBar.battery.level * 100 <= 25,
-                'fa-battery-half': topBar.battery.level * 100 === 50,
-                'fa-battery-full': topBar.battery.level * 100 > 50,
+                'fa-battery-empty': !topBar.battery.charging && topBar.battery.level * 100 === 0,
+                'fa-battery-quarter': !topBar.battery.charging && topBar.battery.level * 100 <= 25,
+                'fa-battery-half': !topBar.battery.charging && topBar.battery.level * 100 === 50,
+                'fa-battery-full': !topBar.battery.charging && topBar.battery.level * 100 > 50,
+                'fa-car-battery': topBar.battery.charging
               }"
               :title="topBar.battery.dischargingTime"
-              v-if="!topBar.battery.charging"
             ></i>
-            <span v-else :title="topBar.battery.chargingTime"></span>
           </li>
 
           <li>

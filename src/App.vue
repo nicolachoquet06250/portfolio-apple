@@ -24,7 +24,7 @@ import MacDesktop from "@/components/MacDesktop.vue";
 import IOSDesktop from '@/components/IOSDesktop.vue';
 import MacOsCursor from '@/components/MacOsCursor.vue';
 
-import { reactive } from "vue";
+import { reactive, watch } from "vue";
 import { useNetwork, useBattery, useWindowSize } from "@vueuse/core";
 import { useCurrentApp } from "@/hooks/apps";
 
@@ -79,6 +79,14 @@ const desktopTopBar = reactive({
       children: []
     },
   ]
+});
+
+watch([isOnline, charging, chargingTime, dischargingTime, level], () => {
+  desktopTopBar.network.wifi.online = isOnline.value;
+  desktopTopBar.battery.charging = charging.value;
+  desktopTopBar.battery.chargingTime = chargingTime.value;
+  desktopTopBar.battery.dischargingTime = dischargingTime.value;
+  desktopTopBar.battery.level = level.value;
 });
 </script>
 

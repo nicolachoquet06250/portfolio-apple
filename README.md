@@ -49,15 +49,6 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
             <td>3.2.0</td>
         </tr>
         <tr>
-            <td>vue-router</td>
-            <td>
-                <a href="https://next.router.vuejs.org/">
-                    https://next.router.vuejs.org/
-                </a>
-            </td>
-            <td>4.0.0-0</td>
-        </tr>
-        <tr>
             <td>vuex</td>
             <td>
                 <a href="https://next.vuex.vuejs.org/">
