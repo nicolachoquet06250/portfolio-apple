@@ -78,31 +78,21 @@
                     :key="openedApplications[app].name"
                     :opened="openedApplications[app].state === APPLICATION_STATE.OPENED"
                     :app-name="openedApplications[app].name">
-      <h1 style="margin: 0;">
-        {{ openedApplications[app].name }}
-      </h1>
+      <AppComponent />
     </MacApplication>
   </div>
 </template>
 
 <script setup>
-import { defineProps, ref, computed } from "vue";
+import { defineProps, ref, computed, watch } from "vue";
 import { CURSOR, useCursor } from '@/hooks/cursor';
 import { APPLICATION_STATE, useOpenedApplications, useCurrentApp } from '@/hooks/apps';
 import MacApplication from '@/components/MacApplication.vue';
 
-import FinderApp from '@/applications/Finder.vue';
-import StoreApp from '@/applications/Store.vue';
-import MailApp from '@/applications/Mail.vue';
-import MessagesApp from '@/applications/Messages.vue';
-import SettingsApp from '@/applications/Settings.vue';
-import TerminalApp from '@/applications/Terminal.vue';
-import TrashApp from '@/applications/Trash.vue';
-
 import siriIcon from "@/assets/icons/siri.png";
 
 const { setCursor } = useCursor();
-const { setCurrentApp } = useCurrentApp();
+const { currentApp } = useCurrentApp();
 const { openedApplications, initApplicationHistory } = useOpenedApplications();
 
 initApplicationHistory();
@@ -129,6 +119,7 @@ const props = defineProps({
 
 const topBarFontSize = computed(() => '10px');
 const backgroundImage = computed(() => `url(${props.backgroundImage})`);
+const AppComponent = ref(openedApplications[currentApp.value]?.component);
 const formattedDate = ref(
   new Date().toLocaleDateString("fr-FR", {
     weekday: "short",
@@ -192,7 +183,13 @@ const selectSubMenuItem = (item, e) => {
   e.target.parentElement.parentElement.style.backgroundColor = 'white';
   e.target.parentElement.parentElement.style.color = 'black';
   return item?.click(e) ?? false;
-}
+};
+
+watch(currentApp, () => {
+  console.log(currentApp.value)
+  AppComponent.value = openedApplications.value[currentApp.value]?.component;
+  console.log(AppComponent.value)
+});
 </script>
 
 <style lang="scss" scoped>

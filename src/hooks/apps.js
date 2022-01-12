@@ -1,5 +1,13 @@
 import { reactive, ref, computed } from 'vue';
 
+import FinderApp from '@/applications/Finder.vue';
+import StoreApp from '@/applications/Store.vue';
+import MailsApp from '@/applications/Mail.vue';
+import MessagesApp from '@/applications/Messages.vue';
+import SettingsApp from '@/applications/Settings.vue';
+import TerminalApp from '@/applications/Terminal.vue';
+import TrashApp from '@/applications/Trash.vue';
+
 export const APPLICATION = {
     FINDER: 'finder',
     STORE: 'appstore',
@@ -14,6 +22,16 @@ export const APPLICATION_STATE = {
     CLOSED: 'closed',
     OPENED: 'opened',
     IN_DOCK: 'in_dock'
+};
+
+export const APPLICATION_COMPONENT = {
+    [APPLICATION.FINDER]: FinderApp,
+    [APPLICATION.STORE]: StoreApp,
+    [APPLICATION.MAILS]: MailsApp,
+    [APPLICATION.MESSAGES]: MessagesApp,
+    [APPLICATION.SETTINGS]: SettingsApp,
+    [APPLICATION.TERMINAL]: TerminalApp,
+    [APPLICATION.TRASH]: TrashApp
 };
 
 const currentApp = ref(null);
@@ -47,6 +65,7 @@ export const useOpenedApplications = () => ({
                 state: APPLICATION_STATE.OPENED,
                 full_screen: false,
                 name: application.substr(0, 1).toUpperCase() + application.substr(1, application.length - 1),
+                component: APPLICATION_COMPONENT[application.toLowerCase()],
                 position: {
                     x: 0,
                     y: 0
@@ -57,6 +76,8 @@ export const useOpenedApplications = () => ({
                 }
             }
         }
+
+        console.log(openedApplications[application.toLowerCase()].component)
 
         applicationsHistory.value = [...applicationsHistory.value, application.toLowerCase()];
     },

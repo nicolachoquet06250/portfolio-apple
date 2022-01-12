@@ -37,8 +37,8 @@ const icons = ref([
         mouseout: () => setCursor(CURSOR.DEFAULT),
         click: () => {
             console.log('go to finder');
-            openApplication(APPLICATION.FINDER);
             setCurrentApp(APPLICATION.FINDER);
+            openApplication(APPLICATION.FINDER);
         },
         img: finder
     },
