@@ -138,6 +138,7 @@ const showContextMenu = () => {
     .application-body {
         height: 100%;
         background: white;
+        padding-right: 10px;
     }
 }
 </style>

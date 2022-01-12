@@ -103,3 +103,7 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 - [<span style="color: red">&cross;</span>] not works 
 - [<span style="color: green">&check;</span>] works 
 - [<span style="color: gray"> ? </span>] in progress
+
+### ANNEXES
+- [FIGMA MacOS 11](https://www.figma.com/community/file/949158727443209284?preview=fullscreen)
+- [FIGMA IOS 15](https://www.figma.com/community/file/984106517828363349?preview=fullscreen)

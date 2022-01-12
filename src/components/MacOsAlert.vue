@@ -13,19 +13,17 @@
         </div>
 
         <div class="btn-container column">
-            <button class="btn-secondary">
+            <Button>
                 Validate
-            </button>
-
-            <button class="btn-primary" @click="$emit('close', $event)">
+            </Button>
+            
+            <Button primary @click="$emit('close', $event)">
                 Cancel
-            </button>
+            </Button>
 
-            <div class="checkbox-container">
-                <input type="checkbox" id="dont-ask-again" />
-
-                <label for="dont-ask-again" clickable>Dont ask again</label>
-            </div>
+            <Checkbox id="dont-ask-again">
+                Dont ask again
+            </Checkbox>
         </div>
     </div>
 </template>
@@ -34,6 +32,9 @@
 import { ref, computed, watch, defineEmits } from 'vue';
 import appstore from '@/assets/dock/appstore.png';
 import { useWindowSize } from "@vueuse/core";
+
+import Button from '@/components/Button.vue';
+import Checkbox from '@/components/Checkbox.vue';
 
 defineEmits(['close']);
 
@@ -47,7 +48,7 @@ watch(alert, () => {
     if (alert.value) {
         alertHeight.value = alert.value?.offsetHeight + 'px';
     }
-})
+});
 </script>
 
 <style lang="scss" scoped>
@@ -102,76 +103,6 @@ watch(alert, () => {
 
             * {
                 margin-bottom: 10px;
-            }
-        }
-
-        button {
-            width: 100%;
-            padding: 10px;
-            border: none;
-            border-radius: 10px;
-
-            &:first-child {
-                margin-right: 5px;
-            }
-
-            &:last-child {
-                margin-left: 5px;
-            }
-
-            &.btn-primary {
-                background-color: #007AFF;
-                color: white;
-
-                &:hover {
-                    background-color: #57A7FF;
-                }
-            }
-
-            &.btn-secondary {
-                background-color: #E6E6E6;
-                color: black;
-
-                &:hover {
-                    background-color: #EFEFEF;
-                }
-            }
-        }
-
-        .checkbox-container {
-            input[type="checkbox"] {
-                display: none;
-
-                + label {
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    height: 20px;
-
-                    &::before {
-                        content: '';
-                        display: flex;
-                        justify-content: center;
-                        align-items: center;
-                        display: inline-block;
-                        width: 20px;
-                        height: 20px;
-                        border: 1px solid #e7e3e3;
-                        border-radius: 5px;
-                        margin-right: 5px;
-                    }
-                }
-
-                &:checked {
-                    + label {
-                        &::before {
-                            content: '✔';
-                            display: flex;
-                            color: green;
-                            border-color: green;
-                        }
-                    }
-                }
             }
         }
     }
