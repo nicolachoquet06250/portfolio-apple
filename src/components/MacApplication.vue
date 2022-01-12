@@ -83,6 +83,7 @@ const showContextMenu = () => {
     bottom: calc(v-bind(dockHeight) + 5px);
     left: 0;
     right: 0;
+    z-index: 0;
 
     &.full-screen {
         top: 0;

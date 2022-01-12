@@ -20,7 +20,7 @@
                           {{ item.name }}
                           
                           <ul :class="`sub-menu ${selectedMenu === item.name ? 'show' : ''}`" v-if="item.children.length > 0">
-                            <li v-for="(_item, _i) of (item?.children ?? [])" :key="_i">
+                            <li v-for="(_item, _i) of (item?.children ?? [])" :key="_i" @click="selectSubMenuItem(_item, $event)">
                               {{ _item.name }}
                             </li>
                           </ul>
@@ -186,6 +186,13 @@ const handleMenuClick = (e, name) => {
 const showContextMenu = () => {
   console.log('context menu on desktop');
 };
+
+const selectSubMenuItem = (item, e) => {
+  selectedMenu.value = '';
+  e.target.parentElement.parentElement.style.backgroundColor = 'white';
+  e.target.parentElement.parentElement.style.color = 'black';
+  return item?.click(e) ?? false;
+}
 </script>
 
 <style lang="scss" scoped>

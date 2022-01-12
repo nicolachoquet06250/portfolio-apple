@@ -127,6 +127,7 @@ watch(dock, () => {
         bottom: 0;
         display: flex;
         justify-content: center;
+        z-index: 8;
     }
 
     .dock-icon {

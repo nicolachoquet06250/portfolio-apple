@@ -5,6 +5,9 @@
     :current-app-name="currentApp"
     background-image="/img/wallpapers/macos-wallpaper.jpg"
     :top-bar="desktopTopBar">
+
+    <MacOsAlert v-if="displayAlert" @close="hideAlert" />
+
     <MacOsDock position="right" />
 
     <MacOsCursor />
@@ -23,16 +26,24 @@ import MacOsDock from "@/components/MacOsDock.vue";
 import MacDesktop from "@/components/MacDesktop.vue";
 import IOSDesktop from '@/components/IOSDesktop.vue';
 import MacOsCursor from '@/components/MacOsCursor.vue';
+import MacOsAlert from '@/components/MacOsAlert.vue';
 
-import { reactive, watch } from "vue";
+import { ref, reactive, watch } from "vue";
 import { useNetwork, useBattery, useWindowSize } from "@vueuse/core";
 import { useCurrentApp } from "@/hooks/apps";
 
 const { isOnline } = useNetwork();
 const { charging, chargingTime, dischargingTime, level } = useBattery();
 const { width: screenWidth } = useWindowSize();
-
 const { currentApp } = useCurrentApp();
+
+const displayAlert = ref(false);
+const showAlert = () => {
+  displayAlert.value = true;
+};
+const hideAlert = () => {
+  displayAlert.value = false;
+}
 
 const desktopTopBar = reactive({
   network: {
@@ -64,7 +75,12 @@ const desktopTopBar = reactive({
     },
     {
       name: 'Voir',
-      children: []
+      children: [
+        {
+          name: `Afficher l'alerte`,
+          click: showAlert
+        }
+      ]
     },
     {
       name: 'Aller',
