@@ -186,9 +186,7 @@ const selectSubMenuItem = (item, e) => {
 };
 
 watch(currentApp, () => {
-  console.log(currentApp.value)
   AppComponent.value = openedApplications.value[currentApp.value]?.component;
-  console.log(AppComponent.value)
 });
 </script>
 

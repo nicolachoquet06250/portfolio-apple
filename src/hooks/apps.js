@@ -35,13 +35,15 @@ export const APPLICATION_COMPONENT = {
 };
 
 const currentApp = ref(null);
-const currentAppMenus = ref({});
-const currentAppHeaderBar = ref({});
+const currentAppMenus = reactive({});
+const currentAppHeaderBar = reactive({});
 const openedApplications = reactive({});
 const applicationsHistory = ref([]);
 
 export const useCurrentApp = () => ({
     currentApp: computed(() => currentApp.value),
+    currentAppMenus: computed(() => currentAppMenus),
+    currentAppHeaderBar: computed(() => currentAppHeaderBar),
 
     setCurrentApp(_currentApp) {
         currentApp.value = _currentApp;
@@ -51,19 +53,29 @@ export const useCurrentApp = () => ({
      * @param {Record<String, any>} _currentAppMenus 
      */
     setCurrentAppMenus(_currentAppMenus) {
-        currentAppMenus.value = {
-            ...currentAppMenus.value,
-            ..._currentAppMenus
-        };
+        for(const key of Object.keys(_currentAppMenus)) {
+            currentAppMenus[key] = _currentAppMenus[key];
+        }
     },
 
     /**
      * @param {Record<String, any>} _currentAppHeaderBar 
      */
     setCurrentAppHeaderBar(_currentAppHeaderBar) {
-        currentAppHeaderBar.value = {
-            ...currentAppHeaderBar.value,
-            ..._currentAppHeaderBar
+        for(const key of Object.keys(_currentAppHeaderBar)) {
+            currentAppHeaderBar[key] = _currentAppHeaderBar[key];
+        }
+    },
+
+    resetCurrentAppMenus() {
+        for(const key of Object.keys(currentAppMenus)) {
+            delete currentAppMenus[key];
+        }
+    },
+
+    resetCurrentAppHeaderBar() {
+        for(const key of Object.keys(currentAppHeaderBar)) {
+            delete currentAppHeaderBar[key];
         }
     }
 });
