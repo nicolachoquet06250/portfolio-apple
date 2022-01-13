@@ -35,6 +35,8 @@ export const APPLICATION_COMPONENT = {
 };
 
 const currentApp = ref(null);
+const currentAppMenus = ref({});
+const currentAppHeaderBar = ref({});
 const openedApplications = reactive({});
 const applicationsHistory = ref([]);
 
@@ -43,6 +45,26 @@ export const useCurrentApp = () => ({
 
     setCurrentApp(_currentApp) {
         currentApp.value = _currentApp;
+    },
+
+    /**
+     * @param {Record<String, any>} _currentAppMenus 
+     */
+    setCurrentAppMenus(_currentAppMenus) {
+        currentAppMenus.value = {
+            ...currentAppMenus.value,
+            ..._currentAppMenus
+        };
+    },
+
+    /**
+     * @param {Record<String, any>} _currentAppHeaderBar 
+     */
+    setCurrentAppHeaderBar(_currentAppHeaderBar) {
+        currentAppHeaderBar.value = {
+            ...currentAppHeaderBar.value,
+            ..._currentAppHeaderBar
+        }
     }
 });
 

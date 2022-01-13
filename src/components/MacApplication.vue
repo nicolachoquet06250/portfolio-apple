@@ -3,19 +3,36 @@
             'mac-application': true,
             'full-screen': openedApplications[appName.toLowerCase()].full_screen
         }" v-if="opened" @contextmenu.prevent.stop="showContextMenu()">
-        <div class="top-bar" ref="topBar">
-            <div class="left-bloc">
+
+        <div class="left-bloc" :style="{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'flex-start',
+            alignItems: 'flex-start',
+            minWidth: '20%',
+            paddingTop: '10px',
+            backgroundColor: '#F2EAEE',
+            borderRadius: '10px 0 0 10px'
+        }">
+            <div class="btn-container" :style="{
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'flex-start',
+                alignItems: 'center',
+                paddingLeft: '10px'
+            }">
                 <button class="btn-close" @click.prevent="closeApp"></button>
                 <button class="btn-minmax" @click.prevent="() => (openedApplications[appName.toLowerCase()].full_screen ? minApp() : maxApp())"></button>
                 <button class="btn-todock" @click.prevent="appToDock"></button>
             </div>
-            
-            <div class="right-bloc">
-                <span>{{ appName }}</span>
-            </div>
         </div>
 
-        <div class="application-body">
+        <div class="right-bloc" :style="{
+            width: '100%',
+            backgroundColor: 'white',
+            borderRadius: '0 10px 10px 0',
+            padding: '10px'
+        }">
             <slot></slot>
         </div>
     </div>
@@ -38,12 +55,12 @@ const props = defineProps({
 
 const opened = ref(props.opened);
 
-const topBar = ref(null);
+//const topBar = ref(null);
 const topBarHeight = ref('0px');
 
-watch(topBar, () => {
+/*watch(topBar, () => {
     topBarHeight.value = topBar.value?.offsetHeight + 'px';
-});
+});*/
 
 watch(() => props.opened, () => {
     opened.value = props.opened;
@@ -69,7 +86,6 @@ const appToDock = () => {
     applicationToDock(props.appName);
     setCurrentApp(lastApplicationOpened.value);
 };
-
 const showContextMenu = () => {
   console.log('context menu on ' + props.appName + ' application');
 };
@@ -84,6 +100,9 @@ const showContextMenu = () => {
     left: 0;
     right: 0;
     z-index: 0;
+    display: flex;
+    flex-direction: row;
+    box-shadow: 2px 20px 36px -5px rgba(0,0,0,0.59);
 
     &.full-screen {
         top: 0;
@@ -91,54 +110,26 @@ const showContextMenu = () => {
         z-index: 9;
     }
 
-    .top-bar {
-        display: flex;
-        background: whitesmoke;
-        font-size: 12px;
+    .left-bloc {
+        button {
+            cursor: pointer;
+            height: 10px;
+            width: 10px;
+            border: 1px solid black;
+            border-radius: 10px;
+            background: white;
+            margin-right: 5px;
 
-        .left-bloc {
-            padding-left: 5px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
-            button {
-                cursor: pointer;
-                height: 10px;
-                width: 10px;
-                border: 1px solid black;
-                border-radius: 10px;
-                background: white;
-                margin-right: 5px;
-
-                &.btn-close {
-                    background: red;
-                }
-                &.btn-minmax {
-                    background: orange;
-                }
-                &.btn-todock {
-                    background: green;
-                }
+            &.btn-close {
+                background: red;
+            }
+            &.btn-minmax {
+                background: orange;
+            }
+            &.btn-todock {
+                background: green;
             }
         }
-
-        .right-bloc {
-            display: flex;
-            flex: 2;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: max-content;
-            padding-top: 10px;
-            padding-bottom: 10px;
-        }
-    }
-
-    .application-body {
-        height: 100%;
-        background: white;
-        padding-right: 10px;
     }
 }
 </style>
