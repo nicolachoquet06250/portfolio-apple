@@ -107,3 +107,7 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 ### ANNEXES
 - [FIGMA MacOS 11](https://www.figma.com/community/file/949158727443209284?preview=fullscreen)
 - [FIGMA IOS 15](https://www.figma.com/community/file/984106517828363349?preview=fullscreen)
+- [Generateur de clip-path](https://www.cssportal.com/css-clip-path-generator/)
+- [Exemple de déplacement de fenêtre + redimentionnement avec VueJS](https://www.cssscript.com/material-macos-window-vtwindow/)
+  - [Demo](https://www.cssscript.com/demo/material-macos-window-vtwindow/)
+- [Effet corbeille MacOS](https://robertnyman.com/css3/css-transitions/css-transitions-mac-os-x-stacks.html)
