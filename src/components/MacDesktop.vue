@@ -77,7 +77,12 @@
     <MacApplication v-for="app of Object.keys(openedApplications)" 
                     :key="openedApplications[app].name"
                     :opened="openedApplications[app].state === APPLICATION_STATE.OPENED"
-                    :app-name="openedApplications[app].name">
+                    :app-name="openedApplications[app].name"
+                    :has-header="AppHeaderComponent !== null">
+      <template v-slot:header>
+        <AppHeaderComponent />
+      </template>
+      
       <AppComponent />
     </MacApplication>
   </div>
@@ -120,6 +125,7 @@ const props = defineProps({
 const topBarFontSize = computed(() => '10px');
 const backgroundImage = computed(() => `url(${props.backgroundImage})`);
 const AppComponent = ref(openedApplications[currentApp.value]?.component);
+const AppHeaderComponent = ref(openedApplications[currentApp.value]?.componentHeader);
 const formattedDate = ref(
   new Date().toLocaleDateString("fr-FR", {
     weekday: "short",
@@ -187,6 +193,7 @@ const selectSubMenuItem = (item, e) => {
 
 watch(currentApp, () => {
   AppComponent.value = openedApplications.value[currentApp.value]?.component;
+  AppHeaderComponent.value = openedApplications.value[currentApp.value]?.componentHeader;
 });
 </script>
 
