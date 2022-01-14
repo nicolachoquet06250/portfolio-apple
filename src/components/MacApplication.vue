@@ -3,10 +3,13 @@
             'mac-application': true,
             'full-screen': openedApplications[appName.toLowerCase()].full_screen,
             'movable': !isOutside && pressed,
-            'not-header': !hasHeader
+            'not-header': !hasHeader,
+            [appCode]: true,
+            active: currentApp === appCode
         }" v-if="opened" 
         ref="application"
         @contextmenu.prevent.stop="showContextMenu()"
+        @click="handleApplicationClick($event)"
         :style="{
             '--mousePositionX': `${x}px`,
             '--mousePositionY': `${y}px`,
@@ -33,12 +36,20 @@
         </div>
 
         <div class="right-bloc">
-            <div class="app-header-bar" ref="applicationHeader" v-if="hasHeader">
+            <div class="app-header-bar" ref="applicationHeader" v-if="hasHeader" 
+                 @mouseover="isOutside = false" @mouseout="isOutside = true" 
+                 @mousedown="pressed = true" @mouseup="pressed = false">
+                <AppHeaderComponent />
+
                 <slot name="header"></slot>
             </div>
-            <div class="app-header-bar void" v-else></div>
+            <div class="app-header-bar void" v-else
+                 @mouseover="isOutside = false" @mouseout="isOutside = true" 
+                 @mousedown="pressed = true" @mouseup="pressed = false"></div>
 
             <div class="application-body">
+                <AppComponent />
+
                 <slot></slot>
             </div>
         </div>
@@ -49,32 +60,39 @@
 import { defineProps, computed, ref, watch, reactive } from 'vue';
 import { APPLICATION_STATE, useCurrentApp, useOpenedApplications } from '@/hooks/apps';
 import { CURSOR, useCursor } from '@/hooks/cursor';
-import { useMouse, useMouseInElement, useMousePressed, useElementSize } from '@vueuse/core';
+import { useMouse, useElementSize } from '@vueuse/core';
 
 const { setCurrentApp, currentApp, resetCurrentAppMenus, resetCurrentAppHeaderBar, currentAppMenus, currentAppHeaderBar } = useCurrentApp();
 const { setCursor } = useCursor();
 const { lastApplicationOpened, closeApplication, applicationToDock, minifyApplication, maximizeApplication, openedApplications } = useOpenedApplications();
 const { x, y } = useMouse();
-const { pressed } = useMousePressed();
 
 const props = defineProps({
     appName: String,
     dockHeight: Number,
     opened: Boolean,
-    hasHeader: Boolean
+    appCode: String
 });
+
+const AppComponent = ref(openedApplications.value[props.appCode].component);
+const AppHeaderComponent = ref(openedApplications.value[props.appCode].componentHeader);
+
+const hasHeader = computed(() => AppHeaderComponent.value !== null);
 
 const opened = ref(props.opened);
 const applicationHeader = ref(null);
 const application = ref(null);
-const { isOutside } = useMouseInElement(applicationHeader);
 const { width, height } = useElementSize(application);
 
+const isOutside = ref(true);
+const pressed = ref(false);
 const selectedTab = computed(() => currentAppHeaderBar.value?.left?.[2]?.text ?? '');
 
 watch(() => props.opened, () => {
     opened.value = props.opened;
 });
+
+watch(isOutside, () => console.log(props.appCode, isOutside.value));
 
 watch(currentApp, () => {
     resetCurrentAppMenus();
@@ -83,6 +101,7 @@ watch(currentApp, () => {
 
 const dockHeight = computed(() => document.querySelector('.dock__wrapper')?.offsetHeight + 'px');
 const desktopTopBarHeight = computed(() => document.querySelector('#desktop > .top-bar')?.offsetHeight + 'px');
+const zIndex = computed(() => currentApp.value === props.appCode ? 1 : 0);
 
 const applicationCurrentPositionX = ref(application.value?.getBoundingClientRect().left ?? 0);
 const applicationCurrentPositionY = ref(application.value?.getBoundingClientRect().top ?? 0);
@@ -96,7 +115,6 @@ const onClickPosition = reactive({
 
 const applicationMovePositionX = computed(() => ((applicationCurrentPositionX.value + (x.value - onClickPosition.x))) + 'px');
 const applicationMovePositionY = computed(() => ((applicationCurrentPositionY.value + (y.value - onClickPosition.y))) + 'px');
-
 
 watch(() => application.value?.getBoundingClientRect().left, () => {
     applicationCurrentPositionX.value = application.value?.getBoundingClientRect().left;
@@ -158,20 +176,44 @@ const handleLeftMenuClick = (currentAppMenu, e) => {
     Array.from(e.target.parentElement.parentElement.querySelectorAll('button.active')).map(c => c.classList.remove('active'));
     e.target.classList.add('active');
 };
+
+const handleApplicationClick = (e) => {
+    if (!(currentApp.value === props.appCode)) {
+        setCurrentApp(props.appCode)
+    } else {
+        e.preventDefault();
+    }
+}
 </script>
 
 <style lang="scss" scoped>
 .mac-application {
     max-height: calc(100vh - v-bind(dockHeight) - v-bind(desktopTopBarHeight) - 5px);
     max-width: 100%;
+    min-width: 777px;
     position: absolute;
     left: 0;
     transform: translateX(v-bind(applicationCurrentPositionXUnit)) translateY(v-bind(applicationCurrentPositionYUnit));
     margin-top: 0;
-    z-index: 0;
+    z-index: v-bind(zIndex);
     display: flex;
     flex-direction: row;
     box-shadow: 2px 20px 36px -5px rgba(0,0,0,0.59);
+
+    &:not(.active) {
+        &::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            display: block;
+            background: transparent;
+            //background: white;
+            border-radius: 10px;
+        }
+    }
 
     &.not-header {
         height: 300px;
@@ -202,7 +244,7 @@ const handleLeftMenuClick = (currentAppMenu, e) => {
         flex-direction: column;
         justify-content: flex-start;
         align-items: flex-start;
-        min-width: 20%;
+        width: 150px;
         padding-top: 10px;
         background-color: #F2EAEE;
         border-radius: 10px 0 0 10px;
@@ -275,8 +317,8 @@ const handleLeftMenuClick = (currentAppMenu, e) => {
             border-bottom: 1px solid #C5BEBE;
 
             &.void {
-                height: 15px;
-                width: 500px;
+                height: 25px;
+                width: 100%;
             }
         }
 

@@ -78,13 +78,8 @@
                     :key="openedApplications[app].name"
                     :opened="openedApplications[app].state === APPLICATION_STATE.OPENED"
                     :app-name="openedApplications[app].name"
-                    :has-header="AppHeaderComponent !== null">
-      <template v-slot:header>
-        <AppHeaderComponent />
-      </template>
-      
-      <AppComponent />
-    </MacApplication>
+                    :has-header="AppHeaderComponent !== null"
+                    :app-code="app" />
   </div>
 </template>
 
@@ -124,8 +119,6 @@ const props = defineProps({
 
 const topBarFontSize = computed(() => '10px');
 const backgroundImage = computed(() => `url(${props.backgroundImage})`);
-const AppComponent = ref(openedApplications[currentApp.value]?.component);
-const AppHeaderComponent = ref(openedApplications[currentApp.value]?.componentHeader);
 const formattedDate = ref(
   new Date().toLocaleDateString("fr-FR", {
     weekday: "short",
@@ -190,11 +183,6 @@ const selectSubMenuItem = (item, e) => {
   e.target.parentElement.parentElement.style.color = 'black';
   return item?.click(e) ?? false;
 };
-
-watch(currentApp, () => {
-  AppComponent.value = openedApplications.value[currentApp.value]?.component;
-  AppHeaderComponent.value = openedApplications.value[currentApp.value]?.componentHeader;
-});
 </script>
 
 <style lang="scss" scoped>
