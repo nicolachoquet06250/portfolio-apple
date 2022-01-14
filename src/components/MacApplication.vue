@@ -23,11 +23,13 @@
             </div>
 
             <div class="menu-container">
-                <h3> Favorites </h3>
+                <div v-for="menuItemKey of Object.keys(openedApplications[appCode]?.menus ?? {})" :key="menuItemKey">
+                    <h3 v-if="openedApplications[appCode]?.menus[menuItemKey].type && openedApplications[appCode]?.menus[menuItemKey].type === 'title'">
+                        {{ openedApplications[appCode]?.menus[menuItemKey].text }}
+                    </h3>
 
-                <div v-for="menuItemKey of Object.keys(currentAppMenus)" :key="menuItemKey">
-                    <button @click="handleLeftMenuClick(currentAppMenus[menuItemKey], $event)" :class="{
-                        active: currentAppMenus[menuItemKey]?.active ?? false
+                    <button v-else @click="handleLeftMenuClick(openedApplications[appCode]?.menus[menuItemKey], $event)" :class="{
+                        active: openedApplications[appCode]?.menus[menuItemKey]?.active ?? false
                     }">
                         {{ menuItemKey }}
                     </button>
@@ -62,7 +64,7 @@ import { APPLICATION_STATE, useCurrentApp, useOpenedApplications } from '@/hooks
 import { CURSOR, useCursor } from '@/hooks/cursor';
 import { useMouse, useElementSize } from '@vueuse/core';
 
-const { setCurrentApp, currentApp, resetCurrentAppMenus, resetCurrentAppHeaderBar, currentAppMenus, currentAppHeaderBar } = useCurrentApp();
+const { setCurrentApp, currentApp, currentAppMenus, currentAppHeaderBar } = useCurrentApp();
 const { setCursor } = useCursor();
 const { lastApplicationOpened, closeApplication, applicationToDock, minifyApplication, maximizeApplication, openedApplications } = useOpenedApplications();
 const { x, y } = useMouse();
@@ -93,11 +95,6 @@ watch(() => props.opened, () => {
 });
 
 watch(isOutside, () => console.log(props.appCode, isOutside.value));
-
-/*watch(currentApp, () => {
-    resetCurrentAppMenus();
-    resetCurrentAppHeaderBar();
-});*/
 
 const dockHeight = computed(() => document.querySelector('.dock__wrapper')?.offsetHeight + 'px');
 const desktopTopBarHeight = computed(() => document.querySelector('#desktop > .top-bar')?.offsetHeight + 'px');

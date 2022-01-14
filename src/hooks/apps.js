@@ -82,30 +82,10 @@ export const useCurrentApp = () => ({
      * @param {Record<String, any>} _currentAppMenus 
      */
     setCurrentAppMenus(_currentAppMenus) {
-        for(const key of Object.keys(_currentAppMenus)) {
-            currentAppMenus[key] = _currentAppMenus[key];
-        }
-    },
-
-    /**
-     * @param {Record<String, any>} _currentAppHeaderBar 
-     */
-    setCurrentAppHeaderBar(_currentAppHeaderBar) {
-        for(const key of Object.keys(_currentAppHeaderBar)) {
-            currentAppHeaderBar[key] = _currentAppHeaderBar[key];
-        }
-    },
-
-    resetCurrentAppMenus() {
-        for(const key of Object.keys(currentAppMenus)) {
-            delete currentAppMenus[key];
-        }
-    },
-
-    resetCurrentAppHeaderBar() {
-        for(const key of Object.keys(currentAppHeaderBar)) {
-            delete currentAppHeaderBar[key];
-        }
+        openedApplications[currentApp.value] = {
+            ...openedApplications[currentApp.value],
+            menus: _currentAppMenus
+        };
     }
 });
 
@@ -130,6 +110,7 @@ export const useOpenedApplications = () => ({
                 name: application.substr(0, 1).toUpperCase() + application.substr(1, application.length - 1),
                 component: APPLICATION_COMPONENT[application.toLowerCase()]?.body,
                 componentHeader: APPLICATION_COMPONENT[application.toLowerCase()]?.header ?? null,
+                menus: {},
                 position: {
                     x: 0,
                     y: 0

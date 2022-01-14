@@ -3,7 +3,23 @@
 </template>
 
 <script setup>
+import { useCurrentApp } from '@/hooks/apps';
 
+const { setCurrentAppMenus, currentAppHeaderBar } = useCurrentApp();
+
+setCurrentAppMenus({
+    TitleSection1: {
+        type: 'title',
+        text: 'Favorites'
+    },
+    Inbox: {
+        active: true
+    },
+    Send: {},
+    Drafts: {},
+    VIPs: {},
+    Flagged: {}
+});
 </script>
 
 <style lang="scss" scoped>
