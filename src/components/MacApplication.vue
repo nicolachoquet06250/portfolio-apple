@@ -94,10 +94,10 @@ watch(() => props.opened, () => {
 
 watch(isOutside, () => console.log(props.appCode, isOutside.value));
 
-watch(currentApp, () => {
+/*watch(currentApp, () => {
     resetCurrentAppMenus();
     resetCurrentAppHeaderBar();
-});
+});*/
 
 const dockHeight = computed(() => document.querySelector('.dock__wrapper')?.offsetHeight + 'px');
 const desktopTopBarHeight = computed(() => document.querySelector('#desktop > .top-bar')?.offsetHeight + 'px');
