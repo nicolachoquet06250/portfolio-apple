@@ -18,8 +18,9 @@
     <MacOsDock position="right" />
 
     <MacOsCursor />
-  </MacDesktop>
 
+    <MacOsSystemLoader v-if="systemLoading" @loaded="handleSystemLoaded" />
+  </MacDesktop>
 </template>
 
 <script setup>
@@ -29,6 +30,7 @@ import MacDesktop from "@/components/MacDesktop.vue";
 import IOSDesktop from '@/components/IOSDesktop.vue';
 import MacOsCursor from '@/components/MacOsCursor.vue';
 import MacOsAlert from '@/components/MacOsAlert.vue';
+import MacOsSystemLoader from '@/components/MacOsSystemLoader.vue';
 
 import { ref, reactive, watch } from "vue";
 import { useNetwork, useBattery, useWindowSize } from "@vueuse/core";
@@ -38,6 +40,7 @@ const { isOnline } = useNetwork();
 const { charging, chargingTime, dischargingTime, level } = useBattery();
 const { width: screenWidth } = useWindowSize();
 const { currentApp, setCurrentApp } = useCurrentApp();
+const systemLoading = ref(true);
 
 setCurrentApp(APPLICATION.FINDER);
 
@@ -47,7 +50,10 @@ const showAlert = () => {
 };
 const hideAlert = () => {
   displayAlert.value = false;
-}
+};
+const handleSystemLoaded = () => {
+  systemLoading.value = false;
+};
 
 const desktopTopBar = reactive({
   network: {
