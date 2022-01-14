@@ -1,6 +1,13 @@
 <template>
+  <IOSDesktop
+    v-if="isMobile || isTablet || screenWidth <= 507"
+    :apps="[]"
+    :current-app-name="currentApp"
+    background-image="/img/wallpapers/macos-wallpaper.jpg"
+    :top-bar="desktopTopBar"></IOSDesktop>
+
   <MacDesktop
-    v-if="screenWidth > 507"
+    v-else
     :apps="[]"
     :current-app-name="currentApp"
     background-image="/img/wallpapers/macos-wallpaper.jpg"
@@ -13,15 +20,10 @@
     <MacOsCursor />
   </MacDesktop>
 
-  <IOSDesktop
-    v-else
-    :apps="[]"
-    :current-app-name="currentApp"
-    background-image="/img/wallpapers/macos-wallpaper.jpg"
-    :top-bar="desktopTopBar"></IOSDesktop>
 </template>
 
 <script setup>
+import { deviceType, isMobile, isTablet } from 'mobile-device-detect';
 import MacOsDock from "@/components/MacOsDock.vue";
 import MacDesktop from "@/components/MacDesktop.vue";
 import IOSDesktop from '@/components/IOSDesktop.vue';
