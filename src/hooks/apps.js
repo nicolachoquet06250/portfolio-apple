@@ -8,6 +8,14 @@ import SettingsApp from '@/applications/Settings.vue';
 import TerminalApp from '@/applications/Terminal.vue';
 import TrashApp from '@/applications/Trash.vue';
 
+import FinderHeader from '@/applications/header/Finder.vue';
+/*import StoreHeader from '@/applications/header/Store.vue';
+import MailsHeader from '@/applications/header/Mail.vue';
+import MessagesHeader from '@/applications/header/Messages.vue';
+import SettingsHeader from '@/applications/header/Settings.vue';
+import TerminalHeader from '@/applications/header/Terminal.vue';
+import TrashHeader from '@/applications/header/Trash.vue';*/
+
 export const APPLICATION = {
     FINDER: 'finder',
     STORE: 'appstore',
@@ -25,13 +33,34 @@ export const APPLICATION_STATE = {
 };
 
 export const APPLICATION_COMPONENT = {
-    [APPLICATION.FINDER]: FinderApp,
-    [APPLICATION.STORE]: StoreApp,
-    [APPLICATION.MAILS]: MailsApp,
-    [APPLICATION.MESSAGES]: MessagesApp,
-    [APPLICATION.SETTINGS]: SettingsApp,
-    [APPLICATION.TERMINAL]: TerminalApp,
-    [APPLICATION.TRASH]: TrashApp
+    [APPLICATION.FINDER]: {
+        body: FinderApp,
+        header: FinderHeader
+    },
+    [APPLICATION.STORE]: {
+        body: StoreApp,
+        //header: StoreHeader
+    },
+    [APPLICATION.MAILS]: {
+        body: MailsApp,
+        //header: MailsHeader
+    },
+    [APPLICATION.MESSAGES]: {
+        body: MessagesApp,
+        //header: MessagesHeader
+    },
+    [APPLICATION.SETTINGS]: {
+        body: SettingsApp,
+        //header: SettingsHeader
+    },
+    [APPLICATION.TERMINAL]: {
+        body: TerminalApp,
+        //header: TerminalHeader
+    },
+    [APPLICATION.TRASH]: {
+        body: TrashApp,
+        //header: TrashHeader
+    }
 };
 
 const currentApp = ref(null);
@@ -99,7 +128,8 @@ export const useOpenedApplications = () => ({
                 state: APPLICATION_STATE.OPENED,
                 full_screen: false,
                 name: application.substr(0, 1).toUpperCase() + application.substr(1, application.length - 1),
-                component: APPLICATION_COMPONENT[application.toLowerCase()],
+                component: APPLICATION_COMPONENT[application.toLowerCase()]?.body,
+                componentHeader: APPLICATION_COMPONENT[application.toLowerCase()]?.header ?? null,
                 position: {
                     x: 0,
                     y: 0
