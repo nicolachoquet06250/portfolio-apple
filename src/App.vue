@@ -32,12 +32,14 @@ import MacOsAlert from '@/components/MacOsAlert.vue';
 
 import { ref, reactive, watch } from "vue";
 import { useNetwork, useBattery, useWindowSize } from "@vueuse/core";
-import { useCurrentApp } from "@/hooks/apps";
+import { APPLICATION, useCurrentApp } from "@/hooks/apps";
 
 const { isOnline } = useNetwork();
 const { charging, chargingTime, dischargingTime, level } = useBattery();
 const { width: screenWidth } = useWindowSize();
-const { currentApp } = useCurrentApp();
+const { currentApp, setCurrentApp } = useCurrentApp();
+
+setCurrentApp(APPLICATION.FINDER);
 
 const displayAlert = ref(false);
 const showAlert = () => {

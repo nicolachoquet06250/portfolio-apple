@@ -8,7 +8,7 @@
               </li>
 
               <li>
-                  {{ currentAppName }}
+                  {{ currentAppName.substr(0, 1).toUpperCase() }}{{ currentAppName.substr(1, currentAppName.length - 1) }}
               </li>
 
               <li>

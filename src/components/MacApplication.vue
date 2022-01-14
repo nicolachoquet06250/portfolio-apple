@@ -151,7 +151,7 @@ watch([x, y], () => {
 const closeApp = () => {
     opened.value = false;
     closeApplication(props.appName);
-    setCurrentApp(lastApplicationOpened.value);
+    setTimeout(() => setCurrentApp(lastApplicationOpened.value), 1000);
 };
 const minApp = () => {
     minifyApplication(props.appName);

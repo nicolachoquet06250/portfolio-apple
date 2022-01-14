@@ -92,7 +92,7 @@ export const useCurrentApp = () => ({
 export const useOpenedApplications = () => ({
     openedApplications: computed(() => openedApplications),
     applicationsHistory: computed(() => applicationsHistory.value),
-    lastApplicationOpened: computed(() => applicationsHistory.value[applicationsHistory.value.length - 1]),
+    lastApplicationOpened: computed(() => applicationsHistory.value.length === 1 ? 'finder' : applicationsHistory.value[applicationsHistory.value.length - 1]),
 
     /**
      * @param {'finder'|'appstore'|'mail'|'messages'|'preferences'|'terminal'|'trash'} application 
@@ -121,8 +121,6 @@ export const useOpenedApplications = () => ({
                 }
             }
         }
-
-        console.log(openedApplications[application.toLowerCase()].component)
 
         applicationsHistory.value = [...applicationsHistory.value, application.toLowerCase()];
     },
