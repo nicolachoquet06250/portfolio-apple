@@ -58,23 +58,19 @@
 
         <div class="resize-left" 
              ref="resizeLeft" 
-             @mousedown="resizePressed = 'left'" 
-             @mouseup="resizePressed = false"></div>
+             @mousedown="resizePressed = 'left'"></div>
 
         <div class="resize-right" 
              ref="resizeRight" 
-             @mousedown="resizePressed = 'right'" 
-             @mouseup="resizePressed = false"></div>
+             @mousedown="resizePressed = 'right'"></div>
 
         <div class="resize-top" 
              ref="resizeTop" 
-             @mousedown="resizePressed = 'top'" 
-             @mouseup="resizePressed = false"></div>
+             @mousedown="resizePressed = 'top'"></div>
 
         <div class="resize-bottom" 
              ref="resizeBottom" 
-             @mousedown="resizePressed = 'bottom'" 
-             @mouseup="resizePressed = false"></div>
+             @mousedown="resizePressed = 'bottom'"></div>
     </div>
 </template>
 
@@ -138,8 +134,6 @@ const selectedTab = computed(() => currentAppHeaderBar.value?.left?.[2]?.text ??
 watch(() => props.opened, () => {
     opened.value = props.opened;
 });
-
-//watch(isOutside, () => console.log(props.appCode, isOutside.value));
 
 const dockHeight = computed(() => document.querySelector('.dock__wrapper')?.offsetHeight + 'px');
 const desktopTopBarHeight = computed(() => document.querySelector('#desktop > .top-bar')?.offsetHeight + 'px');
@@ -258,6 +252,15 @@ const handleApplicationClick = (e) => {
         e.preventDefault();
     }
 };
+
+watch(application, () => {
+    if (application.value) {
+        application.value.addEventListener('mouseup', () => {
+            resizePressed.value = false;
+        })
+    }
+})
+
 </script>
 
 <style lang="scss" scoped>
