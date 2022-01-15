@@ -80,7 +80,7 @@ import { APPLICATION_STATE, useCurrentApp, useOpenedApplications } from '@/hooks
 import { CURSOR, useCursor } from '@/hooks/cursor';
 import { useMouse, useElementSize } from '@vueuse/core';import { useWindowSize } from '@vueuse/core'
 
-const { setCurrentApp, currentApp, currentAppMenus, currentAppHeaderBar } = useCurrentApp();
+const { setCurrentApp, currentApp, currentAppMenus, currentAppHeaderBar, setCurrentAppSize, setCurrentAppPosition } = useCurrentApp();
 const { setCursor } = useCursor();
 const { lastApplicationOpened, closeApplication, applicationToDock, minifyApplication, maximizeApplication, openedApplications } = useOpenedApplications();
 const { x, y } = useMouse();
@@ -95,6 +95,9 @@ const props = defineProps({
 
 const AppComponent = ref(openedApplications.value[props.appCode].component);
 const AppHeaderComponent = ref(openedApplications.value[props.appCode].componentHeader);
+
+const applicationWidth = computed(() => openedApplications.value[props.appCode].size.width + 'px');
+const applicationHeight = computed(() => openedApplications.value[props.appCode].size.height + 'px');
 
 const hasHeader = computed(() => AppHeaderComponent.value !== null);
 
@@ -125,11 +128,14 @@ watch(resizePressed, () => {
         applicationSize.width = application.value?.offsetWidth;
         applicationSize.height = application.value?.offsetHeight;
     }
+
+    if (resizePressed.value === false) {
+        setCurrentAppSize(applicationSize.width, applicationSize.height);
+    }
 });
 
 const isOutside = ref(true);
 const headerPressed = ref(false);
-const selectedTab = computed(() => currentAppHeaderBar.value?.left?.[2]?.text ?? '');
 
 watch(() => props.opened, () => {
     opened.value = props.opened;
@@ -139,10 +145,11 @@ const dockHeight = computed(() => document.querySelector('.dock__wrapper')?.offs
 const desktopTopBarHeight = computed(() => document.querySelector('#desktop > .top-bar')?.offsetHeight + 'px');
 const zIndex = computed(() => currentApp.value === props.appCode ? 1 : 0);
 
-const applicationCurrentPositionX = ref(application.value?.getBoundingClientRect().left ?? 0);
-const applicationCurrentPositionY = ref(application.value?.getBoundingClientRect().top ?? 0);
+const applicationCurrentPositionX = ref(openedApplications.value[props.appCode].position.x);
+const applicationCurrentPositionY = ref(openedApplications.value[props.appCode].position.y);
+
 const applicationCurrentPositionXUnit = computed(() => applicationCurrentPositionX.value + 'px');
-const applicationCurrentPositionYUnit = computed(() => applicationCurrentPositionY.value + 'px');
+const applicationCurrentPositionYUnit = computed(() => (applicationCurrentPositionY.value - 13) + 'px');
 
 const applicationMovePositionX = computed(() => ((applicationCurrentPositionX.value + (x.value - onClickPosition.x))) + 'px');
 const applicationMovePositionY = computed(() => ((applicationCurrentPositionY.value + (y.value - onClickPosition.y))) + 'px');
@@ -163,6 +170,8 @@ watch(headerPressed, () => {
     if (!headerPressed.value && !isOutside.value) {
         applicationCurrentPositionX.value += (x.value - onClickPosition.x);
         applicationCurrentPositionY.value += (y.value - onClickPosition.y);
+        
+        setCurrentAppPosition(applicationCurrentPositionX.value, applicationCurrentPositionY.value - 25)
     }
 });
 
@@ -179,6 +188,7 @@ watch([x, y], () => {
         applicationCurrentPositionX.value = 0;
         applicationCurrentPositionY.value = 0;
         application.value?.classList.remove('movable');
+        setCurrentAppPosition(applicationCurrentPositionX.value, applicationCurrentPositionY.value)
     }
 
     if (resizePressed.value && resizePressed.value === 'right') {
@@ -261,6 +271,14 @@ watch(application, () => {
     }
 })
 
+watch(() => openedApplications.value[props.appCode].state, () => {
+    applicationCurrentPositionX.value = openedApplications.value[props.appCode].position.x;
+    applicationCurrentPositionY.value = openedApplications.value[props.appCode].position.y;
+})
+
+/*watch(() => openedApplications.value[props.appCode].position.y, () => {
+    applicationCurrentPositionY.value -= 25;
+})*/
 </script>
 
 <style lang="scss" scoped>
@@ -286,7 +304,12 @@ watch(application, () => {
     }
 }
 
-.mac-application {
+.mac-application { 
+    -moz-user-select: none; /* Firefox */
+    -webkit-user-select: none; /* Chrome, Safari, Opéra depuis la version 15 */
+    -ms-user-select: none; /* Internet explorer depuis la version 10 et Edge */
+    user-select: none; /* Propriété standard */
+
     max-height: calc(100vh - v-bind(dockHeight) - v-bind(desktopTopBarHeight) - 5px);
     max-width: 100%;
     min-width: 777px;
@@ -298,6 +321,8 @@ watch(application, () => {
     display: flex;
     flex-direction: row;
     box-shadow: 2px 20px 36px -5px rgba(0,0,0,0.59);
+    width: v-bind(applicationWidth);
+    height: v-bind(applicationHeight);
 
     &:not(.active) {
         &::after {

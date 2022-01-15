@@ -65,14 +65,12 @@ export const APPLICATION_COMPONENT = {
 
 const currentApp = ref(null);
 const currentAppMenus = reactive({});
-const currentAppHeaderBar = reactive({});
 const openedApplications = reactive({});
 const applicationsHistory = ref([]);
 
 export const useCurrentApp = () => ({
     currentApp: computed(() => currentApp.value),
     currentAppMenus: computed(() => currentAppMenus),
-    currentAppHeaderBar: computed(() => currentAppHeaderBar),
 
     setCurrentApp(_currentApp) {
         currentApp.value = _currentApp;
@@ -82,10 +80,23 @@ export const useCurrentApp = () => ({
      * @param {Record<String, any>} _currentAppMenus 
      */
     setCurrentAppMenus(_currentAppMenus) {
-        openedApplications[currentApp.value] = {
-            ...openedApplications[currentApp.value],
-            menus: _currentAppMenus
-        };
+        openedApplications[currentApp.value].menus = _currentAppMenus;
+    },
+
+    /**
+     * @param {Number} width 
+     * @param {Number} height 
+     */
+    setCurrentAppSize(width, height) {
+        openedApplications[currentApp.value].size = { width, height };
+    },
+
+    /**
+     * @param {Number} x 
+     * @param {Number} y 
+     */
+    setCurrentAppPosition(x, y) {
+        openedApplications[currentApp.value].position = { x, y };
     }
 });
 
@@ -99,10 +110,17 @@ export const useOpenedApplications = () => ({
      */
     openApplication(application) {
         if (openedApplications[application.toLowerCase()]) {
-            openedApplications[application.toLowerCase()] = {
-                ...openedApplications[application.toLowerCase()],
-                state: APPLICATION_STATE.OPENED
+            if (openedApplications[application.toLowerCase()].state === APPLICATION_STATE.CLOSED) {
+                openedApplications[application.toLowerCase()].position = {
+                    x: 0,
+                    y: 0
+                };
+                openedApplications[application.toLowerCase()].size = {
+                    width: 777,
+                    height: 313
+                };
             }
+            openedApplications[application.toLowerCase()].state = APPLICATION_STATE.OPENED;
         } else {
             openedApplications[application.toLowerCase()] = {
                 state: APPLICATION_STATE.OPENED,
@@ -116,8 +134,8 @@ export const useOpenedApplications = () => ({
                     y: 0
                 },
                 size: {
-                    width: 500,
-                    height: 500
+                    width: 777,
+                    height: 313
                 }
             }
         }
@@ -129,10 +147,7 @@ export const useOpenedApplications = () => ({
      * @param {'finder'|'appstore'|'mail'|'messages'|'preferences'|'terminal'|'trash'} application 
      */
     applicationToDock(application) {
-        openedApplications[application.toLowerCase()] = {
-            ...openedApplications[application.toLowerCase()],
-            state: APPLICATION_STATE.IN_DOCK
-        }
+        openedApplications[application.toLowerCase()].state = APPLICATION_STATE.IN_DOCK;
 
         if (application.toLowerCase() !== APPLICATION.FINDER) {
             applicationsHistory.value = applicationsHistory.value.reduce((r, c) => c === application.toLowerCase() ? r : [...r, c], []);
@@ -143,11 +158,8 @@ export const useOpenedApplications = () => ({
      * @param {'finder'|'appstore'|'mail'|'messages'|'preferences'|'terminal'|'trash'} application 
      */
     maximizeApplication(application) {
-        openedApplications[application.toLowerCase()] = {
-            ...openedApplications[application.toLowerCase()],
-            state: APPLICATION_STATE.OPENED,
-            full_screen: true,
-        }
+        openedApplications[application.toLowerCase()].state = APPLICATION_STATE.OPENED;
+        openedApplications[application.toLowerCase()].full_screen = true;
 
         if (applicationsHistory.value.indexOf(application.toLowerCase()) === -1) {
             applicationsHistory.value = [...applicationsHistory.value, application.toLowerCase()];
@@ -155,11 +167,8 @@ export const useOpenedApplications = () => ({
     },
 
     minifyApplication(application) {
-        openedApplications[application.toLowerCase()] = {
-            ...openedApplications[application.toLowerCase()],
-            state: APPLICATION_STATE.OPENED,
-            full_screen: false,
-        }
+        openedApplications[application.toLowerCase()].state = APPLICATION_STATE.OPENED;
+        openedApplications[application.toLowerCase()].full_screen = false;
 
         if (applicationsHistory.value.indexOf(application.toLowerCase()) === -1) {
             applicationsHistory.value = [...applicationsHistory.value, application.toLowerCase()];
@@ -170,27 +179,10 @@ export const useOpenedApplications = () => ({
      * @param {'finder'|'appstore'|'mail'|'messages'|'preferences'|'terminal'|'trash'} application 
      */
     closeApplication(application) {
-        openedApplications[application.toLowerCase()] = {
-            ...openedApplications[application.toLowerCase()],
-            state: APPLICATION_STATE.CLOSED
-        }
+        openedApplications[application.toLowerCase()].state = APPLICATION_STATE.CLOSED;
 
         if (application.toLowerCase() !== APPLICATION.FINDER) {
             applicationsHistory.value = applicationsHistory.value.reduce((r, c) => c === application.toLowerCase() ? r : [...r, c], []);
-        }
-    },
-
-    /**
-     * @param {'finder'|'appstore'|'mail'|'messages'|'preferences'|'terminal'|'trash'} application 
-     * @param {{ x: Number, y: Number }} size
-     */
-    resizeApplication(application, size) {
-        openedApplications[application.toLowerCase()] = {
-            ...openedApplications[application.toLowerCase()],
-            size: {
-                ...openedApplications[application.toLowerCase()].size,
-                ...size
-            }
         }
     },
 
