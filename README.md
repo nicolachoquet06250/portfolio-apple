@@ -78,7 +78,9 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
   - [<span style="color: green">&check;</span>] Barre de menus du bureau
   - [<span style="color: green">&check;</span>] Design d'une application
   - [<span style="color: green">&check;</span>] Système de superposition des applications
-  - [<span style="color: gray"> ? </span>] Fonctionalité de fermeture / minification / maximisation d'une application
+  - [<span style="color: green">&check;</span>] Fonctionalité de fermeture / minification / maximisation d'une application
+  - [<span style="color: green">&check;</span>] Fonctionnalité de déplacement d'une application
+  - [<span style="color: green">&check;</span>] Fonctionnalité de redimentionnement d'une application
   - [<span style="color: red">&cross;</span>] Animation d'ouverture / fermeture / minification d'une application
   - [<span style="color: red">&cross;</span>] Applications à développer :
     - [<span style="color: red">&cross;</span>] Paramètres
@@ -91,7 +93,7 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
       - [<span style="color: red">&cross;</span>] Véritable interprétation de commandes bash
     - [<span style="color: red">&cross;</span>] Corbeille
       - Système de mise à la corbeille des fichiers que l'on veux supprimer
-  - [<span style="color: red">&cross;</span>] Customiser le menu contextuel
+  - [<span style="color: gray"> ? </span>] Customiser le menu contextuel
 
 - [<span style="color: red">&cross;</span>] IOS
   - [<span style="color: red">&cross;</span>] Barre d'applications
