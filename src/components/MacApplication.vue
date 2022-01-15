@@ -2,7 +2,7 @@
     <div :class="{
             'mac-application': true,
             'full-screen': openedApplications[appName.toLowerCase()].full_screen,
-            'movable': !isOutside && pressed,
+            'movable': !isOutside && headerPressed,
             'not-header': !hasHeader,
             [appCode]: true,
             active: currentApp === appCode
@@ -40,14 +40,14 @@
         <div class="right-bloc">
             <div class="app-header-bar" ref="applicationHeader" v-if="hasHeader" 
                  @mouseover="isOutside = false" @mouseout="isOutside = true" 
-                 @mousedown="pressed = true" @mouseup="pressed = false">
+                 @mousedown="headerPressed = true" @mouseup="headerPressed = false">
                 <AppHeaderComponent />
 
                 <slot name="header"></slot>
             </div>
             <div class="app-header-bar void" v-else
                  @mouseover="isOutside = false" @mouseout="isOutside = true" 
-                 @mousedown="pressed = true" @mouseup="pressed = false"></div>
+                 @mousedown="headerPressed = true" @mouseup="headerPressed = false"></div>
 
             <div class="application-body">
                 <AppComponent />
@@ -55,6 +55,26 @@
                 <slot></slot>
             </div>
         </div>
+
+        <div class="resize-left" 
+             ref="resizeLeft" 
+             @mousedown="resizePressed = 'left'" 
+             @mouseup="resizePressed = false"></div>
+
+        <div class="resize-right" 
+             ref="resizeRight" 
+             @mousedown="resizePressed = 'right'" 
+             @mouseup="resizePressed = false"></div>
+
+        <div class="resize-top" 
+             ref="resizeTop" 
+             @mousedown="resizePressed = 'top'" 
+             @mouseup="resizePressed = false"></div>
+
+        <div class="resize-bottom" 
+             ref="resizeBottom" 
+             @mousedown="resizePressed = 'bottom'" 
+             @mouseup="resizePressed = false"></div>
     </div>
 </template>
 
@@ -62,12 +82,13 @@
 import { defineProps, computed, ref, watch, reactive } from 'vue';
 import { APPLICATION_STATE, useCurrentApp, useOpenedApplications } from '@/hooks/apps';
 import { CURSOR, useCursor } from '@/hooks/cursor';
-import { useMouse, useElementSize } from '@vueuse/core';
+import { useMouse, useElementSize } from '@vueuse/core';import { useWindowSize } from '@vueuse/core'
 
 const { setCurrentApp, currentApp, currentAppMenus, currentAppHeaderBar } = useCurrentApp();
 const { setCursor } = useCursor();
 const { lastApplicationOpened, closeApplication, applicationToDock, minifyApplication, maximizeApplication, openedApplications } = useOpenedApplications();
 const { x, y } = useMouse();
+const { width: windowWidth } = useWindowSize();
 
 const props = defineProps({
     appName: String,
@@ -85,16 +106,40 @@ const opened = ref(props.opened);
 const applicationHeader = ref(null);
 const application = ref(null);
 const { width, height } = useElementSize(application);
+const resizePressed = ref(false);
+const onClickPosition = reactive({
+    x: 0,
+    y: 0
+});
+const applicationSize = reactive({
+    width: 0,
+    height: 0
+})
+
+const resizeLeft = ref(null);
+const resizeRight = ref(null);
+const resizeTop = ref(null);
+const resizeBottom = ref(null);
+
+watch(resizePressed, () => {
+    if (resizePressed.value !== false) {
+        onClickPosition.x = x.value;
+        onClickPosition.y = y.value;
+
+        applicationSize.width = application.value?.offsetWidth;
+        applicationSize.height = application.value?.offsetHeight;
+    }
+});
 
 const isOutside = ref(true);
-const pressed = ref(false);
+const headerPressed = ref(false);
 const selectedTab = computed(() => currentAppHeaderBar.value?.left?.[2]?.text ?? '');
 
 watch(() => props.opened, () => {
     opened.value = props.opened;
 });
 
-watch(isOutside, () => console.log(props.appCode, isOutside.value));
+//watch(isOutside, () => console.log(props.appCode, isOutside.value));
 
 const dockHeight = computed(() => document.querySelector('.dock__wrapper')?.offsetHeight + 'px');
 const desktopTopBarHeight = computed(() => document.querySelector('#desktop > .top-bar')?.offsetHeight + 'px');
@@ -104,11 +149,6 @@ const applicationCurrentPositionX = ref(application.value?.getBoundingClientRect
 const applicationCurrentPositionY = ref(application.value?.getBoundingClientRect().top ?? 0);
 const applicationCurrentPositionXUnit = computed(() => applicationCurrentPositionX.value + 'px');
 const applicationCurrentPositionYUnit = computed(() => applicationCurrentPositionY.value + 'px');
-
-const onClickPosition = reactive({
-    x: 0,
-    y: 0
-});
 
 const applicationMovePositionX = computed(() => ((applicationCurrentPositionX.value + (x.value - onClickPosition.x))) + 'px');
 const applicationMovePositionY = computed(() => ((applicationCurrentPositionY.value + (y.value - onClickPosition.y))) + 'px');
@@ -120,20 +160,20 @@ watch(() => application.value?.getBoundingClientRect().top, () => {
     applicationCurrentPositionY.value = application.value?.getBoundingClientRect().top;
 });
 
-watch(pressed, () => {
-    if (pressed.value && !isOutside.value) {
+watch(headerPressed, () => {
+    if (headerPressed.value && !isOutside.value) {
         onClickPosition.x = x.value;
         onClickPosition.y = y.value;
     }
 
-    if (!pressed.value && !isOutside.value) {
+    if (!headerPressed.value && !isOutside.value) {
         applicationCurrentPositionX.value += (x.value - onClickPosition.x);
         applicationCurrentPositionY.value += (y.value - onClickPosition.y);
     }
 });
 
 watch([x, y], () => {
-    if (pressed.value && !isOutside.value) {
+    if (headerPressed.value && !isOutside.value) {
         if (applicationCurrentPositionY.value + (y.value - onClickPosition.y) < 0) {
             applicationCurrentPositionX.value = 0;
             applicationCurrentPositionY.value = 0;
@@ -141,10 +181,48 @@ watch([x, y], () => {
         }
     }
 
-    if (pressed.value && isOutside.value) {
+    if (headerPressed.value && isOutside.value) {
         applicationCurrentPositionX.value = 0;
         applicationCurrentPositionY.value = 0;
         application.value?.classList.remove('movable');
+    }
+
+    if (resizePressed.value && resizePressed.value === 'right') {
+        application.value.style.width = `${applicationSize.width + (x.value - onClickPosition.x)}px`;
+        
+        if (applicationSize.width === application.value.offsetWidth) {
+            resizePressed.value = false;
+        }
+    }
+
+    if (resizePressed.value && resizePressed.value === 'left') {
+        application.value.style.width = `${applicationSize.width + (onClickPosition.x - x.value)}px`;
+        applicationCurrentPositionX.value = onClickPosition.x - (onClickPosition.x - x.value);
+
+        if (applicationSize.width === application.value.offsetWidth) {
+            resizePressed.value = false;
+        }
+    }
+
+    if (resizePressed.value && resizePressed.value === 'bottom') {
+        application.value.style.height = `${applicationSize.height + (y.value - onClickPosition.y)}px`;
+        
+        if (applicationSize.height === application.value.offsetHeight) {
+            resizePressed.value = false;
+        }
+    }
+
+    if (resizePressed.value && resizePressed.value === 'top') {
+        application.value.style.height = `${applicationSize.height + (onClickPosition.y - y.value)}px`;
+        applicationCurrentPositionY.value = onClickPosition.y - (onClickPosition.y - y.value) - 25;
+        
+        if (applicationSize.height === application.value.offsetHeight) {
+            resizePressed.value = false;
+        }
+    }
+
+    if (resizePressed.value && application.value.offsetWidth >= windowWidth.value) {
+        resizePressed.value = false;
     }
 })
 
@@ -173,17 +251,38 @@ const handleLeftMenuClick = (currentAppMenu, e) => {
     Array.from(e.target.parentElement.parentElement.querySelectorAll('button.active')).map(c => c.classList.remove('active'));
     e.target.classList.add('active');
 };
-
 const handleApplicationClick = (e) => {
     if (!(currentApp.value === props.appCode)) {
         setCurrentApp(props.appCode)
     } else {
         e.preventDefault();
     }
-}
+};
 </script>
 
 <style lang="scss" scoped>
+* { 
+    --scrollbar-width: 0;
+
+    &::-webkit-scrollbar {
+        width: var(--scrollbar-width);
+    }
+
+    &:hover {
+        --scrollbar-width: 8px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: #666;
+        border-radius: 20px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: #ddd;
+        border-radius: 20px;
+    }
+}
+
 .mac-application {
     max-height: calc(100vh - v-bind(dockHeight) - v-bind(desktopTopBarHeight) - 5px);
     max-width: 100%;
@@ -226,7 +325,8 @@ const handleApplicationClick = (e) => {
         right: 0;
         bottom: 0;
         max-height: 100vh;
-        height: 100vh;
+        height: 100vh!important;
+        width: 100vw!important;
         z-index: 9;
         transform: translateX(0) translateY(0);
 
@@ -276,10 +376,13 @@ const handleApplicationClick = (e) => {
 
         .menu-container {
             padding-left: 10px;
+            padding-right: 10px;
             display: flex;
             flex-direction: column;
             flex: 1;
             width: calc(100% - 20px);
+            height: 100%;
+            overflow-y: auto;
 
             h3 {
                 color: #C5BEBE;
@@ -322,6 +425,42 @@ const handleApplicationClick = (e) => {
         .application-body {
             padding: 10px;
         }
+    }
+
+    .resize-left {
+        position: absolute;
+        left: -5px;
+        top: 0;
+        bottom: 0;
+        width: 10px;
+        cursor: e-resize;
+    }
+
+    .resize-right {
+        position: absolute;
+        right: -5px;
+        top: 0;
+        bottom: 0;
+        width: 10px;
+        cursor: e-resize;
+    }
+
+    .resize-top {
+        position: absolute;
+        top: -5px;
+        right: 0;
+        left: 0;
+        height: 10px;
+        cursor: n-resize;
+    }
+
+    .resize-bottom {
+        position: absolute;
+        bottom: -5px;
+        right: 0;
+        left: 0;
+        height: 10px;
+        cursor: n-resize;
     }
 }
 </style>

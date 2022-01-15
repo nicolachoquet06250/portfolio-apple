@@ -50,12 +50,11 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
 import { useCurrentApp } from '@/hooks/apps';
+import { useFinder } from '@/hooks/finder';
 
 const { currentAppHeaderBar } = useCurrentApp();
-
-const selectedTab = computed(() => currentAppHeaderBar.value?.left?.[2]?.text ?? '');
+const { selectedTab } = useFinder();
 </script>
 
 <style lang="scss">
@@ -88,6 +87,7 @@ const selectedTab = computed(() => currentAppHeaderBar.value?.left?.[2]?.text ??
         h1 {
             margin: 0;
             margin-right: 10px;
+            font-size: 25px;
         }
     }
 

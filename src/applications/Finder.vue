@@ -15,12 +15,14 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { useCurrentApp } from '@/hooks/apps';
+import { useFinder } from '@/hooks/finder';
 import MacOsAlert from '@/components/MacOsAlert.vue';
 import Button from '@/components/Button.vue';
 
-const { setCurrentAppMenus, currentAppHeaderBar } = useCurrentApp();
+const { setCurrentAppMenus } = useCurrentApp();
+const { selectTab } = useFinder();
 
-const currentTabSelected = ref('Applications');
+selectTab('Applications');
 
 setCurrentAppMenus({
     TitleSection1: {
@@ -30,32 +32,32 @@ setCurrentAppMenus({
     Applications: {
         active: true,
         click() {
-            currentTabSelected.value = 'Applications';
+            selectTab('Applications');
         }
     },
     Recent: {
         click() {
-            currentTabSelected.value = 'Recent';
+            selectTab('Recent');
         }
     },
     AirDrop: {
         click() {
-            currentTabSelected.value = 'AirDrop';
+            selectTab('AirDrop');
         }
     },
     Desktop: {
         click() {
-            currentTabSelected.value = 'Desktop';
+            selectTab('Desktop');
         }
     },
     Documents: {
         click() {
-            currentTabSelected.value = 'Documents';
+            selectTab('Documents');
         }
     },
     Downloads: {
         click() {
-            currentTabSelected.value = 'Downloads';
+            selectTab('Downloads');
         }
     }
 })
@@ -64,7 +66,6 @@ const displayAlert = ref(false);
 
 const openAlert = () => displayAlert.value = true;
 const hideAlert = () => displayAlert.value = false;
-
 </script>
 
 <style lang="scss" scoped>
