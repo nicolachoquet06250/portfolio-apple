@@ -5,7 +5,8 @@
             'movable': !isOutside && headerPressed,
             'not-header': !hasHeader,
             [appCode]: true,
-            active: currentApp === appCode
+            active: currentApp === appCode,
+            close
         }" v-if="opened" 
         ref="application"
         @contextmenu.prevent.stop="showContextMenu()"
@@ -85,6 +86,7 @@ const { setCursor } = useCursor();
 const { lastApplicationOpened, closeApplication, applicationToDock, minifyApplication, maximizeApplication, openedApplications } = useOpenedApplications();
 const { x, y } = useMouse();
 const { width: windowWidth } = useWindowSize();
+const windowWidthForCss = computed(() => `${windowWidth.value}px`);
 
 const props = defineProps({
     appName: String,
@@ -101,6 +103,7 @@ const applicationHeight = computed(() => openedApplications.value[props.appCode]
 
 const hasHeader = computed(() => AppHeaderComponent.value !== null);
 
+const close = ref(false);
 const opened = ref(props.opened);
 const applicationHeader = ref(null);
 const application = ref(null);
@@ -148,11 +151,11 @@ const zIndex = computed(() => currentApp.value === props.appCode ? 1 : 0);
 const applicationCurrentPositionX = ref(openedApplications.value[props.appCode].position.x);
 const applicationCurrentPositionY = ref(openedApplications.value[props.appCode].position.y);
 
-const applicationCurrentPositionXUnit = computed(() => applicationCurrentPositionX.value + 'px');
-const applicationCurrentPositionYUnit = computed(() => (applicationCurrentPositionY.value - 13) + 'px');
+const applicationCurrentPositionXUnit = computed(() => `${applicationCurrentPositionX.value}px`);
+const applicationCurrentPositionYUnit = computed(() => `${(applicationCurrentPositionY.value - 13)}px`);
 
-const applicationMovePositionX = computed(() => ((applicationCurrentPositionX.value + (x.value - onClickPosition.x))) + 'px');
-const applicationMovePositionY = computed(() => ((applicationCurrentPositionY.value + (y.value - onClickPosition.y))) + 'px');
+const applicationMovePositionX = computed(() => `${(applicationCurrentPositionX.value + (x.value - onClickPosition.x))}px`);
+const applicationMovePositionY = computed(() => `${(applicationCurrentPositionY.value + (y.value - onClickPosition.y))}px`);
 
 watch(() => application.value?.getBoundingClientRect().left, () => {
     applicationCurrentPositionX.value = application.value?.getBoundingClientRect().left;
@@ -231,9 +234,14 @@ watch([x, y], () => {
 })
 
 const closeApp = () => {
-    opened.value = false;
-    closeApplication(props.appName);
-    setTimeout(() => setCurrentApp(lastApplicationOpened.value), 1000);
+    close.value = true;
+
+    application.value.addEventListener('animationend', () => {
+        opened.value = false;
+        closeApplication(props.appName);
+        setTimeout(() => setCurrentApp(lastApplicationOpened.value), 1000);
+        close.value = false;
+    });
 };
 const minApp = () => {
     minifyApplication(props.appName);
@@ -267,7 +275,12 @@ watch(application, () => {
     if (application.value) {
         application.value.addEventListener('mouseup', () => {
             resizePressed.value = false;
-        })
+        });
+
+        application.value.addEventListener('animationend', () => {
+            applicationCurrentPositionX.value = openedApplications.value[props.appCode].position.x;
+            applicationCurrentPositionY.value = openedApplications.value[props.appCode].position.y + 13;
+        });
     }
 })
 
@@ -276,9 +289,11 @@ watch(() => openedApplications.value[props.appCode].state, () => {
     applicationCurrentPositionY.value = openedApplications.value[props.appCode].position.y;
 })
 
-/*watch(() => openedApplications.value[props.appCode].position.y, () => {
-    applicationCurrentPositionY.value -= 25;
-})*/
+watch(applicationCurrentPositionYUnit, (_, old) => {
+    if (applicationCurrentPositionYUnit.value !== old) {
+        console.log(applicationCurrentPositionYUnit.value, old);
+    }
+})
 </script>
 
 <style lang="scss" scoped>
@@ -304,7 +319,8 @@ watch(() => openedApplications.value[props.appCode].state, () => {
     }
 }
 
-.mac-application { 
+.mac-application {
+    /* desactivation de la mise en surbrillance du text */
     -moz-user-select: none; /* Firefox */
     -webkit-user-select: none; /* Chrome, Safari, Opéra depuis la version 15 */
     -ms-user-select: none; /* Internet explorer depuis la version 10 et Edge */
@@ -315,7 +331,9 @@ watch(() => openedApplications.value[props.appCode].state, () => {
     min-width: 777px;
     position: absolute;
     left: 0;
-    transform: translateX(v-bind(applicationCurrentPositionXUnit)) translateY(v-bind(applicationCurrentPositionYUnit));
+    top: auto;
+    right: auto;
+    bottom: auto;
     margin-top: 0;
     z-index: v-bind(zIndex);
     display: flex;
@@ -357,6 +375,7 @@ watch(() => openedApplications.value[props.appCode].state, () => {
         width: 100vw!important;
         z-index: 9;
         transform: translateX(0) translateY(0);
+        animation: maximizeApp 1s ease-in-out both;
 
         .left-bloc,
         .right-bloc {
@@ -489,6 +508,73 @@ watch(() => openedApplications.value[props.appCode].state, () => {
         left: 0;
         height: 10px;
         cursor: n-resize;
+    }
+
+    transform: translateX(v-bind(applicationCurrentPositionXUnit)) translateY(v-bind(applicationCurrentPositionYUnit));
+
+    &.close {
+        animation: closeApp .2s ease-in-out both;
+    }
+}
+
+@keyframes openApp {
+    0% {
+        transform: translateX(calc((v-bind(windowWidthForCss) / 2) - (v-bind(applicationWidth) / 2))) translateY(600px);
+        -webkit-clip-path: polygon(51% 98%, 54% 98%, 52% 100%, 53% 100%);
+        clip-path: polygon(51% 98%, 54% 98%, 52% 100%, 53% 100%);
+    }
+    25% {
+        transform: translateX(calc((v-bind(windowWidthForCss) / 2) - (v-bind(applicationWidth) / 2))) translateY(calc((600px / 4) * 3));
+        -webkit-clip-path: polygon(34% 58%, 70% 58%, 52% 100%, 52% 100%);
+        clip-path: polygon(34% 58%, 70% 58%, 52% 100%, 52% 100%);
+    }
+    50% {
+        transform: translateX(calc((v-bind(windowWidthForCss) / 2) - (v-bind(applicationWidth) / 2))) translateY(calc((600px / 4) * 2));
+        -webkit-clip-path: polygon(23% 39%, 82% 39%, 52% 100%, 52% 100%);
+        clip-path: polygon(23% 39%, 82% 39%, 52% 100%, 52% 100%);
+    }
+    75% {
+        transform: translateX(calc((v-bind(windowWidthForCss) / 2) - (v-bind(applicationWidth) / 2))) translateY(calc(600px / 4));
+        -webkit-clip-path: polygon(0 0, 100% 0, 52% 100%, 52% 100%);
+        clip-path: polygon(0 0, 100% 0, 52% 100%, 52% 100%);
+    }
+    100% {
+        transform: translateX(v-bind(applicationCurrentPositionXUnit)) translateY(v-bind(applicationCurrentPositionYUnit));
+        -webkit-clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+    }
+}
+
+@keyframes closeApp {
+    0% {
+        transform: scale(1, 1);
+    }
+    25% {
+        transform: scale(0.75, 0.75);
+    }
+    50% {
+        transform: scale(0.5, 0.5);
+    }
+    75% {
+        transform: scale(0.25, 0.25);
+    }
+    100% {
+        transform: scale(0, 0);
+    }
+}
+
+@keyframes maximizeApp {
+    0% {
+        left: 0;
+        top: auto;
+        right: auto;
+        bottom: auto;
+    }
+    100% {
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
     }
 }
 </style>
