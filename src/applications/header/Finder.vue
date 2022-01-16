@@ -1,52 +1,52 @@
 <template>
-<div class="left-side">
-    <button>
-        <i class="fas fa-chevron-left"></i>
-    </button>
-
-    <button>
-        <i class="fas fa-chevron-right"></i>
-    </button>
-
-    <h1> {{ selectedTab }} </h1>
-</div>
-
-<div class="right-side">
-    <div>
-        <button>
-            <i class="fas fa-border-all"></i>
-            <i class="fas fa-angle-down"></i>
+    <div class="left-side">
+        <button @click="backInPath()">
+            <i class="fas fa-chevron-left"></i>
         </button>
 
         <button>
-            <i class="fas fa-table"></i>
-            <i class="fas fa-angle-down"></i>
+            <i class="fas fa-chevron-right"></i>
         </button>
 
-        <button>
-            <i class="fas fa-ellipsis-h"></i>
-            <i class="fas fa-angle-down"></i>
-        </button>
+        <h1> {{ selectedTab }} </h1>
     </div>
 
-    <div>
-        <button>
-            <i class="fas fa-upload"></i>
-        </button>
-        
-        <button>
-            <i class="fas fa-tag"></i>
-        </button>
-        
-        <button>
-            <i class="fas fa-angle-double-right"></i>
-        </button>
-        
-        <button>
-            <i class="fas fa-search" style="font-size: 20px; margin-right: 5px; color: #C5C5C5;"></i>
-        </button>
+    <div class="right-side">
+        <div>
+            <button>
+                <i class="fas fa-border-all"></i>
+                <i class="fas fa-angle-down"></i>
+            </button>
+
+            <button>
+                <i class="fas fa-table"></i>
+                <i class="fas fa-angle-down"></i>
+            </button>
+
+            <button>
+                <i class="fas fa-ellipsis-h"></i>
+                <i class="fas fa-angle-down"></i>
+            </button>
+        </div>
+
+        <div>
+            <button>
+                <i class="fas fa-upload"></i>
+            </button>
+            
+            <button>
+                <i class="fas fa-tag"></i>
+            </button>
+            
+            <button>
+                <i class="fas fa-angle-double-right"></i>
+            </button>
+            
+            <button>
+                <i class="fas fa-search" style="font-size: 20px; margin-right: 5px; color: #C5C5C5;"></i>
+            </button>
+        </div>
     </div>
-</div>
 </template>
 
 <script setup>
@@ -54,7 +54,7 @@ import { useCurrentApp } from '@/hooks/apps';
 import { useFinder } from '@/hooks/finder';
 
 const { currentAppHeaderBar } = useCurrentApp();
-const { selectedTab } = useFinder();
+const { selectedTab, backInPath } = useFinder(5);
 </script>
 
 <style lang="scss">

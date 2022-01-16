@@ -41,7 +41,7 @@
         <div class="right-bloc">
             <div class="app-header-bar" ref="applicationHeader" v-if="hasHeader" 
                  @mouseover="isOutside = false" @mouseout="isOutside = true" 
-                 @mousedown="headerPressed = true" @mouseup="headerPressed = false">
+                 @mousedown="setPressMouseOnHeader($event)" @mouseup="headerPressed = false">
                 <AppHeaderComponent />
 
                 <slot name="header"></slot>
@@ -117,6 +117,7 @@ const applicationSize = reactive({
     width: 0,
     height: 0
 })
+const applicationBodyHeight = ref('0px');
 
 const resizeLeft = ref(null);
 const resizeRight = ref(null);
@@ -217,6 +218,8 @@ watch([x, y], () => {
         if (applicationSize.height === application.value.offsetHeight) {
             resizePressed.value = false;
         }
+
+        applicationBodyHeight.value = (application.value?.offsetHeight - applicationHeader.value?.offsetHeight - 20) + 'px';
     }
 
     if (resizePressed.value && resizePressed.value === 'top') {
@@ -226,6 +229,8 @@ watch([x, y], () => {
         if (applicationSize.height === application.value.offsetHeight) {
             resizePressed.value = false;
         }
+
+        applicationBodyHeight.value = (application.value?.offsetHeight - applicationHeader.value?.offsetHeight - 20) + 'px';
     }
 
     if (resizePressed.value && application.value.offsetWidth >= windowWidth.value) {
@@ -270,6 +275,11 @@ const handleApplicationClick = (e) => {
         e.preventDefault();
     }
 };
+const setPressMouseOnHeader = e => {
+    if (['a', 'button', 'i'].indexOf(e.target.tagName.toLowerCase()) === -1) {
+        headerPressed.value = true;
+    }
+}
 
 watch(application, () => {
     if (application.value) {
@@ -281,19 +291,16 @@ watch(application, () => {
             applicationCurrentPositionX.value = openedApplications.value[props.appCode].position.x;
             applicationCurrentPositionY.value = openedApplications.value[props.appCode].position.y + 13;
         });
+
+        applicationBodyHeight.value = (application.value?.offsetHeight - applicationHeader.value?.offsetHeight - 20) + 'px';
     }
-})
+});
 
 watch(() => openedApplications.value[props.appCode].state, () => {
     applicationCurrentPositionX.value = openedApplications.value[props.appCode].position.x;
     applicationCurrentPositionY.value = openedApplications.value[props.appCode].position.y;
 })
 
-watch(applicationCurrentPositionYUnit, (_, old) => {
-    if (applicationCurrentPositionYUnit.value !== old) {
-        console.log(applicationCurrentPositionYUnit.value, old);
-    }
-})
 </script>
 
 <style lang="scss" scoped>
@@ -471,6 +478,8 @@ watch(applicationCurrentPositionYUnit, (_, old) => {
 
         .application-body {
             padding: 10px;
+            overflow: auto;
+            height: v-bind(applicationBodyHeight);
         }
     }
 
