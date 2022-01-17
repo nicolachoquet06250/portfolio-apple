@@ -1,4 +1,5 @@
-import { reactive, ref, computed } from 'vue';
+import { reactive, ref, computed, watch } from 'vue';
+import { useMousePressed, useMouse, useWindowSize, useMouseInElement } from '@vueuse/core';
 
 import FinderApp from '@/applications/Finder.vue';
 import StoreApp from '@/applications/Store.vue';
@@ -9,12 +10,6 @@ import TerminalApp from '@/applications/Terminal.vue';
 import TrashApp from '@/applications/Trash.vue';
 
 import FinderHeader from '@/applications/header/Finder.vue';
-/*import StoreHeader from '@/applications/header/Store.vue';
-import MailsHeader from '@/applications/header/Mail.vue';
-import MessagesHeader from '@/applications/header/Messages.vue';
-import SettingsHeader from '@/applications/header/Settings.vue';
-import TerminalHeader from '@/applications/header/Terminal.vue';
-import TrashHeader from '@/applications/header/Trash.vue';*/
 
 export const APPLICATION = {
     FINDER: 'finder',
@@ -38,28 +33,22 @@ export const APPLICATION_COMPONENT = {
         header: FinderHeader
     },
     [APPLICATION.STORE]: {
-        body: StoreApp,
-        //header: StoreHeader
+        body: StoreApp
     },
     [APPLICATION.MAILS]: {
-        body: MailsApp,
-        //header: MailsHeader
+        body: MailsApp
     },
     [APPLICATION.MESSAGES]: {
-        body: MessagesApp,
-        //header: MessagesHeader
+        body: MessagesApp
     },
     [APPLICATION.SETTINGS]: {
-        body: SettingsApp,
-        //header: SettingsHeader
+        body: SettingsApp
     },
     [APPLICATION.TERMINAL]: {
-        body: TerminalApp,
-        //header: TerminalHeader
+        body: TerminalApp
     },
     [APPLICATION.TRASH]: {
-        body: TrashApp,
-        //header: TrashHeader
+        body: TrashApp
     }
 };
 
@@ -67,6 +56,231 @@ const currentApp = ref(null);
 const currentAppMenus = reactive({});
 const openedApplications = reactive({});
 const applicationsHistory = ref([]);
+
+
+/**
+ * @param {Number} width 
+ * @param {Number} height 
+ */
+const setCurrentAppSize = (width, height) => {
+    openedApplications[currentApp.value].size = { width, height };
+};
+
+/**
+ * @param {Number} x 
+ * @param {Number} y 
+ */
+const setCurrentAppPosition = (x, y) => {
+    openedApplications[currentApp.value].position = { x, y };
+};
+
+/**
+ * @param {import('vue').Ref<HTMLElement>} application 
+ * @param {String} code
+ * @param {Number} width
+ * @param {Number} height
+ * @param {Number} x
+ * @param {Number} y
+ * @returns 
+ */
+export const useAppActions = (application, code, { width: defaultWidth, height: defaultHeight }, { x: defaultX, y: defaultY }) => {
+    /**
+     * Reactives variables
+     */
+    
+    const currentPosition = reactive({ x: defaultX, y: defaultY });
+    const currentSize = reactive({ width: defaultWidth, height: defaultHeight });
+    const mousePressed = reactive({
+        move: false,
+        resize: false,
+        resizeSens: ''
+    });
+    const onClickMousePosition = reactive({ x: 0, y: 0 });
+
+    /**
+     * References variables
+     */
+    
+    const applicationHeader = ref(null);
+
+    const applicationResizerLeft = ref(null);
+    const applicationResizerRight = ref(null);
+    const applicationResizerTop = ref(null);
+    const applicationResizerBottom = ref(null);
+
+    /**
+     * Use hooks
+     */
+    
+    const { pressed: headerPressed } = useMousePressed({
+        target: applicationHeader,
+        touch: false
+    });
+
+    const { pressed: resizeLeftPressed } = useMousePressed({
+        target: applicationResizerLeft, 
+        touch: false
+    });
+    const { pressed: resizeRightPressed } = useMousePressed({
+        target: applicationResizerRight,
+        touch: false
+    });
+    const { pressed: resizeTopPressed } = useMousePressed({
+        target: applicationResizerTop,
+        touch: false
+    });
+    const { pressed: resizeBottomPressed } = useMousePressed({
+        target: applicationResizerBottom,
+        touch: false
+    });
+    const { x: mouseX, y: mouseY } = useMouse();
+    const { isOutside } = useMouseInElement(application);
+    const { width: windowWidth, height: windowHeight } = useWindowSize();
+
+    /**
+     * Computed constantes
+     */
+    const isInside = computed(() => !isOutside.value);
+
+    /**
+     * Reference watchers
+     */
+
+    watch(application, () => {
+        if (application.value) {
+            applicationHeader.value = application.value.querySelector('.app-header-bar');
+
+            applicationResizerLeft.value = application.value.querySelector('.resize-left');
+            applicationResizerRight.value = application.value.querySelector('.resize-right');
+            applicationResizerTop.value = application.value.querySelector('.resize-top');
+            applicationResizerBottom.value = application.value.querySelector('.resize-bottom');
+        }
+    });
+
+    watch(headerPressed, () => {
+        mousePressed.move = headerPressed.value;
+
+        if (mousePressed.move) {
+            onClickMousePosition.x = mouseX.value;
+            onClickMousePosition.y = mouseY.value;
+        }
+    });
+
+    watch([resizeLeftPressed, resizeRightPressed, resizeTopPressed, resizeBottomPressed], () => {
+        mousePressed.resize = resizeLeftPressed.value || resizeRightPressed.value || resizeTopPressed.value || resizeBottomPressed.value;
+        
+        if (resizeLeftPressed.value) {
+            mousePressed.resizeSens = 'left';
+        } else if(resizeRightPressed.value) {
+            mousePressed.resizeSens = 'right';
+        } else if(resizeTopPressed.value) {
+            mousePressed.resizeSens = 'top';
+        } else if(resizeBottomPressed.value) {
+            mousePressed.resizeSens = 'bottom';
+        } else {
+            mousePressed.resizeSens = '';
+        }
+
+        if (mousePressed.resize) {
+            onClickMousePosition.x = mouseX.value;
+            onClickMousePosition.y = mouseY.value;
+        }
+    });
+
+    watch([mouseX, mouseY], (_, [oldMouseX, oldMouseY]) => {
+        if (mousePressed.move) {
+            if (isInside.value) {
+                currentPosition.x = currentPosition.x + (mouseX.value - oldMouseX);
+                if (mouseY.value - (applicationHeader.value.offsetHeight / 2) > 0) {
+                    currentPosition.y = mouseY.value - (applicationHeader.value.offsetHeight / 2);
+                } else {
+                    currentPosition.y = 0;
+                }
+            } else {
+                currentPosition.x = currentPosition.x + (mouseX.value - oldMouseX);
+                if (mouseY.value - (applicationHeader.value.offsetHeight / 2) > 0) {
+                    currentPosition.y = mouseY.value - (applicationHeader.value.offsetHeight / 2);
+                } else {
+                    currentPosition.y = 0;
+                }
+            }
+        }
+
+        if (mousePressed.resize) {
+            if (mousePressed.resizeSens === 'right') {
+                //application.value.style.width = `${currentSize.width + (mouseX.value - onClickMousePosition.x)}px`;
+                currentSize.width += (mouseX.value - oldMouseX);
+
+                if (currentSize.width === application.value.offsetWidth) {
+                    mousePressed.resize = false;
+                    mousePressed.resizeSens = '';
+                }
+            }
+        
+            if (mousePressed.resizeSens === 'left') {
+                currentSize.width += (oldMouseX - mouseX.value);
+                currentPosition.x = onClickMousePosition.x - (onClickMousePosition.x - mouseX.value);
+        
+                if (currentSize.width === application.value.offsetWidth) {
+                    mousePressed.resize = false;
+                    mousePressed.resizeSens = '';
+                }
+            }
+        
+            if (mousePressed.resizeSens === 'bottom') {
+                currentSize.height += (mouseY.value - oldMouseY);
+                
+                if (currentSize.height === application.value.offsetHeight) {
+                    mousePressed.resize = false;
+                    mousePressed.resizeSens = '';
+                }
+            }
+        
+            if (mousePressed.resizeSens === 'top') {
+                currentSize.height += (oldMouseY - mouseY.value);
+                currentPosition.y = onClickMousePosition.y - (onClickMousePosition.y - mouseY.value) - 25;
+                
+                if (currentSize.height === application.value.offsetHeight) {
+                    mousePressed.resize = false;
+                    mousePressed.resizeSens = '';
+                }
+            }
+
+            if (mousePressed.resize && application.value.offsetWidth >= windowWidth.value) {
+                mousePressed.resize = false;
+                mousePressed.resizeSens = '';
+            }
+        }
+    });
+
+    watch(() => currentSize.width, (_, oldSizeWidth) => {
+        if(currentSize.width === oldSizeWidth) {
+            mousePressed.resize = false;
+            mousePressed.resizeSens = '';
+        }
+    });
+
+    return {
+        size: currentSize,
+        position: computed(() => currentPosition),
+        bodyHeight: computed(() => (application.value?.offsetHeight - applicationHeader.value?.offsetHeight - 20) + 'px'),
+
+        move({ x, y }) {
+            currentPosition.x = x;
+            currentPosition.y = y;
+        },
+        resize({ width, height }) {
+            currentSize.width = width;
+            currentSize.height = height;
+        },
+        close() {
+            
+        },
+        open() {},
+        minimize() {},
+        maximize() {}
+    };
+};
 
 export const useCurrentApp = () => ({
     currentApp: computed(() => currentApp.value),
@@ -83,21 +297,8 @@ export const useCurrentApp = () => ({
         openedApplications[currentApp.value].menus = _currentAppMenus;
     },
 
-    /**
-     * @param {Number} width 
-     * @param {Number} height 
-     */
-    setCurrentAppSize(width, height) {
-        openedApplications[currentApp.value].size = { width, height };
-    },
-
-    /**
-     * @param {Number} x 
-     * @param {Number} y 
-     */
-    setCurrentAppPosition(x, y) {
-        openedApplications[currentApp.value].position = { x, y };
-    }
+    setCurrentAppSize,
+    setCurrentAppPosition
 });
 
 export const useOpenedApplications = () => ({
@@ -113,7 +314,7 @@ export const useOpenedApplications = () => ({
             if (openedApplications[application.toLowerCase()].state === APPLICATION_STATE.CLOSED) {
                 openedApplications[application.toLowerCase()].position = {
                     x: 0,
-                    y: 0
+                    y: 13
                 };
                 openedApplications[application.toLowerCase()].size = {
                     width: 777,

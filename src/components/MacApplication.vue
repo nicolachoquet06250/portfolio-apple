@@ -10,11 +10,7 @@
         }" v-if="opened" 
         ref="application"
         @contextmenu.prevent.stop="showContextMenu()"
-        @click="handleApplicationClick($event)"
-        :style="{
-            '--mousePositionX': `${x}px`,
-            '--mousePositionY': `${y}px`,
-        }">
+        @click="handleApplicationClick($event)">
 
         <div class="left-bloc">
             <div class="btn-container">
@@ -39,16 +35,12 @@
         </div>
 
         <div class="right-bloc">
-            <div class="app-header-bar" ref="applicationHeader" v-if="hasHeader" 
-                 @mouseover="isOutside = false" @mouseout="isOutside = true" 
-                 @mousedown="setPressMouseOnHeader($event)" @mouseup="headerPressed = false">
+            <div class="app-header-bar" ref="applicationHeader" v-if="hasHeader">
                 <AppHeaderComponent />
 
                 <slot name="header"></slot>
             </div>
-            <div class="app-header-bar void" v-else
-                 @mouseover="isOutside = false" @mouseout="isOutside = true" 
-                 @mousedown="headerPressed = true" @mouseup="headerPressed = false"></div>
+            <div class="app-header-bar void" v-else></div>
 
             <div class="application-body">
                 <AppComponent />
@@ -77,12 +69,11 @@
 
 <script setup>
 import { defineProps, computed, ref, watch, reactive } from 'vue';
-import { APPLICATION_STATE, useCurrentApp, useOpenedApplications } from '@/hooks/apps';
-import { CURSOR, useCursor } from '@/hooks/cursor';
-import { useMouse, useElementSize } from '@vueuse/core';import { useWindowSize } from '@vueuse/core'
+import { APPLICATION_STATE, useCurrentApp, useOpenedApplications, useAppActions } from '@/hooks/apps';
+import { CURSOR } from '@/hooks/cursor';
+import { useMouse, useWindowSize } from '@vueuse/core';
 
-const { setCurrentApp, currentApp, currentAppMenus, currentAppHeaderBar, setCurrentAppSize, setCurrentAppPosition } = useCurrentApp();
-const { setCursor } = useCursor();
+const { setCurrentApp, currentApp, setCurrentAppSize, setCurrentAppPosition } = useCurrentApp();
 const { lastApplicationOpened, closeApplication, applicationToDock, minifyApplication, maximizeApplication, openedApplications } = useOpenedApplications();
 const { x, y } = useMouse();
 const { width: windowWidth } = useWindowSize();
@@ -98,8 +89,8 @@ const props = defineProps({
 const AppComponent = ref(openedApplications.value[props.appCode].component);
 const AppHeaderComponent = ref(openedApplications.value[props.appCode].componentHeader);
 
-const applicationWidth = computed(() => openedApplications.value[props.appCode].size.width + 'px');
-const applicationHeight = computed(() => openedApplications.value[props.appCode].size.height + 'px');
+//const applicationWidth = computed(() => openedApplications.value[props.appCode].size.width + 'px');
+//const applicationHeight = computed(() => openedApplications.value[props.appCode].size.height + 'px');
 
 const hasHeader = computed(() => AppHeaderComponent.value !== null);
 
@@ -107,8 +98,7 @@ const close = ref(false);
 const opened = ref(props.opened);
 const applicationHeader = ref(null);
 const application = ref(null);
-const { width, height } = useElementSize(application);
-const resizePressed = ref(false);
+/*const resizePressed = ref(false);
 const onClickPosition = reactive({
     x: 0,
     y: 0
@@ -117,8 +107,24 @@ const applicationSize = reactive({
     width: 0,
     height: 0
 })
-const applicationBodyHeight = ref('0px');
+const applicationBodyHeight = ref('0px');*/
 
+const { size, position, bodyHeight: applicationBodyHeight } = useAppActions(
+    application, 
+    props.appCode, 
+    {
+        width: openedApplications.value[props.appCode].size.width,
+        height: openedApplications.value[props.appCode].size.height
+    }, 
+    {
+        x: openedApplications.value[props.appCode].position.x,
+        y: openedApplications.value[props.appCode].position.y
+    }
+);
+
+const applicationWidth = computed(() => size.width + 'px');
+const applicationHeight = computed(() => size.height + 'px');
+/*
 const resizeLeft = ref(null);
 const resizeRight = ref(null);
 const resizeTop = ref(null);
@@ -140,6 +146,7 @@ watch(resizePressed, () => {
 
 const isOutside = ref(true);
 const headerPressed = ref(false);
+*/
 
 watch(() => props.opened, () => {
     opened.value = props.opened;
@@ -149,23 +156,23 @@ const dockHeight = computed(() => document.querySelector('.dock__wrapper')?.offs
 const desktopTopBarHeight = computed(() => document.querySelector('#desktop > .top-bar')?.offsetHeight + 'px');
 const zIndex = computed(() => currentApp.value === props.appCode ? 1 : 0);
 
-const applicationCurrentPositionX = ref(openedApplications.value[props.appCode].position.x);
-const applicationCurrentPositionY = ref(openedApplications.value[props.appCode].position.y);
+/*const applicationCurrentPositionX = ref(openedApplications.value[props.appCode].position.x);
+const applicationCurrentPositionY = ref(openedApplications.value[props.appCode].position.y);*/
 
-const applicationCurrentPositionXUnit = computed(() => `${applicationCurrentPositionX.value}px`);
-const applicationCurrentPositionYUnit = computed(() => `${(applicationCurrentPositionY.value - 13)}px`);
+const applicationCurrentPositionXUnit = computed(() => `${position.value.x}px`);
+const applicationCurrentPositionYUnit = computed(() => `${position.value.y}px`);
 
-const applicationMovePositionX = computed(() => `${(applicationCurrentPositionX.value + (x.value - onClickPosition.x))}px`);
-const applicationMovePositionY = computed(() => `${(applicationCurrentPositionY.value + (y.value - onClickPosition.y))}px`);
+/*const applicationMovePositionX = computed(() => `${(position.value.x + (x.value - onClickPosition.x))}px`);
+const applicationMovePositionY = computed(() => `${(position.value.y + (y.value - onClickPosition.y))}px`);*/
 
-watch(() => application.value?.getBoundingClientRect().left, () => {
+/*watch(() => application.value?.getBoundingClientRect().left, () => {
     applicationCurrentPositionX.value = application.value?.getBoundingClientRect().left;
 });
 watch(() => application.value?.getBoundingClientRect().top, () => {
     applicationCurrentPositionY.value = application.value?.getBoundingClientRect().top;
-});
+});*/
 
-watch(headerPressed, () => {
+/*watch(headerPressed, () => {
     if (headerPressed.value && !isOutside.value) {
         onClickPosition.x = x.value;
         onClickPosition.y = y.value;
@@ -236,17 +243,21 @@ watch([x, y], () => {
     if (resizePressed.value && application.value.offsetWidth >= windowWidth.value) {
         resizePressed.value = false;
     }
-})
+});*/
 
 const closeApp = () => {
     close.value = true;
-
-    application.value.addEventListener('animationend', () => {
+    
+    const animationend = () => {
         opened.value = false;
         closeApplication(props.appName);
         setTimeout(() => setCurrentApp(lastApplicationOpened.value), 1000);
         close.value = false;
-    });
+
+        application.value.removeEventListener('animationend', animationend);
+    };
+
+    application.value.addEventListener('animationend', animationend);
 };
 const minApp = () => {
     minifyApplication(props.appName);
@@ -275,13 +286,13 @@ const handleApplicationClick = (e) => {
         e.preventDefault();
     }
 };
-const setPressMouseOnHeader = e => {
+/*const setPressMouseOnHeader = e => {
     if (['a', 'button', 'i'].indexOf(e.target.tagName.toLowerCase()) === -1) {
         headerPressed.value = true;
     }
-}
+}*/
 
-watch(application, () => {
+/*watch(application, () => {
     if (application.value) {
         application.value.addEventListener('mouseup', () => {
             resizePressed.value = false;
@@ -299,7 +310,7 @@ watch(application, () => {
 watch(() => openedApplications.value[props.appCode].state, () => {
     applicationCurrentPositionX.value = openedApplications.value[props.appCode].position.x;
     applicationCurrentPositionY.value = openedApplications.value[props.appCode].position.y;
-})
+})*/
 
 </script>
 
@@ -369,7 +380,7 @@ watch(() => openedApplications.value[props.appCode].state, () => {
     }
 
     &.movable {
-        transform: translateX(v-bind(applicationMovePositionX)) translateY(v-bind(applicationMovePositionY));
+        transform: translateX(v-bind(applicationCurrentPositionXUnit)) translateY(v-bind(applicationCurrentPositionYUnit));
     }
 
     &.full-screen {
