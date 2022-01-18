@@ -35,8 +35,6 @@
 import { ref, computed, watch } from 'vue';
 import { useCurrentApp } from '@/hooks/apps';
 import { useFinder } from '@/hooks/finder';
-import MacOsAlert from '@/components/MacOsAlert.vue';
-import Button from '@/components/Button.vue';
 
 const { setCurrentAppMenus } = useCurrentApp();
 const { selectTab, selectItem, activeItem, showedItems, activedItem, breadcrum } = useFinder(5);

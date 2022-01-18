@@ -2,8 +2,8 @@
     <div class="dock__wrapper">
         <div class="dock" ref="dock">
             <DockIcon v-for="icon of icons" :key="icon" 
-                      @click="icon.click" @mouseover="icon.mouseover" @mouseout="icon.mouseout" 
-                      :href="icon.href" :img="icon.img" />
+                      @click="icon.click($event)" @mouseover="icon.mouseover" @mouseout="icon.mouseout" 
+                      :img="icon.img" :active="openedApplications[icon.code] && openedApplications[icon.code]?.state !== APPLICATION_STATE.CLOSED" />
         </div>
     </div>
 </template>
@@ -13,7 +13,7 @@ import DockIcon from '@/components/DockIcon.vue';
 
 import { ref, watch } from 'vue';
 import { CURSOR, useCursor } from '@/hooks/cursor';
-import { APPLICATION, useOpenedApplications, useCurrentApp } from '@/hooks/apps';
+import { APPLICATION, APPLICATION_STATE, useOpenedApplications, useCurrentApp } from '@/hooks/apps';
 import { Dock } from '@/services/dock';
 
 import finder from '@/assets/dock/finder.png';
@@ -23,89 +23,90 @@ import messages from '@/assets/dock/messages.png';
 import preferences from '@/assets/dock/systempreferences.png';
 import terminal from '@/assets/dock/terminal.png';
 import trash from '@/assets/dock/trashbin.png';
+import photos from '@/assets/dock/photos.png';
 
 const { setCursor } = useCursor();
-const { lastApplicationOpened, openApplication } = useOpenedApplications();
+const { openApplication, openedApplications } = useOpenedApplications();
 const { setCurrentApp } = useCurrentApp();
 
 const dock = ref(null);
 
+/**
+ * @param {String} appCode
+ */
+const openApp = appCode => 
+    /**
+     * @param {Event} event
+     */
+    event => {
+        event.target.classList.add('rebond');
+
+        const handleAnimationEnd = () => {
+            console.log(`go to ${appCode}`);
+            openApplication(appCode);
+            setCurrentApp(appCode);
+            event.target.classList.remove('rebond');
+            event.target.removeEventListener('animationend', handleAnimationEnd);
+        }
+
+        event.target.addEventListener('animationend', handleAnimationEnd);
+    };
+
 const icons = ref([
     {
-        href: '#',
         mouseover: () => setCursor(CURSOR.POINTER),
         mouseout: () => setCursor(CURSOR.DEFAULT),
-        click: () => {
-            console.log('go to finder');
-            setCurrentApp(APPLICATION.FINDER);
-            openApplication(APPLICATION.FINDER);
-        },
+        click: openApp(APPLICATION.FINDER),
+        code: APPLICATION.FINDER,
         img: finder
     },
     {
-        href: '#',
         mouseover: () => setCursor(CURSOR.POINTER),
         mouseout: () => setCursor(CURSOR.DEFAULT),
-        click: () => {
-            console.log('go to app-store');
-            openApplication(APPLICATION.STORE);
-            setCurrentApp(APPLICATION.STORE);
-        },
+        click: openApp(APPLICATION.STORE),
+        code: APPLICATION.STORE,
         img: appstore
     },
     {
-        href: '#',
         mouseover: () => setCursor(CURSOR.POINTER),
         mouseout: () => setCursor(CURSOR.DEFAULT),
-        click: () => {
-            console.log('go to mails');
-            openApplication(APPLICATION.MAILS);
-            setCurrentApp(APPLICATION.MAILS);
-        },
+        click: openApp(APPLICATION.PHOTOS),
+        code: APPLICATION.PHOTOS,
+        img: photos
+    },
+    {
+        mouseover: () => setCursor(CURSOR.POINTER),
+        mouseout: () => setCursor(CURSOR.DEFAULT),
+        click: openApp(APPLICATION.MAILS),
+        code: APPLICATION.MAILS,
         img: mail
     },
     {
-        href: '#',
         mouseover: () => setCursor(CURSOR.POINTER),
         mouseout: () => setCursor(CURSOR.DEFAULT),
-        click: () => {
-            console.log('go to messages');
-            openApplication(APPLICATION.MESSAGES);
-            setCurrentApp(APPLICATION.MESSAGES);
-        },
+        click: openApp(APPLICATION.MESSAGES),
+        code: APPLICATION.MESSAGES,
         img: messages
     },
     {
-        href: '#',
         mouseover: () => setCursor(CURSOR.POINTER),
         mouseout: () => setCursor(CURSOR.DEFAULT),
-        click: () => {
-            console.log('go to settings');
-            openApplication(APPLICATION.SETTINGS);
-            setCurrentApp(APPLICATION.SETTINGS);
-        },
+        click: openApp(APPLICATION.SETTINGS),
+        code: APPLICATION.SETTINGS,
         img: preferences
     },
     {
-        href: '#',
         mouseover: () => setCursor(CURSOR.POINTER),
         mouseout: () => setCursor(CURSOR.DEFAULT),
-        click: () => {
-            console.log('go to terminal');
-            openApplication(APPLICATION.TERMINAL);
-            setCurrentApp(APPLICATION.TERMINAL);
-        },
+        click: openApp(APPLICATION.TERMINAL),
+        code: APPLICATION.TERMINAL,
         img: terminal
     },
     {
-        href: '#',
         mouseover: () => setCursor(CURSOR.POINTER),
         mouseout: () => setCursor(CURSOR.DEFAULT),
-        click: () => {
-            console.log('go to trash');
-            openApplication(APPLICATION.TRASH);
-            setCurrentApp(APPLICATION.TRASH);
-        },
+        click: openApp(APPLICATION.TRASH),
+        code: APPLICATION.TRASH,
         img: trash
     }
 ]);
@@ -141,13 +142,21 @@ watch(dock, () => {
         justify-content: center;
         color: #fff;
 
+        .rebond {
+            animation-name: rebond;
+            animation-duration: .4s;
+            animation-iteration-count: 4;
+            animation-timing-function: ease-in-out;
+            animation-direction: alternate;
+        }
+
         img {
             width: 64px;
             height: 64px;
             object-fit: contain
         }
 
-        &.router-link-active::before {
+        &.active::before {
             content: '';
             position: absolute;
             display: block;
@@ -159,6 +168,18 @@ watch(dock, () => {
             top: 0;
             transform: translateY(-55%);
         }
+    }
+}
+
+@keyframes rebond {
+    0% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+    100% {
+        transform: translateY(0px);
     }
 }
 </style>

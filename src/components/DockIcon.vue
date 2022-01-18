@@ -1,18 +1,20 @@
 <template>
-    <a v-if="href === '#'" href="#" class="dock-icon" @mouseover="$emit('mouseover', $event)" @mouseout="$emit('mouseout', $event)" @click="$emit('click', $event)">
+    <a href="#" :class="{
+        'dock-icon': true,
+        active
+    }" 
+       @mouseover="$emit('mouseover', $event)" 
+       @mouseout="$emit('mouseout', $event)" 
+       @click="$emit('click', $event)">
         <img :src="img" />
     </a>
-
-    <router-link v-else :to="href" class="dock-icon" @mouseover="$emit('mouseover', $event)" @mouseout="$emit('mouseout', $event)" @click="$emit('click', $event)">
-        <img :src="img" />
-    </router-link>
 </template>
 
 <script setup>
 import { defineProps, defineEmits } from 'vue';
 
 defineProps({
-    href: String,
+    active: Boolean,
     mouseover: Function,
     mouseout: Function,
     click: Function,

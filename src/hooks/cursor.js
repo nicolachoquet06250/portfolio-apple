@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 
 export const CURSOR = {
     POINTER: 'pointer',
@@ -18,5 +18,13 @@ export const useCursor = () => ({
         }
         
         currentCursor.value = cursor;
+    }
+});
+
+watch(currentCursor, () => {
+    if (currentCursor.value === CURSOR.POINTER) {
+        document.querySelector('#app').classList.add('pointer');
+    } else {
+        document.querySelector('#app').classList.remove('pointer');
     }
 })

@@ -1,11 +1,9 @@
 <script setup>
 import { ref, computed, watch } from "vue";
 import { useMouse } from "@vueuse/core";
-import { useCursor } from "@/hooks/cursor";
 import { useWait } from "@/hooks/wait";
 
 const { x, y } = useMouse();
-const { setCursor, cursorImage } = useCursor();
 const { waiting } = useWait();
 
 const cursorPositionsFor1second = ref(0);
@@ -74,7 +72,11 @@ const cursorY = computed(() => y.value + "px");
   a *,
   button,
   button *,
-  [clickable] {
+  input,
+  textarea,
+  [clickable],
+  &.pointer,
+  &.pointer * {
     cursor: url(/cursors/_pointer.png), pointer !important;
   }
 
@@ -183,7 +185,10 @@ const cursorY = computed(() => y.value + "px");
     a *,
     button,
     button *,
-    [clickable] {
+    input,
+    textarea,
+    [clickable],
+    &.pointer {
       cursor: url(/cursors/pointer-50x50.png), pointer !important;
     }
   }

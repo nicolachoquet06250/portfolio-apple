@@ -90,7 +90,7 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
    - [<span style="color: red">&cross;</span>] Paramètres
    - [<span style="color: gray"> ? </span>] Finder
      - [<span style="color: gray"> ? </span>] Système d'arboraissence virtuelle pour pouvoir stocker des fichier sous forme base64 dans la base de données localDB du navigateur de sorte que les données des utilisateurs ne sortent pas de l'application
-   - [<span style="color: red">&cross;</span>] Images
+   - [<span style="color: gray"> ? </span>] Photos
    - [<span style="color: red">&cross;</span>] Mails
    - [<span style="color: red">&cross;</span>] Messages
    - [<span style="color: red">&cross;</span>] Terminal
@@ -118,3 +118,4 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 - [Exemple de déplacement de fenêtre + redimentionnement avec VueJS](https://www.cssscript.com/material-macos-window-vtwindow/)
   - [Demo](https://www.cssscript.com/demo/material-macos-window-vtwindow/)
 - [Effet corbeille MacOS](https://robertnyman.com/css3/css-transitions/css-transitions-mac-os-x-stacks.html)
+- [Pack d'icons MacOS](https://www.macosicongallery.com/)

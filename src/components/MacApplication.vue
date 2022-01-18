@@ -17,7 +17,7 @@
 
         <div class="left-bloc">
             <div class="btn-container">
-                <button class="btn-close" @click.prevent="closeApp"></button>
+                <button class="btn-close" @click.prevent="closeApplication"></button>
                 <button class="btn-minmax" @click.prevent="() => (openedApplications[appName.toLowerCase()].full_screen ? minApp() : maxApp())"></button>
                 <button class="btn-todock" @click.prevent="appToDock"></button>
             </div>
@@ -71,12 +71,12 @@
 </template>
 
 <script setup>
-import { defineProps, computed, ref, watch } from 'vue';
+import { defineProps, computed, ref, watch, reactive } from 'vue';
 import { useCurrentApp, useOpenedApplications, useAppActions } from '@/hooks/apps';
 import { useWindowSize } from '@vueuse/core';
 
 const { setCurrentApp, currentApp } = useCurrentApp();
-const { lastApplicationOpened, closeApplication, applicationToDock, minifyApplication, maximizeApplication, openedApplications } = useOpenedApplications();
+const { lastApplicationOpened, applicationToDock, minifyApplication, maximizeApplication, openedApplications } = useOpenedApplications();
 const { width: windowWidth } = useWindowSize();
 const windowWidthForCss = computed(() => `${windowWidth.value}px`);
 
@@ -111,6 +111,13 @@ const dockHeight = computed(() => document.querySelector('.dock__wrapper')?.offs
 const desktopTopBarHeight = computed(() => document.querySelector('#desktop > .top-bar')?.offsetHeight + 'px');
 const zIndex = computed(() => currentApp.value === props.appCode ? 1 : 0);
 
+const positionBeforeClose = reactive({
+    x: 0,
+    y: 0
+});
+const positionBeforeCloseXUnit = computed(() => `${positionBeforeClose.x}px`);
+const positionBeforeCloseYUnit = computed(() => `${positionBeforeClose.y}px`);
+
 const applicationCurrentPositionXUnit = computed(() => `${position.value.x}px`);
 const applicationCurrentPositionYUnit = computed(() => `${position.value.y}px`);
 
@@ -141,6 +148,11 @@ const handleApplicationClick = (e) => {
         e.preventDefault();
     }
 };
+const closeApplication = () => {
+    positionBeforeClose.x = position.value.x;
+    positionBeforeClose.y = position.value.y;
+    closeApp();
+}
 </script>
 
 <style lang="scss" scoped>
@@ -362,6 +374,7 @@ const handleApplicationClick = (e) => {
     transform: translateX(v-bind(applicationCurrentPositionXUnit)) translateY(v-bind(applicationCurrentPositionYUnit));
 
     &.close {
+        transform: translateX(v-bind(positionBeforeCloseXUnit)) translateY(v-bind(positionBeforeCloseYUnit));
         animation: closeApp .2s ease-in-out both;
     }
 }
@@ -396,19 +409,19 @@ const handleApplicationClick = (e) => {
 
 @keyframes closeApp {
     0% {
-        transform: scale(1, 1);
+        transform: translateX(v-bind(positionBeforeCloseXUnit)) translateY(v-bind(positionBeforeCloseYUnit)) scale(1, 1);
     }
     25% {
-        transform: scale(0.75, 0.75);
+        transform: translateX(v-bind(positionBeforeCloseXUnit)) translateY(v-bind(positionBeforeCloseYUnit)) scale(0.75, 0.75);
     }
     50% {
-        transform: scale(0.5, 0.5);
+        transform: translateX(v-bind(positionBeforeCloseXUnit)) translateY(v-bind(positionBeforeCloseYUnit)) scale(0.5, 0.5);
     }
     75% {
-        transform: scale(0.25, 0.25);
+        transform: translateX(v-bind(positionBeforeCloseXUnit)) translateY(v-bind(positionBeforeCloseYUnit)) scale(0.25, 0.25);
     }
     100% {
-        transform: scale(0, 0);
+        transform: translateX(v-bind(positionBeforeCloseXUnit)) translateY(v-bind(positionBeforeCloseYUnit)) scale(0, 0);
     }
 }
 

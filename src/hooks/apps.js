@@ -8,8 +8,16 @@ import MessagesApp from '@/applications/Messages.vue';
 import SettingsApp from '@/applications/Settings.vue';
 import TerminalApp from '@/applications/Terminal.vue';
 import TrashApp from '@/applications/Trash.vue';
+import PhotosApp from '@/applications/Photos.vue';
 
 import FinderHeader from '@/applications/header/Finder.vue';
+import StoreHeader from '@/applications/header/Store.vue';
+import MailsHeader from '@/applications/header/Mail.vue';
+import MessagesHeader from '@/applications/header/Messages.vue';
+import SettingsHeader from '@/applications/header/Settings.vue';
+import TerminalHeader from '@/applications/header/Terminal.vue';
+import TrashHeader from '@/applications/header/Trash.vue';
+import PhotosHeader from '@/applications/header/Photos.vue';
 
 export const APPLICATION = {
     FINDER: 'finder',
@@ -18,7 +26,8 @@ export const APPLICATION = {
     MESSAGES: 'messages',
     SETTINGS: 'preferences',
     TERMINAL: 'terminal',
-    TRASH: 'trash'
+    TRASH: 'trash',
+    PHOTOS: 'photos'
 };
 
 export const APPLICATION_STATE = {
@@ -33,22 +42,32 @@ export const APPLICATION_COMPONENT = {
         header: FinderHeader
     },
     [APPLICATION.STORE]: {
-        body: StoreApp
+        body: StoreApp,
+        header: StoreHeader
+    },
+    [APPLICATION.PHOTOS]: {
+        body: PhotosApp,
+        header: PhotosHeader
     },
     [APPLICATION.MAILS]: {
-        body: MailsApp
+        body: MailsApp,
+        header: MailsHeader
     },
     [APPLICATION.MESSAGES]: {
-        body: MessagesApp
+        body: MessagesApp,
+        header: MessagesHeader
     },
     [APPLICATION.SETTINGS]: {
-        body: SettingsApp
+        body: SettingsApp,
+        header: SettingsHeader
     },
     [APPLICATION.TERMINAL]: {
-        body: TerminalApp
+        body: TerminalApp,
+        header: TerminalHeader
     },
     [APPLICATION.TRASH]: {
-        body: TrashApp
+        body: TrashApp,
+        header: TrashHeader
     }
 };
 
@@ -58,6 +77,8 @@ const openedApplications = reactive({});
 const applicationsHistory = ref([]);
 
 const lastApplicationOpened = computed(() => applicationsHistory.value.length === 1 ? 'finder' : applicationsHistory.value[applicationsHistory.value.length - 1]);
+
+const DIABLED_MOVABLE_HEADER_TAGS = ['a', 'i', 'button', 'input', 'label'];
 
 
 /**
@@ -121,15 +142,12 @@ export const useAppActions = (application, code, opened) => {
     const applicationResizerTop = ref(null);
     const applicationResizerBottom = ref(null);
 
+    const headerPressed = ref(false);
+
     /**
      * Use hooks
      */
     
-    const { pressed: headerPressed } = useMousePressed({
-        target: applicationHeader,
-        touch: false
-    });
-
     const { pressed: resizeLeftPressed } = useMousePressed({
         target: applicationResizerLeft, 
         touch: false
@@ -212,6 +230,7 @@ export const useAppActions = (application, code, opened) => {
 
     watch([mouseX, mouseY], (_, [oldMouseX, oldMouseY]) => {
         if (mousePressed.move) {
+            console.log('move 1');
             move({
                 x: currentPosition.x + (mouseX.value - oldMouseX), 
                 y: (mouseY.value - (applicationHeader.value.offsetHeight / 2) > 0 ? mouseY.value - applicationHeader.value.offsetHeight : 0)
@@ -242,6 +261,7 @@ export const useAppActions = (application, code, opened) => {
                     width: currentSize.width + (oldMouseX - mouseX.value), 
                     height: currentSize.height
                 });
+                console.log('move 2');
                 move({
                     x: onClickMousePosition.x - (onClickMousePosition.x - mouseX.value), 
                     y: currentPosition.y
@@ -269,6 +289,7 @@ export const useAppActions = (application, code, opened) => {
                     height: currentSize.height + (oldMouseY - mouseY.value),
                     width: currentSize.width
                 });
+                console.log('move 3');
                 move({
                     y: onClickMousePosition.y - (onClickMousePosition.y - mouseY.value) - 25, 
                     x: currentPosition.x
@@ -302,10 +323,25 @@ export const useAppActions = (application, code, opened) => {
     });
 
     watch([() => openedApplications[code]?.position.x, () => openedApplications[code]?.position.y], () => {
+        console.log('move 4');
         move({
             x: openedApplications[code]?.position.x, 
             y: openedApplications[code]?.position.y
         });
+    });
+
+    watch(applicationHeader, () => {
+        if (applicationHeader.value) {
+            applicationHeader.value.addEventListener('mousedown', (e) => {
+                if (DIABLED_MOVABLE_HEADER_TAGS.indexOf(e.target.tagName.toLowerCase()) === -1 && !e.target.hasAttribute('clickable')) {
+                    headerPressed.value = true;
+                }
+            });
+
+            applicationHeader.value.addEventListener('mouseup', () => {
+                headerPressed.value = false;
+            });
+        }
     });
 
     return {
@@ -320,19 +356,22 @@ export const useAppActions = (application, code, opened) => {
             close.value = true;
     
             const animationend = () => {
-                opened.value = false;
-                closeApplication(code);
-                setTimeout(() => setCurrentApp(lastApplicationOpened.value), 1000);
-                close.value = false;
+                setTimeout(() => {
+                    opened.value = false;
+                    closeApplication(code);
+                    setTimeout(() => setCurrentApp(lastApplicationOpened.value), 1000);
+                    close.value = false;
 
-                move({
-                    x: 0, 
-                    y: 0
-                });
-                resize({
-                    width: 777, 
-                    height: 313
-                });
+                    console.log('move 5');
+                    move({
+                        x: 0, 
+                        y: 0
+                    });
+                    resize({
+                        width: 777, 
+                        height: 313
+                    });
+                }, 1000);
 
                 application.value.removeEventListener('animationend', animationend);
             };
@@ -371,7 +410,7 @@ export const useOpenedApplications = () => ({
      */
     openApplication(application) {
         if (openedApplications[application.toLowerCase()]) {
-            if (openedApplications[application.toLowerCase()].state === APPLICATION_STATE.CLOSED) {
+            /*if (openedApplications[application.toLowerCase()].state === APPLICATION_STATE.CLOSED) {
 
                 openedApplications[application.toLowerCase()].position = {
                     x: 0,
@@ -380,8 +419,8 @@ export const useOpenedApplications = () => ({
                 openedApplications[application.toLowerCase()].size = {
                     width: 777,
                     height: 313
-                };
-            }
+                }
+            };*/
             openedApplications[application.toLowerCase()].state = APPLICATION_STATE.OPENED;
         } else {
             openedApplications[application.toLowerCase()] = {

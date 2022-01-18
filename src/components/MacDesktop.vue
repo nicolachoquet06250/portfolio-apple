@@ -85,13 +85,11 @@
 
 <script setup>
 import { defineProps, ref, computed, watch } from "vue";
-import { CURSOR, useCursor } from '@/hooks/cursor';
 import { APPLICATION_STATE, useOpenedApplications, useCurrentApp } from '@/hooks/apps';
 import MacApplication from '@/components/MacApplication.vue';
 
 import siriIcon from "@/assets/icons/siri.png";
 
-const { setCursor } = useCursor();
 const { currentApp } = useCurrentApp();
 const { openedApplications, initApplicationHistory } = useOpenedApplications();
 
