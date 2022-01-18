@@ -192,14 +192,14 @@ export const useAppActions = (application, code, { width: defaultWidth, height: 
             if (isInside.value) {
                 currentPosition.x = currentPosition.x + (mouseX.value - oldMouseX);
                 if (mouseY.value - (applicationHeader.value.offsetHeight / 2) > 0) {
-                    currentPosition.y = mouseY.value - (applicationHeader.value.offsetHeight / 2);
+                    currentPosition.y = mouseY.value - applicationHeader.value.offsetHeight;
                 } else {
                     currentPosition.y = 0;
                 }
             } else {
                 currentPosition.x = currentPosition.x + (mouseX.value - oldMouseX);
                 if (mouseY.value - (applicationHeader.value.offsetHeight / 2) > 0) {
-                    currentPosition.y = mouseY.value - (applicationHeader.value.offsetHeight / 2);
+                    currentPosition.y = mouseY.value - applicationHeader.value.offsetHeight;
                 } else {
                     currentPosition.y = 0;
                 }
@@ -208,7 +208,6 @@ export const useAppActions = (application, code, { width: defaultWidth, height: 
 
         if (mousePressed.resize) {
             if (mousePressed.resizeSens === 'right') {
-                //application.value.style.width = `${currentSize.width + (mouseX.value - onClickMousePosition.x)}px`;
                 currentSize.width += (mouseX.value - oldMouseX);
 
                 if (currentSize.width === application.value.offsetWidth) {
@@ -263,7 +262,7 @@ export const useAppActions = (application, code, { width: defaultWidth, height: 
     return {
         size: currentSize,
         position: computed(() => currentPosition),
-        bodyHeight: computed(() => (application.value?.offsetHeight - applicationHeader.value?.offsetHeight - 20) + 'px'),
+        bodyHeight: computed(() => (currentSize.height - applicationHeader.value?.offsetHeight - 20) + 'px'),
 
         move({ x, y }) {
             currentPosition.x = x;
@@ -273,9 +272,7 @@ export const useAppActions = (application, code, { width: defaultWidth, height: 
             currentSize.width = width;
             currentSize.height = height;
         },
-        close() {
-            
-        },
+        close() {},
         open() {},
         minimize() {},
         maximize() {}
