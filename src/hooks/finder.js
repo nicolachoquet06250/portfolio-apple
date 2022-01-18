@@ -311,24 +311,26 @@ export const useFinder = maxPerLine => ({
         const currentSelectedDir = breadcrum.value[breadcrum.value.length - 1];
         const lastSelectedDir = breadcrum.value[breadcrum.value.length - 2];
 
-        const back = arr => {
-            for(const c of arr) {
-                if (c.type === 'directory') {
-                    if (c.name === lastSelectedDir) {
-                        return c.children ?? [];
-                    }
-                    const r = back(c.children ?? []);
-                    if (r.length > 0) {
-                        return r;
+        if (breadcrum.value.length > 1) {
+            const back = arr => {
+                for(const c of arr) {
+                    if (c.type === 'directory') {
+                        if (c.name === lastSelectedDir) {
+                            return c.children ?? [];
+                        }
+                        const r = back(c.children ?? []);
+                        if (r.length > 0) {
+                            return r;
+                        }
                     }
                 }
-            }
 
-            return [];
-        };
+                return [];
+            };
 
-        showedItems.value = back(items.value);
-        breadcrum.value = breadcrum.value.reduce((r, c) => c === currentSelectedDir ? r : [...r, c], []);
+            showedItems.value = back(items.value);
+            breadcrum.value = breadcrum.value.reduce((r, c) => c === currentSelectedDir ? r : [...r, c], []);
+        }
     }
 });
 
