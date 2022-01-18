@@ -373,8 +373,6 @@ export const useOpenedApplications = () => ({
         if (openedApplications[application.toLowerCase()]) {
             if (openedApplications[application.toLowerCase()].state === APPLICATION_STATE.CLOSED) {
 
-                console.log({...openedApplications[application.toLowerCase()]});
-
                 openedApplications[application.toLowerCase()].position = {
                     x: 0,
                     y: 0
