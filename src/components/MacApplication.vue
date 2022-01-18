@@ -10,7 +10,10 @@
         }" v-if="opened" 
         ref="application"
         @contextmenu.prevent.stop="showContextMenu()"
-        @click="handleApplicationClick($event)">
+        @click="handleApplicationClick($event)"
+        :style="{
+            'min-width': '777px'
+        }">
 
         <div class="left-bloc">
             <div class="btn-container">
@@ -35,7 +38,7 @@
         </div>
 
         <div class="right-bloc">
-            <div class="app-header-bar" ref="applicationHeader" v-if="hasHeader">
+            <div class="app-header-bar" v-if="hasHeader">
                 <AppHeaderComponent />
 
                 <slot name="header"></slot>
@@ -68,14 +71,12 @@
 </template>
 
 <script setup>
-import { defineProps, computed, ref, watch, reactive } from 'vue';
-import { APPLICATION_STATE, useCurrentApp, useOpenedApplications, useAppActions } from '@/hooks/apps';
-import { CURSOR } from '@/hooks/cursor';
-import { useMouse, useWindowSize } from '@vueuse/core';
+import { defineProps, computed, ref, watch } from 'vue';
+import { useCurrentApp, useOpenedApplications, useAppActions } from '@/hooks/apps';
+import { useWindowSize } from '@vueuse/core';
 
-const { setCurrentApp, currentApp, setCurrentAppSize, setCurrentAppPosition } = useCurrentApp();
+const { setCurrentApp, currentApp } = useCurrentApp();
 const { lastApplicationOpened, closeApplication, applicationToDock, minifyApplication, maximizeApplication, openedApplications } = useOpenedApplications();
-const { x, y } = useMouse();
 const { width: windowWidth } = useWindowSize();
 const windowWidthForCss = computed(() => `${windowWidth.value}px`);
 
@@ -89,64 +90,18 @@ const props = defineProps({
 const AppComponent = ref(openedApplications.value[props.appCode].component);
 const AppHeaderComponent = ref(openedApplications.value[props.appCode].componentHeader);
 
-//const applicationWidth = computed(() => openedApplications.value[props.appCode].size.width + 'px');
-//const applicationHeight = computed(() => openedApplications.value[props.appCode].size.height + 'px');
-
 const hasHeader = computed(() => AppHeaderComponent.value !== null);
 
-const close = ref(false);
 const opened = ref(props.opened);
-const applicationHeader = ref(null);
 const application = ref(null);
-/*const resizePressed = ref(false);
-const onClickPosition = reactive({
-    x: 0,
-    y: 0
-});
-const applicationSize = reactive({
-    width: 0,
-    height: 0
-})
-const applicationBodyHeight = ref('0px');*/
 
-const { size, position, bodyHeight: applicationBodyHeight } = useAppActions(
-    application, 
-    props.appCode, 
-    {
-        width: openedApplications.value[props.appCode].size.width,
-        height: openedApplications.value[props.appCode].size.height
-    }, 
-    {
-        x: openedApplications.value[props.appCode].position.x,
-        y: openedApplications.value[props.appCode].position.y
-    }
-);
+const { 
+    size, position, close, bodyHeight: applicationBodyHeight, 
+    closeApp 
+} = useAppActions(application, props.appCode, opened);
 
 const applicationWidth = computed(() => size.width + 'px');
 const applicationHeight = computed(() => size.height + 'px');
-/*
-const resizeLeft = ref(null);
-const resizeRight = ref(null);
-const resizeTop = ref(null);
-const resizeBottom = ref(null);
-
-watch(resizePressed, () => {
-    if (resizePressed.value !== false) {
-        onClickPosition.x = x.value;
-        onClickPosition.y = y.value;
-
-        applicationSize.width = application.value?.offsetWidth;
-        applicationSize.height = application.value?.offsetHeight;
-    }
-
-    if (resizePressed.value === false) {
-        setCurrentAppSize(applicationSize.width, applicationSize.height);
-    }
-});
-
-const isOutside = ref(true);
-const headerPressed = ref(false);
-*/
 
 watch(() => props.opened, () => {
     opened.value = props.opened;
@@ -156,109 +111,9 @@ const dockHeight = computed(() => document.querySelector('.dock__wrapper')?.offs
 const desktopTopBarHeight = computed(() => document.querySelector('#desktop > .top-bar')?.offsetHeight + 'px');
 const zIndex = computed(() => currentApp.value === props.appCode ? 1 : 0);
 
-/*const applicationCurrentPositionX = ref(openedApplications.value[props.appCode].position.x);
-const applicationCurrentPositionY = ref(openedApplications.value[props.appCode].position.y);*/
-
 const applicationCurrentPositionXUnit = computed(() => `${position.value.x}px`);
 const applicationCurrentPositionYUnit = computed(() => `${position.value.y}px`);
 
-/*const applicationMovePositionX = computed(() => `${(position.value.x + (x.value - onClickPosition.x))}px`);
-const applicationMovePositionY = computed(() => `${(position.value.y + (y.value - onClickPosition.y))}px`);*/
-
-/*watch(() => application.value?.getBoundingClientRect().left, () => {
-    applicationCurrentPositionX.value = application.value?.getBoundingClientRect().left;
-});
-watch(() => application.value?.getBoundingClientRect().top, () => {
-    applicationCurrentPositionY.value = application.value?.getBoundingClientRect().top;
-});*/
-
-/*watch(headerPressed, () => {
-    if (headerPressed.value && !isOutside.value) {
-        onClickPosition.x = x.value;
-        onClickPosition.y = y.value;
-    }
-
-    if (!headerPressed.value && !isOutside.value) {
-        applicationCurrentPositionX.value += (x.value - onClickPosition.x);
-        applicationCurrentPositionY.value += (y.value - onClickPosition.y);
-        
-        setCurrentAppPosition(applicationCurrentPositionX.value, applicationCurrentPositionY.value - 25)
-    }
-});
-
-watch([x, y], () => {
-    if (headerPressed.value && !isOutside.value) {
-        if (applicationCurrentPositionY.value + (y.value - onClickPosition.y) < 0) {
-            applicationCurrentPositionX.value = 0;
-            applicationCurrentPositionY.value = 0;
-            application.value?.classList.add('movable');
-        }
-    }
-
-    if (headerPressed.value && isOutside.value) {
-        applicationCurrentPositionX.value = 0;
-        applicationCurrentPositionY.value = 0;
-        application.value?.classList.remove('movable');
-        setCurrentAppPosition(applicationCurrentPositionX.value, applicationCurrentPositionY.value)
-    }
-
-    if (resizePressed.value && resizePressed.value === 'right') {
-        application.value.style.width = `${applicationSize.width + (x.value - onClickPosition.x)}px`;
-        
-        if (applicationSize.width === application.value.offsetWidth) {
-            resizePressed.value = false;
-        }
-    }
-
-    if (resizePressed.value && resizePressed.value === 'left') {
-        application.value.style.width = `${applicationSize.width + (onClickPosition.x - x.value)}px`;
-        applicationCurrentPositionX.value = onClickPosition.x - (onClickPosition.x - x.value);
-
-        if (applicationSize.width === application.value.offsetWidth) {
-            resizePressed.value = false;
-        }
-    }
-
-    if (resizePressed.value && resizePressed.value === 'bottom') {
-        application.value.style.height = `${applicationSize.height + (y.value - onClickPosition.y)}px`;
-        
-        if (applicationSize.height === application.value.offsetHeight) {
-            resizePressed.value = false;
-        }
-
-        applicationBodyHeight.value = (application.value?.offsetHeight - applicationHeader.value?.offsetHeight - 20) + 'px';
-    }
-
-    if (resizePressed.value && resizePressed.value === 'top') {
-        application.value.style.height = `${applicationSize.height + (onClickPosition.y - y.value)}px`;
-        applicationCurrentPositionY.value = onClickPosition.y - (onClickPosition.y - y.value) - 25;
-        
-        if (applicationSize.height === application.value.offsetHeight) {
-            resizePressed.value = false;
-        }
-
-        applicationBodyHeight.value = (application.value?.offsetHeight - applicationHeader.value?.offsetHeight - 20) + 'px';
-    }
-
-    if (resizePressed.value && application.value.offsetWidth >= windowWidth.value) {
-        resizePressed.value = false;
-    }
-});*/
-
-const closeApp = () => {
-    close.value = true;
-    
-    const animationend = () => {
-        opened.value = false;
-        closeApplication(props.appName);
-        setTimeout(() => setCurrentApp(lastApplicationOpened.value), 1000);
-        close.value = false;
-
-        application.value.removeEventListener('animationend', animationend);
-    };
-
-    application.value.addEventListener('animationend', animationend);
-};
 const minApp = () => {
     minifyApplication(props.appName);
     setCurrentApp(lastApplicationOpened.value);
@@ -286,32 +141,6 @@ const handleApplicationClick = (e) => {
         e.preventDefault();
     }
 };
-/*const setPressMouseOnHeader = e => {
-    if (['a', 'button', 'i'].indexOf(e.target.tagName.toLowerCase()) === -1) {
-        headerPressed.value = true;
-    }
-}*/
-
-/*watch(application, () => {
-    if (application.value) {
-        application.value.addEventListener('mouseup', () => {
-            resizePressed.value = false;
-        });
-
-        application.value.addEventListener('animationend', () => {
-            applicationCurrentPositionX.value = openedApplications.value[props.appCode].position.x;
-            applicationCurrentPositionY.value = openedApplications.value[props.appCode].position.y + 13;
-        });
-
-        applicationBodyHeight.value = (application.value?.offsetHeight - applicationHeader.value?.offsetHeight - 20) + 'px';
-    }
-});
-
-watch(() => openedApplications.value[props.appCode].state, () => {
-    applicationCurrentPositionX.value = openedApplications.value[props.appCode].position.x;
-    applicationCurrentPositionY.value = openedApplications.value[props.appCode].position.y;
-})*/
-
 </script>
 
 <style lang="scss" scoped>
@@ -496,37 +325,37 @@ watch(() => openedApplications.value[props.appCode].state, () => {
 
     .resize-left {
         position: absolute;
-        left: -5px;
+        left: -10px;
         top: 0;
         bottom: 0;
-        width: 10px;
+        width: 20px;
         cursor: e-resize;
     }
 
     .resize-right {
         position: absolute;
-        right: -5px;
+        right: -10px;
         top: 0;
         bottom: 0;
-        width: 10px;
+        width: 20px;
         cursor: e-resize;
     }
 
     .resize-top {
         position: absolute;
-        top: -5px;
+        top: -10px;
         right: 0;
         left: 0;
-        height: 10px;
+        height: 20px;
         cursor: n-resize;
     }
 
     .resize-bottom {
         position: absolute;
-        bottom: -5px;
+        bottom: -10px;
         right: 0;
         left: 0;
-        height: 10px;
+        height: 20px;
         cursor: n-resize;
     }
 

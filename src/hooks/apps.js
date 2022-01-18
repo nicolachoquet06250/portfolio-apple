@@ -57,6 +57,8 @@ const currentAppMenus = reactive({});
 const openedApplications = reactive({});
 const applicationsHistory = ref([]);
 
+const lastApplicationOpened = computed(() => applicationsHistory.value.length === 1 ? 'finder' : applicationsHistory.value[applicationsHistory.value.length - 1]);
+
 
 /**
  * @param {Number} width 
@@ -74,22 +76,31 @@ const setCurrentAppPosition = (x, y) => {
     openedApplications[currentApp.value].position = { x, y };
 };
 
+const setCurrentApp = _currentApp => {
+    currentApp.value = _currentApp;
+};
+
+const closeApplication = application => {
+    openedApplications[application.toLowerCase()].state = APPLICATION_STATE.CLOSED;
+
+    if (application.toLowerCase() !== APPLICATION.FINDER) {
+        applicationsHistory.value = applicationsHistory.value.reduce((r, c) => c === application.toLowerCase() ? r : [...r, c], []);
+    }
+};
+
 /**
  * @param {import('vue').Ref<HTMLElement>} application 
  * @param {String} code
- * @param {Number} width
- * @param {Number} height
- * @param {Number} x
- * @param {Number} y
+ * @param {import('vue').Ref<Boolean>} opened
  * @returns 
  */
-export const useAppActions = (application, code, { width: defaultWidth, height: defaultHeight }, { x: defaultX, y: defaultY }) => {
+export const useAppActions = (application, code, opened) => {
     /**
      * Reactives variables
      */
     
-    const currentPosition = reactive({ x: defaultX, y: defaultY });
-    const currentSize = reactive({ width: defaultWidth, height: defaultHeight });
+    const currentSize = reactive({ width: openedApplications[code].size.width, height: openedApplications[code].size.height });
+    const currentPosition = reactive({ x: openedApplications[code].position.x, y: openedApplications[code].position.y });
     const mousePressed = reactive({
         move: false,
         resize: false,
@@ -101,6 +112,8 @@ export const useAppActions = (application, code, { width: defaultWidth, height: 
      * References variables
      */
     
+    const close = ref(false);
+
     const applicationHeader = ref(null);
 
     const applicationResizerLeft = ref(null);
@@ -135,12 +148,22 @@ export const useAppActions = (application, code, { width: defaultWidth, height: 
     });
     const { x: mouseX, y: mouseY } = useMouse();
     const { isOutside } = useMouseInElement(application);
-    const { width: windowWidth, height: windowHeight } = useWindowSize();
+    const { width: windowWidth } = useWindowSize();
 
     /**
      * Computed constantes
      */
     const isInside = computed(() => !isOutside.value);
+
+    const resize = ({ width, height }) => {
+        currentSize.width = width;
+        currentSize.height = height;
+    };
+
+    const move = ({ x, y }) => {
+        currentPosition.x = x;
+        currentPosition.y = y;
+    };
 
     /**
      * Reference watchers
@@ -189,45 +212,51 @@ export const useAppActions = (application, code, { width: defaultWidth, height: 
 
     watch([mouseX, mouseY], (_, [oldMouseX, oldMouseY]) => {
         if (mousePressed.move) {
-            if (isInside.value) {
-                currentPosition.x = currentPosition.x + (mouseX.value - oldMouseX);
-                if (mouseY.value - (applicationHeader.value.offsetHeight / 2) > 0) {
-                    currentPosition.y = mouseY.value - applicationHeader.value.offsetHeight;
-                } else {
-                    currentPosition.y = 0;
-                }
-            } else {
-                currentPosition.x = currentPosition.x + (mouseX.value - oldMouseX);
-                if (mouseY.value - (applicationHeader.value.offsetHeight / 2) > 0) {
-                    currentPosition.y = mouseY.value - applicationHeader.value.offsetHeight;
-                } else {
-                    currentPosition.y = 0;
-                }
-            }
+            move({
+                x: currentPosition.x + (mouseX.value - oldMouseX), 
+                y: (mouseY.value - (applicationHeader.value.offsetHeight / 2) > 0 ? mouseY.value - applicationHeader.value.offsetHeight : 0)
+            });
         }
 
         if (mousePressed.resize) {
             if (mousePressed.resizeSens === 'right') {
-                currentSize.width += (mouseX.value - oldMouseX);
+                resize({
+                    width: currentSize.width + (mouseX.value - oldMouseX), 
+                    height: currentSize.height
+                });
 
                 if (currentSize.width === application.value.offsetWidth) {
                     mousePressed.resize = false;
                     mousePressed.resizeSens = '';
                 }
             }
+
+            if (mousePressed.resize && mousePressed.resizeSens === '') {
+                if (mouseX.value < onClickMousePosition.x) {
+                    mousePressed.resizeSens = 'left';
+                }
+            }
         
             if (mousePressed.resizeSens === 'left') {
-                currentSize.width += (oldMouseX - mouseX.value);
-                currentPosition.x = onClickMousePosition.x - (onClickMousePosition.x - mouseX.value);
+                resize({
+                    width: currentSize.width + (oldMouseX - mouseX.value), 
+                    height: currentSize.height
+                });
+                move({
+                    x: onClickMousePosition.x - (onClickMousePosition.x - mouseX.value), 
+                    y: currentPosition.y
+                });
         
-                if (currentSize.width === application.value.offsetWidth) {
-                    mousePressed.resize = false;
+                if (application.value.offsetWidth === parseInt(application.value.style.minWidth.replace('px', '')) && mouseX.value > onClickMousePosition.x) {
                     mousePressed.resizeSens = '';
                 }
             }
         
             if (mousePressed.resizeSens === 'bottom') {
-                currentSize.height += (mouseY.value - oldMouseY);
+                resize({
+                    height: currentSize.height + (mouseY.value - oldMouseY), 
+                    width: currentSize.width
+                });
                 
                 if (currentSize.height === application.value.offsetHeight) {
                     mousePressed.resize = false;
@@ -236,8 +265,14 @@ export const useAppActions = (application, code, { width: defaultWidth, height: 
             }
         
             if (mousePressed.resizeSens === 'top') {
-                currentSize.height += (oldMouseY - mouseY.value);
-                currentPosition.y = onClickMousePosition.y - (onClickMousePosition.y - mouseY.value) - 25;
+                resize({
+                    height: currentSize.height + (oldMouseY - mouseY.value),
+                    width: currentSize.width
+                });
+                move({
+                    y: onClickMousePosition.y - (onClickMousePosition.y - mouseY.value) - 25, 
+                    x: currentPosition.x
+                });
                 
                 if (currentSize.height === application.value.offsetHeight) {
                     mousePressed.resize = false;
@@ -259,21 +294,51 @@ export const useAppActions = (application, code, { width: defaultWidth, height: 
         }
     });
 
+    watch([() => openedApplications[code].size.width, () => openedApplications[code].size.height], () => {
+        resize({
+            width: openedApplications[code].size.width, 
+            height: openedApplications[code].size.height
+        });
+    });
+
+    watch([() => openedApplications[code]?.position.x, () => openedApplications[code]?.position.y], () => {
+        move({
+            x: openedApplications[code]?.position.x, 
+            y: openedApplications[code]?.position.y
+        });
+    });
+
     return {
+        close: computed(() => close.value),
         size: currentSize,
         position: computed(() => currentPosition),
         bodyHeight: computed(() => (currentSize.height - applicationHeader.value?.offsetHeight - 20) + 'px'),
 
-        move({ x, y }) {
-            currentPosition.x = x;
-            currentPosition.y = y;
+        move,
+        resize,
+        closeApp() {
+            close.value = true;
+    
+            const animationend = () => {
+                opened.value = false;
+                closeApplication(code);
+                setTimeout(() => setCurrentApp(lastApplicationOpened.value), 1000);
+                close.value = false;
+
+                move({
+                    x: 0, 
+                    y: 0
+                });
+                resize({
+                    width: 777, 
+                    height: 313
+                });
+
+                application.value.removeEventListener('animationend', animationend);
+            };
+
+            application.value.addEventListener('animationend', animationend);
         },
-        resize({ width, height }) {
-            currentSize.width = width;
-            currentSize.height = height;
-        },
-        close() {},
-        open() {},
         minimize() {},
         maximize() {}
     };
@@ -283,9 +348,7 @@ export const useCurrentApp = () => ({
     currentApp: computed(() => currentApp.value),
     currentAppMenus: computed(() => currentAppMenus),
 
-    setCurrentApp(_currentApp) {
-        currentApp.value = _currentApp;
-    },
+    setCurrentApp,
 
     /**
      * @param {Record<String, any>} _currentAppMenus 
@@ -301,7 +364,7 @@ export const useCurrentApp = () => ({
 export const useOpenedApplications = () => ({
     openedApplications: computed(() => openedApplications),
     applicationsHistory: computed(() => applicationsHistory.value),
-    lastApplicationOpened: computed(() => applicationsHistory.value.length === 1 ? 'finder' : applicationsHistory.value[applicationsHistory.value.length - 1]),
+    lastApplicationOpened,
 
     /**
      * @param {'finder'|'appstore'|'mail'|'messages'|'preferences'|'terminal'|'trash'} application 
@@ -309,9 +372,12 @@ export const useOpenedApplications = () => ({
     openApplication(application) {
         if (openedApplications[application.toLowerCase()]) {
             if (openedApplications[application.toLowerCase()].state === APPLICATION_STATE.CLOSED) {
+
+                console.log({...openedApplications[application.toLowerCase()]});
+
                 openedApplications[application.toLowerCase()].position = {
                     x: 0,
-                    y: 13
+                    y: 0
                 };
                 openedApplications[application.toLowerCase()].size = {
                     width: 777,
@@ -376,13 +442,7 @@ export const useOpenedApplications = () => ({
     /**
      * @param {'finder'|'appstore'|'mail'|'messages'|'preferences'|'terminal'|'trash'} application 
      */
-    closeApplication(application) {
-        openedApplications[application.toLowerCase()].state = APPLICATION_STATE.CLOSED;
-
-        if (application.toLowerCase() !== APPLICATION.FINDER) {
-            applicationsHistory.value = applicationsHistory.value.reduce((r, c) => c === application.toLowerCase() ? r : [...r, c], []);
-        }
-    },
+    closeApplication,
 
     initApplicationHistory() {
         applicationsHistory.value = [APPLICATION.FINDER];
