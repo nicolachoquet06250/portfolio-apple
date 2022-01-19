@@ -1,26 +1,30 @@
 <template>
-  <IOSDesktop
-    v-if="isMobile || isTablet || screenWidth <= 507"
-    :apps="[]"
-    :current-app-name="currentApp"
-    background-image="/img/wallpapers/macos-wallpaper.jpg"
-    :top-bar="desktopTopBar"></IOSDesktop>
+  <template v-if="installed">
+    <IOSDesktop
+      v-if="isMobile || isTablet || screenWidth <= 507"
+      :apps="[]"
+      :current-app-name="currentApp"
+      background-image="/img/wallpapers/macos-wallpaper.jpg"
+      :top-bar="desktopTopBar"></IOSDesktop>
 
-  <MacDesktop
-    v-else
-    :apps="[]"
-    :current-app-name="currentApp"
-    background-image="/img/wallpapers/macos-wallpaper.jpg"
-    :top-bar="desktopTopBar">
+    <MacDesktop
+      v-else
+      :apps="[]"
+      :current-app-name="currentApp"
+      background-image="/img/wallpapers/macos-wallpaper.jpg"
+      :top-bar="desktopTopBar">
 
-    <MacOsAlert v-if="displayAlert" @close="hideAlert" />
+      <MacOsAlert v-if="displayAlert" @close="hideAlert" />
 
-    <MacOsDock position="right" />
+      <MacOsDock position="right" />
 
-    <MacOsCursor />
+      <MacOsCursor />
 
-    <MacOsSystemLoader v-if="systemLoading" @loaded="handleSystemLoaded" />
-  </MacDesktop>
+      <MacOsSystemLoader v-if="systemLoading" @loaded="handleSystemLoaded" />
+    </MacDesktop>
+  </template>
+
+  <installation v-else />
 </template>
 
 <script setup>
@@ -31,6 +35,7 @@ import IOSDesktop from '@/components/IOSDesktop.vue';
 import MacOsCursor from '@/components/MacOsCursor.vue';
 import MacOsAlert from '@/components/MacOsAlert.vue';
 import MacOsSystemLoader from '@/components/MacOsSystemLoader.vue';
+import Installation from '@/components/Installation.vue';
 
 import { ref, reactive, watch } from "vue";
 import { useNetwork, useBattery, useWindowSize } from "@vueuse/core";
@@ -44,6 +49,7 @@ const systemLoading = ref(true);
 
 setCurrentApp(APPLICATION.FINDER);
 
+const installed = ref(localStorage.getItem('installed') !== null);
 const displayAlert = ref(false);
 const showAlert = () => {
   displayAlert.value = true;

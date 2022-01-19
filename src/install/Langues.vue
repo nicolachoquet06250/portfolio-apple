@@ -1,0 +1,141 @@
+<template>
+    <div class="install-choose-language-step">
+        <div class="window">
+            <div class="window-body">
+                <img :src="iconLangues" />
+
+                <h2>Langue</h2>
+
+                <div class="langue-select">
+                    <a href="#" :class="{
+                        'langue-option': true,
+                        active: selectedLangue === langue.value
+                    }" 
+                       v-for="langue of langues" :key="langue.value" 
+                       @click.prevent.stop="selectedLangue = langue.value">
+                        {{langue.displayed}}
+                    </a>
+                </div>
+            </div>
+
+            <div class="window-footer">
+                <button @click="$emit('nextStep', {
+                    event: $event,
+                    details: {
+                        selectedLangue
+                    }
+                })">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script setup>
+import { ref, defineEmits } from 'vue';
+
+import iconLangues from '@/assets/install-icons/icon-langues.png';
+
+const langues = [
+    {
+        value: 'fr',
+        displayed: 'Français'
+    },
+    {
+        value: 'en',
+        displayed: 'English'
+    }
+];
+const selectedLangue = ref(langues[0].value);
+
+defineEmits(['nextStep']);
+</script>
+
+<style lang="scss" scoped>
+.install-choose-language-step {
+    cursor: default;
+    background-color: #131313;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+
+    .window {
+        background-color: #323232;
+        position: absolute;
+        top: 100px;
+        left: 10%;
+        right: 10%;
+        bottom: 70px;
+        display: flex;
+        flex-direction: column;
+        border-radius: 10px;
+        overflow: hidden;
+
+        &-body {
+            display: flex;
+            flex: 9;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+
+            h2 {
+                color: white;
+            }
+
+            .langue {
+                &-select {
+                    background-color: #1F1F1F;
+                    width: 300px;
+                    height: 350px;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: flex-start;
+                    align-items: center;
+                    margin-bottom: 20px;
+                    border: 4px solid #287099;
+                    border-radius: 5px;
+                }
+
+                &-option {
+                    text-decoration: none;
+                    width: 100%;
+                    height: auto;
+                    color: white;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+
+                    &.active, &:active, &:focus {
+                        background-color: #0059D1;
+                    }
+                }
+            }
+        }
+
+        &-footer {
+            background-color: #383838;
+            display: flex;
+            flex: .75;
+            flex-direction: row;
+            justify-content: flex-end;
+            align-items: center;
+            border-top: 2px solid #414141;
+
+            button {
+                background-color: transparent;
+                border: none;
+                margin-right: 30px;
+
+                i.fas {
+                    color: #6D6D6D;
+                    font-size: 30px;
+                }
+            }
+            
+        }
+    }
+}
+</style>

@@ -119,3 +119,5 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
   - [Demo](https://www.cssscript.com/demo/material-macos-window-vtwindow/)
 - [Effet corbeille MacOS](https://robertnyman.com/css3/css-transitions/css-transitions-mac-os-x-stacks.html)
 - [Pack d'icons MacOS](https://www.macosicongallery.com/)
+- [Flouter un arrière plan](https://developer.mozilla.org/fr/docs/Web/CSS/backdrop-filter)
+- [Ecrans d'installation MacOS Big Sur](https://www.tech2tech.fr/comment-installer-macos-big-sur-sur-vmware/)

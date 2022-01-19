@@ -5,6 +5,10 @@
         </div>
 
         <div class="progress-bar"></div>
+
+        <div class="message-container">
+            <slot></slot>
+        </div>
     </div>
 </template>
 
@@ -65,6 +69,10 @@ const interval = setInterval(() => {
             left: 0;
             background: white;
         }
+    }
+
+    .message-container {
+        margin-top: -55px;
     }
 }
 </style>
