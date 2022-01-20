@@ -72,6 +72,9 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 ### Objectifs
 
 [<span style="color: gray"> ? </span>] Mac OS :
+ - [<span style="color: gray"> ? </span>] Processus d'installation
+   - [<span style="color: green">&check;</span>] Parcour visuel
+   - [<span style="color: red">&cross;</span>] Installation de l'arboraissence grâce à l'api javascript IndexedDB
  - [<span style="color: green">&check;</span>] Dock macOS
  - [<span style="color: green">&check;</span>] Bureau macOS
  - [<span style="color: green">&check;</span>] Fonctionnalité "Secouer pour trouver le curseur"
@@ -112,12 +115,13 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 - [<span style="color: gray"> ? </span>] in progress
 
 ### ANNEXES
-- [FIGMA MacOS 11](https://www.figma.com/community/file/949158727443209284?preview=fullscreen)
-- [FIGMA IOS 15](https://www.figma.com/community/file/984106517828363349?preview=fullscreen)
-- [Generateur de clip-path](https://www.cssportal.com/css-clip-path-generator/)
+- [FIGMA **MacOS 11**](https://www.figma.com/community/file/949158727443209284?preview=fullscreen)
+- [FIGMA **IOS 15**](https://www.figma.com/community/file/984106517828363349?preview=fullscreen)
+- [Generateur de **clip-path**](https://www.cssportal.com/css-clip-path-generator/)
 - [Exemple de déplacement de fenêtre + redimentionnement avec VueJS](https://www.cssscript.com/material-macos-window-vtwindow/)
   - [Demo](https://www.cssscript.com/demo/material-macos-window-vtwindow/)
 - [Effet corbeille MacOS](https://robertnyman.com/css3/css-transitions/css-transitions-mac-os-x-stacks.html)
 - [Pack d'icons MacOS](https://www.macosicongallery.com/)
 - [Flouter un arrière plan](https://developer.mozilla.org/fr/docs/Web/CSS/backdrop-filter)
 - [Ecrans d'installation MacOS Big Sur](https://www.tech2tech.fr/comment-installer-macos-big-sur-sur-vmware/)
+- [Tutoriel sur l'utilisation de l'api JavaScript **IndexedDB**](https://www.ionos.fr/digitalguide/sites-internet/developpement-web/indexeddb/)
