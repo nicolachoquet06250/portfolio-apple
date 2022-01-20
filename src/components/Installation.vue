@@ -56,7 +56,7 @@ setInterval(() => {
   formattedDate.value = new Date().getHours() + ':' + new Date().getMinutes();
 }, 1000);
 
-const currentStep = ref(12);
+const currentStep = ref(0);
 const components = [
     {
         component: LanguesStep,
