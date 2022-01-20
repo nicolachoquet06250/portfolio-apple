@@ -19,7 +19,7 @@ import RecapLanguesStep from '@/install/RecapLangues.vue';
 import GeneralConditionsStep from '@/install/GeneralConditions.vue';
 import CreateAccountStep from '@/install/CreateAccount.vue';
 
-const currentStep = ref(10);
+const currentStep = ref(0);
 const components = [
     {
         component: LanguesStep,
