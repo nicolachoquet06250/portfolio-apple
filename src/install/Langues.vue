@@ -22,6 +22,16 @@
                 <button @click="$emit('nextStep', {
                     event: $event,
                     details: {
+                        skip_install: true
+                    }
+                })">
+                    <i class="far fa-times-circle"></i>
+                    <span> Passer l'installation </span>
+                </button>
+
+                <button @click="$emit('nextStep', {
+                    event: $event,
+                    details: {
                         selectedLangue
                     }
                 })">
@@ -124,10 +134,23 @@ resetMenus();
                 background-color: transparent;
                 border: none;
                 margin-right: 30px;
+                margin-top: 5px;
+                margin-bottom: 5px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
 
-                i.fas {
-                    color: #6D6D6D;
-                    font-size: 30px;
+                i {
+                    &.fas, &.far {
+                        color: #6D6D6D;
+                        font-size: 30px;
+                    }
+
+                    + span {
+                        color: #6D6D6D;
+                        margin-top: 5px;
+                    }
                 }
             }
             

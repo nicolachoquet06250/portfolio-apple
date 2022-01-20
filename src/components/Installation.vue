@@ -61,6 +61,9 @@ const components = [
     {
         component: LanguesStep,
         onNext(e) {
+            if (e.details.skip_install) {
+                emit('installed');
+            }
             console.log(e.details)
             console.log('passer à l\'étape de démarrage de l\'installation');
             currentStep.value++;
