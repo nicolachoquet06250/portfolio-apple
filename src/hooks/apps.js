@@ -1,5 +1,5 @@
 import { reactive, ref, computed, watch } from 'vue';
-import { useMousePressed, useMouse, useWindowSize, useMouseInElement } from '@vueuse/core';
+import { useMousePressed, useMouse, useWindowSize } from '@vueuse/core';
 
 import FinderApp from '@/applications/Finder.vue';
 import StoreApp from '@/applications/Store.vue';
@@ -165,13 +165,7 @@ export const useAppActions = (application, code, opened) => {
         touch: false
     });
     const { x: mouseX, y: mouseY } = useMouse();
-    const { isOutside } = useMouseInElement(application);
     const { width: windowWidth } = useWindowSize();
-
-    /**
-     * Computed constantes
-     */
-    const isInside = computed(() => !isOutside.value);
 
     const resize = ({ width, height }) => {
         currentSize.width = width;
