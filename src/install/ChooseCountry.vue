@@ -1,5 +1,7 @@
 <template>
     <div class="choose-country-step">
+        <div class="blur"></div>
+
         <div class="window">
             <div class="window-body">
                 <img :src="iconCountry" />
@@ -56,6 +58,15 @@ const selectedCountry = ref('');
     bottom: 0;
     right: 0;
     left: 0;
+
+    .blur {
+        position: absolute;
+        top: 0;
+        left:0;
+        right: 0;
+        bottom: 0;
+        backdrop-filter: blur(1.5rem);
+    }
 
     .window {
         background-color: #F7F7F7;
