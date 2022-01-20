@@ -1,5 +1,8 @@
 <template>
-    <MacOsSystemLoader @loaded="$emit('nextStep')">
+    <MacOsSystemLoader @loaded="$emit('nextStep', {
+        event: $event,
+        details: {}
+    })">
         <span>
             Il reste environ 1 minute...
         </span>

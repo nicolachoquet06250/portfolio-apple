@@ -11,8 +11,8 @@
                         'langue-option': true,
                         active: selectedLangue === langue.value
                     }" 
-                       v-for="langue of langues" :key="langue.value" 
-                       @click.prevent.stop="selectedLangue = langue.value">
+                       v-for="langue of LANGUES" :key="langue.value" 
+                       @click.prevent.stop="selectLangue(langue.value)">
                         {{langue.displayed}}
                     </a>
                 </div>
@@ -34,22 +34,14 @@
 
 <script setup>
 import { ref, defineEmits } from 'vue';
-
+import { LANGUES, useLangues } from '@/hooks/installation/langue';
 import iconLangues from '@/assets/install-icons/icon-langues.png';
 
-const langues = [
-    {
-        value: 'fr',
-        displayed: 'Français'
-    },
-    {
-        value: 'en',
-        displayed: 'English'
-    }
-];
-const selectedLangue = ref(langues[0].value);
+const { selectLangue, selectedLangue } = useLangues();
 
 defineEmits(['nextStep']);
+
+selectLangue(LANGUES[0].value);
 </script>
 
 <style lang="scss" scoped>

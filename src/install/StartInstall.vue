@@ -67,6 +67,7 @@ const isActive = option => selectedOption.value === option;
 
     .window {
         background-color: #282828;
+        border-top: 2px solid #4E4E4E;
         position: absolute;
         top: 100px;
         left: 20%;
@@ -136,6 +137,8 @@ const isActive = option => selectedOption.value === option;
                 border: none;
                 padding-left: 15px;
                 padding-right: 15px;
+                padding-top: 5px;
+                padding-bottom: 5px;
 
                 &:active, &:focus {
                     outline: 4px solid #246896;

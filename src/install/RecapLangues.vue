@@ -1,22 +1,43 @@
 <template>
-    <div class="choose-country-step">
+    <div class="recap-langue-step">
         <div class="blur"></div>
 
         <div class="window">
             <div class="window-body">
-                <img :src="iconCountry" />
+                <img :src="iconDialogue" />
 
-                <h1> Choisir un pays ou une région </h1>
+                <h1> Langues parlées et écrites </h1>
 
-                <div class="country-select">
-                    <a href="#" :class="{
-                        'country-option': true,
-                        active: selectedCountry === country.value
-                    }" 
-                       v-for="country of COUNTRIES" :key="country.value" 
-                       @click.prevent.stop="selectCountry(country.value)">
-                        {{ country.displayed }}
-                    </a>
+                <div class="recap-list">
+                    <div class="recap-item">
+                        <img :src="iconLangues" />
+
+                        <div class="recap-item-description">
+                            <h5> Langues préférées </h5>
+
+                            <p> {{ langue?.displayed }} ({{ country?.displayed }}) </p>
+                        </div>
+                    </div>
+                    
+                    <div class="recap-item">
+                        <img :src="iconLangues" />
+
+                        <div class="recap-item-description">
+                            <h5> Méthodes de saisie </h5>
+
+                            <p> {{ country?.displayed }} </p>
+                        </div>
+                    </div>
+
+                    <div class="recap-item">
+                        <img :src="iconLangues" />
+
+                        <div class="recap-item-description">
+                            <h5> Dictée </h5>
+                            
+                            <p>  {{ langue?.displayed }} ({{ country?.displayed }})  </p>
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -46,17 +67,19 @@
 </template>
 
 <script setup>
-import { defineEmits, ref } from 'vue';
-import { COUNTRIES, useCountries } from '@/hooks/installation/langue';
-import iconCountry from '@/assets/install-icons/icon-country.png';
+import { defineEmits } from 'vue';
+import { useLangues, useCountries } from '@/hooks/installation/langue';
+import iconLangues from '@/assets/install-icons/icon-langues.png';
+import iconDialogue from '@/assets/install-icons/icon-dialogue.png';
 
 defineEmits(['nextStep', 'previousStep']);
 
-const { selectedCountry, selectCountry } = useCountries();
+const { langue } = useLangues();
+const { country } = useCountries();
 </script>
 
 <style lang="scss" scoped>
-.choose-country-step {
+.recap-langue-step {
     cursor: default;
     background-image: url(/img/wallpapers/wallpaper-install-macos.jpg);
     position: absolute;
@@ -93,39 +116,53 @@ const { selectedCountry, selectCountry } = useCountries();
             display: flex;
             flex: 9;
             flex-direction: column;
-            justify-content: flex-end;
+            justify-content: flex-start;
             align-items: center;
+            margin-top: 30px;
+            padding-top: 70px;
 
             h2 {
                 color: black;
             }
 
-            .country {
-                &-select {
-                    background-color: #FFFFFF;
-                    width: 300px;
-                    height: 350px;
+            .recap {
+                &-list {
                     display: flex;
                     flex-direction: column;
-                    justify-content: flex-start;
-                    align-items: center;
-                    margin-bottom: 20px;
-                    border: 4px solid #287099;
-                    border-radius: 5px;
-                }
-
-                &-option {
-                    text-decoration: none;
-                    width: 100%;
-                    height: auto;
-                    color: black;
-                    display: flex;
                     justify-content: center;
                     align-items: center;
+                }
 
-                    &.active, &:active, &:focus {
-                        color: white;
-                        background-color: #0059D1;
+                &-item {
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: center;
+                    align-items: center;
+                    margin-top: 30px;
+
+                    img {
+                        width: 50px;
+                    }
+
+                    &-description {
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        align-items: flex-start;
+                        font-size: 15px;
+                        margin-left: 15px;
+
+                        h5, p {
+                            margin: 0;
+                        }
+
+                        h5 {
+                            margin-bottom: 5px;
+                        }
+
+                        p {
+                            font-size: 14px;
+                        }
                     }
                 }
             }

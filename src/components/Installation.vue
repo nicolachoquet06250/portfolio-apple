@@ -15,8 +15,11 @@ import ChooseDisqueStep from '@/install/ChooseDisque.vue';
 import InstallStep from '@/install/Install.vue';
 import RebootSystemStep from '@/install/RebootSystem.vue';
 import ChooseCountryStep from '@/install/ChooseCountry.vue';
+import RecapLanguesStep from '@/install/RecapLangues.vue';
+import GeneralConditionsStep from '@/install/GeneralConditions.vue';
+import CreateAccountStep from '@/install/CreateAccount.vue';
 
-const currentStep = ref(0);
+const currentStep = ref(10);
 const components = [
     {
         component: LanguesStep,
@@ -45,10 +48,12 @@ const components = [
     {
         component: LicenceStep,
         onNext(e) {
+            console.log(e.details);
             console.log('Passer à l\'étape de choix du disque');
             currentStep.value++;
         },
         onPrevious(e) {
+            console.log(e.details);
             console.log('Revenir à l\'étape de récap');
             currentStep.value--;
         }
@@ -56,10 +61,12 @@ const components = [
     {
         component: ChooseDisqueStep,
         onNext(e) {
+            console.log(e.details);
             console.log('Passer à l\'installation');
             currentStep.value++;
         },
         onPrevious(e) {
+            console.log(e.details);
             console.log('Revenir à l\'étape d\'acceptation de la licence');
             currentStep.value--;
         }
@@ -67,10 +74,12 @@ const components = [
     {
         component: InstallStep,
         onPrevious(e) {
+            console.log(e.details);
             console.log('Revenir à l\'étape de choix du disque');
             currentStep.value--;
         },
         onNext(e) {
+            console.log(e.details);
             console.log('Passer à l\'étape de reboot');
             currentStep.value++;
         }
@@ -78,14 +87,60 @@ const components = [
     {
         component: RebootSystemStep,
         onNext(e) {
+            console.log(e.details);
             console.log('Passer à l\'étape de choix du pays');
             currentStep.value++;
         }
     },
     {
         component: ChooseCountryStep,
-        onNext() {
+        onNext(e) {
+            console.log(e.details);
+            console.log('Passer à l\'étape de récap des langues');
+            currentStep.value++;
+        },
+        onPrevious(e) {
+            console.log(e.details);
+            console.log('Retour à l\'étape de récap de choix du disque');
+            currentStep.value = 4;
+        }
+    },
+    {
+        component: RecapLanguesStep,
+        onNext(e) {
+            console.log(e.details);
+            console.log('Passer à l\'étape des conditions générale d\'utilisation');
+            currentStep.value++;
+        },
+        onPrevious(e) {
+            console.log(e.details);
+            console.log('Retour à l\'étape de choix du pays');
+            currentStep.value--;
+        }
+    },
+    {
+        component: GeneralConditionsStep,
+        onNext(e) {
+            console.log(e.details);
+            console.log('Passer à l\'étape de création de compte');
+            currentStep.value++;
+        },
+        onPrevious(e) {
+            console.log(e.details);
+            console.log('Retour à l\'étape de récap des langues');
+            currentStep.value--;
+        }
+    },
+    {
+        component: CreateAccountStep,
+        onNext(e) {
+            console.log(e.details);
             console.log('étape suivante');
+        },
+        onPrevious(e) {
+            console.log(e.details);
+            console.log('Revenir à l\'étape des conditions générale d\'utilisation');
+            currentStep.value--;
         }
     }
 ];
