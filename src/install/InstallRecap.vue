@@ -32,11 +32,18 @@
 
 <script setup>
 import { ref, computed, defineEmits } from 'vue';
+import { useMenu, useStepTitle } from '@/hooks/installation/menu';
 import { useWindowSize } from '@vueuse/core';
-
 import iconInstallMac from '@/assets/install-icons/icon-install-macos.png';
 
 defineEmits(['nextStep']);
+
+useStepTitle('Install macOS');
+const { setMenu, resetMenus } = useMenu();
+
+resetMenus();
+setMenu('Edition', {});
+setMenu('Fenêtre', {});
 
 const { width } = useWindowSize();
 const windowWidth = computed(() => `${width.value}px`);
@@ -55,14 +62,14 @@ const windowWidth = computed(() => `${width.value}px`);
     .window {
         background-color: #282828;
         position: absolute;
-        top: 100px;
-        width: 630px;
-        height: 500px;
+        width: 730px;
+        height: 600px;
         display: flex;
         flex-direction: column;
         border-radius: 10px;
         overflow: hidden;
-        transform: translateX(calc((v-bind(windowWidth) - 603px) / 2));
+        left: calc(50% - (730px / 2));
+        top: calc(50% - (600px / 2));
 
         &-header {
             background-color: #1E1E1E;

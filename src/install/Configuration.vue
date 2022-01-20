@@ -1,0 +1,90 @@
+<template>
+    <div class="choose-style-step">
+        <div class="blur"></div>
+
+        <div class="window">
+            <div class="window-body">
+                <h1> Configuration du Portfolio... </h1>
+                
+                <img :src="iconConfig" />
+            </div>
+            
+            <div class="window-footer"></div>
+        </div>
+    </div>
+</template>
+
+<script setup>
+import { defineEmits } from 'vue';
+import iconConfig from '@/assets/install-icons/icon-config-mac.png';
+
+const emit = defineEmits(['nextStep']);
+
+setTimeout(() => {
+    emit('nextStep', {
+        event: null,
+        details: {}
+    })
+}, 10000);
+</script>
+
+<style lang="scss" scoped>
+.choose-style-step {
+    cursor: default;
+    background-image: url(/img/wallpapers/wallpaper-install-macos.jpg);
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+
+    .blur {
+        position: absolute;
+        top: 0;
+        left:0;
+        right: 0;
+        bottom: 0;
+        backdrop-filter: blur(1.5rem);
+    }
+
+    .window {
+        box-shadow: 2px 20px 36px -5px rgba(0,0,0,0.59);
+        background-color: #F7F7F7;
+        backdrop-filter: blur(1.5rem);
+        position: absolute;
+        width: 920px;
+        height: 750px;
+        display: flex;
+        flex-direction: column;
+        border-radius: 10px;
+        overflow: hidden;
+        z-index: 1;
+        left: calc(50% - (920px / 2));
+        top: calc(50% - (750px / 2));
+
+        &-body {
+            display: flex;
+            flex: 9;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            margin-top: 30px;
+            padding-top: 70px;
+
+            img {
+                width: 500px;
+            }
+        }
+
+        &-footer {
+            background-color: #F2F2F2F2;
+            display: flex;
+            flex: .75;
+            flex-direction: row;
+            justify-content: flex-end;
+            align-items: center;
+            border-top: 2px solid #E9E9E9;
+        }
+    }
+}
+</style>

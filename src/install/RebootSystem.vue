@@ -11,10 +11,14 @@
 
 <script setup>
 import { defineEmits } from 'vue';
-
+import { useMenu } from '@/hooks/installation/menu';
 import MacOsSystemLoader from '@/components/MacOsSystemLoader.vue';
 
 defineEmits(['nextStep']);
+
+const { resetMenus } = useMenu();
+
+resetMenus();
 </script>
 
 <style lang="scss" scoped>

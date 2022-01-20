@@ -79,22 +79,23 @@ const { selectedCountry, selectCountry } = useCountries();
         background-color: #F7F7F7;
         backdrop-filter: blur(1.5rem);
         position: absolute;
-        top: 100px;
-        left: 10%;
-        right: 10%;
-        bottom: 70px;
+        width: 920px;
+        height: 750px;
         display: flex;
         flex-direction: column;
         border-radius: 10px;
         overflow: hidden;
         z-index: 1;
+        left: calc(50% - (920px / 2));
+        top: calc(50% - (750px / 2));
 
         &-body {
             display: flex;
             flex: 9;
             flex-direction: column;
-            justify-content: flex-end;
+            justify-content: flex-start;
             align-items: center;
+            padding-top: 70px;
 
             h2 {
                 color: black;

@@ -35,13 +35,16 @@
 <script setup>
 import { ref, defineEmits } from 'vue';
 import { LANGUES, useLangues } from '@/hooks/installation/langue';
+import { useMenu } from '@/hooks/installation/menu';
 import iconLangues from '@/assets/install-icons/icon-langues.png';
 
 const { selectLangue, selectedLangue } = useLangues();
+const { resetMenus } = useMenu();
 
 defineEmits(['nextStep']);
 
 selectLangue(LANGUES[0].value);
+resetMenus();
 </script>
 
 <style lang="scss" scoped>
@@ -57,21 +60,22 @@ selectLangue(LANGUES[0].value);
     .window {
         background-color: #323232;
         position: absolute;
-        top: 100px;
-        left: 10%;
-        right: 10%;
-        bottom: 70px;
+        width: 920px;
+        height: 750px;
         display: flex;
         flex-direction: column;
         border-radius: 10px;
         overflow: hidden;
+        left: calc(50% - (920px / 2));
+        top: calc(50% - (750px / 2));
 
         &-body {
             display: flex;
             flex: 9;
             flex-direction: column;
-            justify-content: flex-end;
+            justify-content: flex-start;
             align-items: center;
+            padding-top: 70px;
 
             h2 {
                 color: white;

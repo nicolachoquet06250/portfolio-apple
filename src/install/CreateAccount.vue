@@ -91,7 +91,7 @@ const fullName = ref('');
 const accountName = ref('');
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .create-account-step {
     cursor: default;
     background-image: url(/img/wallpapers/wallpaper-install-macos.jpg);
@@ -115,15 +115,15 @@ const accountName = ref('');
         background-color: #F7F7F7;
         backdrop-filter: blur(1.5rem);
         position: absolute;
-        top: 100px;
-        left: 10%;
-        right: 10%;
-        bottom: 70px;
+        width: 920px;
+        height: 750px;
         display: flex;
         flex-direction: column;
         border-radius: 10px;
         overflow: hidden;
         z-index: 1;
+        left: calc(50% - (920px / 2));
+        top: calc(50% - (750px / 2));
 
         &-body {
             display: flex;
@@ -228,72 +228,6 @@ const accountName = ref('');
                     color: #D0D0D0;
                 }
             }
-        }
-    }
-
-    .alert {
-        position: absolute;
-        width: 300px;
-        height: 200px;
-        top: calc(50% - 100px);
-        left: calc(50% - (300px / 2));
-        background-color: white;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        border-radius: 10px;
-
-        img {
-            width: 50px;
-        }
-
-        p {
-            padding-left: 20px;
-            padding-right: 20px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        .btn-container {
-            width: 100%;
-            display: flex;
-            flex-direction: row;
-            justify-content: space-around;
-
-            button {
-                width: 100%;
-                padding-top: 8px;
-                padding-bottom: 8px;
-                border: none;
-                background-color: #CDCDCD;
-                border-radius: 8px;
-
-                &:focus, &:active {
-                    outline: 4px solid #6597D6;
-                }
-
-                &:first-child {
-                    margin-left: 10px;
-                    margin-right: 5px;
-                }
-
-                &:last-child {
-                    margin-right: 10px;
-                    margin-left: 5px;
-                }
-            }
-        }
-
-        &-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            right: 0;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 1;
         }
     }
 }

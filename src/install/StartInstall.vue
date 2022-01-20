@@ -31,7 +31,7 @@
 
 <script setup>
 import { ref, defineEmits } from 'vue';
-
+import { useMenu, useStepTitle } from '@/hooks/installation/menu';
 import iconInstallMac from '@/assets/install-icons/icon-install-macos.png';
 
 defineEmits(['nextStep']);
@@ -53,6 +53,15 @@ const selectOption = option => {
  * @param {keyof OPTIONS} option
  */
 const isActive = option => selectedOption.value === option;
+
+useStepTitle('Récupération');
+const { setMenu, resetMenus } = useMenu();
+
+resetMenus();
+setMenu('Fichier', {});
+setMenu('Edition', {});
+setMenu('Utilitaires', {});
+setMenu('Fenêtre', {});
 </script>
 
 <style lang="scss" scoped>
@@ -70,13 +79,14 @@ const isActive = option => selectedOption.value === option;
         border-top: 2px solid #4E4E4E;
         position: absolute;
         top: 100px;
-        left: 20%;
-        right: 20%;
+        width: 630px;
         height: 500px;
         display: flex;
         flex-direction: column;
         border-radius: 10px;
         overflow: hidden;
+        left: calc(50% - (630px / 2));
+        top: calc(50% - (500px / 2));
 
         &-body {
             display: flex;

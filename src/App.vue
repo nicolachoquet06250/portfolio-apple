@@ -24,7 +24,7 @@
     </MacDesktop>
   </template>
 
-  <installation v-else />
+  <installation @installed="installed = true" v-else />
 </template>
 
 <script setup>
