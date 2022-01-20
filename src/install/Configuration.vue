@@ -4,7 +4,7 @@
 
         <div class="window">
             <div class="window-body">
-                <h1> Configuration du Portfolio... </h1>
+                <h1> <span class="main">Configuration du Portfolio</span><span v-for="i of nbDots" :key="i" class="dot">.</span> </h1>
                 
                 <img :src="iconConfig" />
             </div>
@@ -15,10 +15,19 @@
 </template>
 
 <script setup>
-import { defineEmits } from 'vue';
+import { defineEmits, ref } from 'vue';
 import iconConfig from '@/assets/install-icons/icon-config-mac.png';
 
 const emit = defineEmits(['nextStep']);
+
+const nbDots = ref(1);
+
+setInterval(() => {
+    if (nbDots.value === 3) {
+        nbDots.value = 0;
+    }
+    nbDots.value++;
+}, 500);
 
 setTimeout(() => {
     emit('nextStep', {
@@ -73,6 +82,26 @@ setTimeout(() => {
 
             img {
                 width: 500px;
+            }
+
+            h1 {
+                display: flex;
+                flex-direction: row;
+                justify-content: flex-start;
+                align-items: center;
+                width: 430px;
+
+                span {
+                    display: inline-block;
+
+                    .dot {
+                        width: 5px;
+                    }
+
+                    &.main {
+                        width: max-content;
+                    }
+                }
             }
         }
 
