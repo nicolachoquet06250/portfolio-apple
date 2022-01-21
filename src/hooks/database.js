@@ -1,20 +1,57 @@
 import { ref, computed, watch } from 'vue';
 
-const request = ref(null);
-const error = ref(null);
-
-const onSuccess = ref(null);
-const onUpgradeNeeded = ref(null);
-
 const keyOptions = {
     keyPath: "id", 
     autoIncrement: true
 };
 
 export const useDatabase = (dbName, table) => {
+    const request = ref(null);
+    const error = ref(null);
+    const results = ref([]);
+    
+    const onSuccess = ref(null);
+    const onUpgradeNeeded = ref(null);
+
+    const requestEventsQueue = ref([]);
+
+    watch(onSuccess, () => {
+        if (onSuccess.value) {
+            if (request.value) {
+                request.value.onsuccess = onSuccess.value;
+            } else {
+                requestEventsQueue.value = [...requestEventsQueue.value, {
+                    name: 'onsuccess',
+                    event: onSuccess.value
+                }];
+            }
+        }
+    });
+
+    watch(onUpgradeNeeded, () => {
+        if (onUpgradeNeeded.value) {
+            if (request.value) {
+                request.value.onupgradeneeded = onUpgradeNeeded.value;
+            } else {
+                requestEventsQueue.value = [...requestEventsQueue.value, {
+                    name: 'onupgradeneeded',
+                    event: onUpgradeNeeded.value
+                }];
+            }
+        }
+    });
+
+    watch(request, () => {
+        requestEventsQueue.value.map(e => {
+            request.value[e.name] = e.event;
+        });
+        requestEventsQueue.value = [];
+    });
+
     return {
         error: computed(() => error.value),
         request: computed(() => request.value),
+        results: computed(() => results.value),
 
         onSuccess(cb) {
             onSuccess.value = e => {
@@ -41,28 +78,25 @@ export const useDatabase = (dbName, table) => {
                             });
                         },
                         get(id) {
-                            const result = ref(null);
                             store.get(id).onsuccess = e => {
-                                result.value = e.target.result;
+                                results.value = e.target.result ? [e.target.result] : [];
                             };
 
-                            return computed(() => result.value);
+                            return computed(() => results.value);
                         },
                         getAllValues() {
-                            const result = ref(null);
                             store.getAll().onsuccess = e => {
-                                result.value = e.target.result;
+                                results.value = e.target.result;
                             };
 
-                            return computed(() => result.value);
+                            return computed(() => results.value);
                         },
                         getAllKeys() {
-                            const result = ref(null);
                             store.getAllKeys().onsuccess = e => {
-                                result.value = e.target.result;
+                                results.value = e.target.result;
                             };
 
-                            return computed(() => result.value);
+                            return computed(() => results.value);
                         }
                     }
                 });
@@ -92,28 +126,25 @@ export const useDatabase = (dbName, table) => {
                             });
                         },
                         get(id) {
-                            const result = ref(null);
                             store.get(id).onsuccess = e => {
-                                result.value = e.target.result;
+                                results.value = e.target.result ? [e.target.result] : [];
                             };
 
-                            return computed(() => result.value);
+                            return computed(() => results.value);
                         },
                         getAllValues() {
-                            const result = ref(null);
                             store.getAll().onsuccess = e => {
-                                result.value = e.target.result;
+                                results.value = e.target.result;
                             };
 
-                            return computed(() => result.value);
+                            return computed(() => results.value);
                         },
                         getAllKeys() {
-                            const result = ref(null);
                             store.getAllKeys().onsuccess = e => {
-                                result.value = e.target.result;
+                                results.value = e.target.result;
                             };
 
-                            return computed(() => result.value);
+                            return computed(() => results.value);
                         }
                     }
                 })
@@ -122,19 +153,9 @@ export const useDatabase = (dbName, table) => {
         connect() {
             request.value = indexedDB.open(dbName, 2);
 
-            request.value.onerror = function(event) {
+            request.value.onerror = function() {
                 error.value = 'IndexedDB n\'est pas pris en charge par votre navigateur';
             };
         }
     };
 };
-
-watch(onSuccess, () => {
-    if (onSuccess.value) {
-        request.value.onsuccess = onSuccess.value;
-    }
-});
-
-watch(onUpgradeNeeded, () => {
-    request.value.onupgradeneeded = onUpgradeNeeded.value;
-});
