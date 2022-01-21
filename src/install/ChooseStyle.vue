@@ -16,11 +16,11 @@
                 </p>
 
                 <div class="btn-container">
-                    <button v-for="theme of themes" :key="theme.label" 
+                    <button v-for="theme of THEMES" :key="theme.label" 
                             :autofocus="selectedTheme === theme.value"
                             :class="{
                                 active: selectedTheme === theme.value
-                            }" @click="selectedTheme = theme.value">
+                            }" @click="selectTheme(theme.value)">
                         <img :src="theme.icon" />
 
                         <span> {{ theme.label }} </span>
@@ -38,14 +38,13 @@
                     Retour
                 </button>
 
-                <button :disabled="fullName === '' || accountName === ''"
-                    @click="$emit('nextStep', {
-                        event: $event,
-                        details: {
-                            continue: true,
-                            selectedTheme
-                        }
-                    })">
+                <button @click="$emit('nextStep', {
+                    event: $event,
+                    details: {
+                        continue: true,
+                        selectedTheme
+                    }
+                })">
                     Continuer
                 </button>
             </div>
@@ -55,29 +54,9 @@
 
 <script setup>
 import { ref } from 'vue';
-import iconThemeMacDark from '@/assets/install-icons/mac-style-dark.png';
-import iconThemeMacLite from '@/assets/install-icons/mac-style-lite.png';
-import iconThemeMacAuto from '@/assets/install-icons/mac-style-auto.png';
+import { THEMES, useTheme } from '@/hooks/installation/system-style';
 
-const themes = [
-    {
-        icon: iconThemeMacLite,
-        label: 'Clair',
-        value: 'lite'
-    },
-    {
-        icon: iconThemeMacDark,
-        label: 'Sombre',
-        value: 'dark'
-    },
-    {
-        icon: iconThemeMacAuto,
-        label: 'Automatique',
-        value: 'auto'
-    }
-];
-
-const selectedTheme = ref(themes[0].value)
+const { selectedTheme, selectTheme } = useTheme();
 </script>
 
 <style lang="scss" scoped>

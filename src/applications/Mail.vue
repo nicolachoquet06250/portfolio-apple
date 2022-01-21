@@ -5,7 +5,7 @@
 <script setup>
 import { useCurrentApp } from '@/hooks/apps';
 
-const { setCurrentAppMenus, currentAppHeaderBar } = useCurrentApp();
+const { setCurrentAppMenus } = useCurrentApp();
 
 setCurrentAppMenus({
     TitleSection1: {

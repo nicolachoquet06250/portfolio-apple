@@ -10,7 +10,7 @@ const {
     onUpgradeNeeded, 
     onSuccess, 
     connect
-} = useDatabase('portfolio-apple', 'arboraissence');
+} = useDatabase('portfolio-apple', 'tree-structure');
 
 onUpgradeNeeded(({ context: { add } }) => {
     add({

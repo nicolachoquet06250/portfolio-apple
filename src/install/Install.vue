@@ -51,7 +51,9 @@
 import { ref, defineEmits } from 'vue';
 import { useMenu, useStepTitle } from '@/hooks/installation/menu';
 import { useDisque } from '@/hooks/installation/disque';
+import { useLangues } from '@/hooks/installation/langue';
 import iconInstallMac from '@/assets/install-icons/icon-install-macos.png';
+import { useDatabase, INDEX_PARAMS } from '@/hooks/database';
 
 const emit = defineEmits(['previousStep', 'nextStep']);
 
@@ -60,11 +62,32 @@ const { disque } = useDisque();
 useStepTitle('Install macOS');
 const { setMenu, resetMenus } = useMenu();
 
+const { 
+    onUpgradeNeeded: onSettingsUpgradeNeeded, 
+    connect: settingsConnect
+} = useDatabase('portfolio-apple_settings', 'settings');
+const { langue } = useLangues();
+
 resetMenus();
 setMenu('Edition', {});
 setMenu('Fenêtre', {});
 
 const progressCmp = ref(0);
+
+onSettingsUpgradeNeeded(({ context: { addIndex, add } }) => {
+    addIndex('field', INDEX_PARAMS.UNIQUE);
+    add(
+        {
+            field: 'langue',
+            value: langue.value
+        },
+        {
+            field: 'disque',
+            value: disque.value
+        }
+    );
+});
+settingsConnect();
 
 const interval = setInterval(() => {
     progressCmp.value++;
@@ -79,7 +102,7 @@ const interval = setInterval(() => {
             }
         })
     }
-}, 500);
+}, 300);
 </script>
 
 <style lang="scss" scoped>

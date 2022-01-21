@@ -14,11 +14,12 @@ const cmp = ref(0);
 
 if (waiting.value) {
   interval.value = setInterval(async () => {
+    document.querySelector('#app').classList.remove(`waiting-${(cmp.value)}`);
     cmp.value++;
     if (cmp.value > 14) {
       cmp.value = 0;
     }
-    document.querySelector('#app').classList.remove(`waiting-${(cmp.value === 0 ? 14 : cmp.value - 1)}`);
+    //document.querySelector('#app').classList.remove(`waiting-${(cmp.value === 0 ? 14 : cmp.value - 1)}`);
     document.querySelector('#app').classList.add(`waiting-${cmp.value}`);
   }, 100);
 }
@@ -32,18 +33,20 @@ watch(waiting, () => {
     document.querySelector('#app').classList.add('waiting');
 
     interval.value = setInterval(() => {
+      document.querySelector('#app').classList.remove(`waiting-${(cmp.value)}`);
       cmp.value++;
 
       if (cmp.value > 14) cmp.value = 0;
 
-      document.querySelector('#app').classList.remove(`waiting-${(cmp.value === 0 ? 14 : cmp.value - 1)}`);
+      //document.querySelector('#app').classList.remove(`waiting-${(cmp.value === 0 ? 14 : cmp.value - 1)}`);
       document.querySelector('#app').classList.add(`waiting-${cmp.value}`);
     }, 50);
   } else {
     clearInterval(interval.value);
 
     document.querySelector('#app').classList.remove('waiting');
-    document.querySelector('#app').classList.remove(`waiting-${(cmp.value === 0 ? 14 : cmp.value - 1)}`);
+    console.log(cmp.value);
+    document.querySelector('#app').classList.remove(`waiting-${(cmp.value)}`);
     
     cmp.value = 0;
   }
@@ -81,49 +84,49 @@ const cursorY = computed(() => y.value + "px");
   }
 
   &.waiting {
-    &.waiting-0 {
+    &.waiting-0 * {
       cursor: url(/cursors/_waiting-frame1.png), wait !important;
     }
-    &.waiting-1 {
+    &.waiting-1 * {
       cursor: url(/cursors/_waiting-frame2.png), wait !important;
     }
-    &.waiting-2 {
+    &.waiting-2 * {
       cursor: url(/cursors/_waiting-frame3.png), wait !important;
     }
-    &.waiting-3 {
+    &.waiting-3 * {
       cursor: url(/cursors/_waiting-frame4.png), wait !important;
     }
-    &.waiting-4 {
+    &.waiting-4 * {
       cursor: url(/cursors/_waiting-frame5.png), wait !important;
     }
-    &.waiting-5 {
+    &.waiting-5 * {
       cursor: url(/cursors/_waiting-frame6.png), wait !important;
     }
-    &.waiting-6 {
+    &.waiting-6 * {
       cursor: url(/cursors/_waiting-frame7.png), wait !important;
     }
-    &.waiting-7 {
+    &.waiting-7 * {
       cursor: url(/cursors/_waiting-frame8.png), wait !important;
     }
-    &.waiting-8 {
+    &.waiting-8 * {
       cursor: url(/cursors/_waiting-frame9.png), wait !important;
     }
-    &.waiting-9 {
+    &.waiting-9 * {
       cursor: url(/cursors/_waiting-frame10.png), wait !important;
     }
-    &.waiting-10 {
+    &.waiting-10 * {
       cursor: url(/cursors/_waiting-frame11.png), wait !important;
     }
-    &.waiting-11 {
+    &.waiting-11 * {
       cursor: url(/cursors/_waiting-frame12.png), wait !important;
     }
-    &.waiting-12 {
+    &.waiting-12 * {
       cursor: url(/cursors/_waiting-frame13.png), wait !important;
     }
-    &.waiting-13 {
+    &.waiting-13 * {
       cursor: url(/cursors/_waiting-frame14.png), wait !important;
     }
-    &.waiting-14 {
+    &.waiting-14 * {
       cursor: url(/cursors/_waiting-frame15.png), wait !important;
     }
   }
@@ -132,49 +135,49 @@ const cursorY = computed(() => y.value + "px");
     cursor: url(/cursors/normal-50x50.png), default !important;
 
     &.waiting {
-      &.waiting-0 {
+      &.waiting-0 * {
         cursor: url(/cursors/_waiting-frame1-50x50.png), wait !important;
       }
-      &.waiting-1 {
+      &.waiting-1 * {
         cursor: url(/cursors/_waiting-frame2-50x50.png), wait !important;
       }
-      &.waiting-2 {
+      &.waiting-2 * {
         cursor: url(/cursors/_waiting-frame3-50x50.png), wait !important;
       }
-      &.waiting-3 {
+      &.waiting-3 * {
         cursor: url(/cursors/_waiting-frame4-50x50.png), wait !important;
       }
-      &.waiting-4 {
+      &.waiting-4 * {
         cursor: url(/cursors/_waiting-frame5-50x50.png), wait !important;
       }
-      &.waiting-5 {
+      &.waiting-5 * {
         cursor: url(/cursors/_waiting-frame6-50x50.png), wait !important;
       }
-      &.waiting-6 {
+      &.waiting-6 * {
         cursor: url(/cursors/_waiting-frame7-50x50.png), wait !important;
       }
-      &.waiting-7 {
+      &.waiting-7 * {
         cursor: url(/cursors/_waiting-frame8-50x50.png), wait !important;
       }
-      &.waiting-8 {
+      &.waiting-8 * {
         cursor: url(/cursors/_waiting-frame9-50x50.png), wait !important;
       }
-      &.waiting-9 {
+      &.waiting-9 * {
         cursor: url(/cursors/_waiting-frame10-50x50.png), wait !important;
       }
-      &.waiting-10 {
+      &.waiting-10 * {
         cursor: url(/cursors/_waiting-frame11-50x50.png), wait !important;
       }
-      &.waiting-11 {
+      &.waiting-11 * {
         cursor: url(/cursors/_waiting-frame12-50x50.png), wait !important;
       }
-      &.waiting-12 {
+      &.waiting-12 * {
         cursor: url(/cursors/_waiting-frame13-50x50.png), wait !important;
       }
-      &.waiting-13 {
+      &.waiting-13 * {
         cursor: url(/cursors/_waiting-frame14-50x50.png), wait !important;
       }
-      &.waiting-14 {
+      &.waiting-14 * {
         cursor: url(/cursors/_waiting-frame15-50x50.png), wait !important;
       }
 

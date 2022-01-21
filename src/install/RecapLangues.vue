@@ -51,14 +51,14 @@
                     Retour
                 </button>
 
-                <button :disabled="selectedCountry === ''" 
-                    @click="$emit('nextStep', {
-                        event: $event,
-                        details: {
-                            continue: true,
-                            selectedCountry
-                        }
-                    })">
+                <button @click="$emit('nextStep', {
+                    event: $event,
+                    details: {
+                        continue: true,
+                        selectedLangue: langue.value,
+                        selectedCountry: country.value
+                    }
+                })">
                     Continuer
                 </button>
             </div>

@@ -50,10 +50,8 @@
 </template>
 
 <script setup>
-import { useCurrentApp } from '@/hooks/apps';
 import { useFinder } from '@/hooks/finder';
 
-const { currentAppHeaderBar } = useCurrentApp();
 const { selectedTab, backInPath } = useFinder(5);
 </script>
 

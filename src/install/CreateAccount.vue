@@ -69,14 +69,7 @@
                 </button>
 
                 <button :disabled="fullName === '' || accountName === ''"
-                    @click="$emit('nextStep', {
-                        event: $event,
-                        details: {
-                            continue: true,
-                            fullName,
-                            accountName
-                        }
-                    })">
+                        @click="_createAccount($event)">
                     Continuer
                 </button>
             </div>
@@ -85,10 +78,28 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { defineEmits, ref, computed, watch } from 'vue';
+import { useAccount } from '@/hooks/installation/account';
+
+const emit = defineEmits(['nextStep', 'previousStep']);
+
+const { createAccount } = useAccount();
 
 const fullName = ref('');
 const accountName = ref('');
+
+const _createAccount = e => {
+    createAccount(fullName.value, accountName.value);
+
+    emit('nextStep', {
+        event: e,
+        details: {
+            continue: true,
+            fullName: fullName.value,
+            accountName: accountName.value
+        }
+    })
+}
 </script>
 
 <style lang="scss" scoped>

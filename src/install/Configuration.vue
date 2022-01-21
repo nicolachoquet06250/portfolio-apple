@@ -15,10 +15,150 @@
 </template>
 
 <script setup>
-import { defineEmits, ref } from 'vue';
+import { defineEmits, ref, watch } from 'vue';
+import { useDatabase, INDEX_PARAMS } from '@/hooks/database';
+import { useCountries } from '@/hooks/installation/langue';
+import { useAccount } from '@/hooks/installation/account';
+import { useTheme } from '@/hooks/installation/system-style';
 import iconConfig from '@/assets/install-icons/icon-config-mac.png';
 
 const emit = defineEmits(['nextStep']);
+
+const { country } = useCountries();
+const { fullName, accountName, user } = useAccount();
+const { selectedTheme } = useTheme();
+const [
+    { onSuccess: onSettingsSuccess, connect: settingsConnect },
+    { onUpgradeNeeded: onAccountUpgradeNeeded, connect: accountConnect },
+    { onUpgradeNeeded: onTreeStructureUpgradeNeeded, connect: treeStructureConnect }
+] = [
+    useDatabase('portfolio-apple_settings', 'settings'),
+    useDatabase('portfolio-apple_account', 'account'),
+    useDatabase('portfolio-apple_tree_structure', 'tree_structure')
+];
+
+const nbFiniched = ref(0);
+
+const dbQueue = ref([
+    () => {
+        onSettingsSuccess(({ context: { add } }) => {
+            add(
+                {
+                    field: 'country',
+                    value: country.value
+                },
+                {
+                    field: 'theme',
+                    value: selectedTheme.value
+                }
+            );
+
+            nbFiniched.value++;
+        });
+        settingsConnect();
+    },
+    () => {
+        onAccountUpgradeNeeded(({ context: { addIndex, add } }) => {
+            addIndex('account_name', INDEX_PARAMS.UNIQUE);
+            
+            add({
+                full_name: fullName.value,
+                account_name: accountName.value
+            });
+
+            nbFiniched.value++;
+        });
+        accountConnect();
+    },
+    () => {
+        onTreeStructureUpgradeNeeded(({ context: { add } }) => {
+            add(
+                {
+                    user_id: 1,
+                    name: 'Applications',
+                    extention: null,
+                    parent: '/nchoquet',
+                    content: null,
+                    type: 'directory',
+                    creation_date: new Date(),
+                    updated_date: new Date(),
+                    opened_date: new Date()
+                },
+                {
+                    user_id: 1,
+                    name: 'AirDrop',
+                    extention: null,
+                    parent: '/nchoquet',
+                    content: null,
+                    type: 'directory',
+                    creation_date: new Date(),
+                    updated_date: new Date(),
+                    opened_date: new Date()
+                },
+                {
+                    user_id: 1,
+                    name: 'Desktop',
+                    extention: null,
+                    parent: '/nchoquet',
+                    content: null,
+                    type: 'directory',
+                    creation_date: new Date(),
+                    updated_date: new Date(),
+                    opened_date: new Date()
+                },
+                {
+                    user_id: 1,
+                    name: 'Images',
+                    extention: null,
+                    parent: '/nchoquet',
+                    content: null,
+                    type: 'directory',
+                    creation_date: new Date(),
+                    updated_date: new Date(),
+                    opened_date: new Date()
+                },
+                {
+                    user_id: 1,
+                    name: 'Videos',
+                    extention: null,
+                    parent: '/nchoquet',
+                    content: null,
+                    type: 'directory',
+                    creation_date: new Date(),
+                    updated_date: new Date(),
+                    opened_date: new Date()
+                },
+                {
+                    user_id: 1,
+                    name: 'Documents',
+                    extention: null,
+                    parent: '/nchoquet',
+                    content: null,
+                    type: 'directory',
+                    creation_date: new Date(),
+                    updated_date: new Date(),
+                    opened_date: new Date()
+                },
+                {
+                    user_id: 1,
+                    name: 'Downloads',
+                    extention: null,
+                    parent: '/nchoquet',
+                    content: null,
+                    type: 'directory',
+                    creation_date: new Date(),
+                    updated_date: new Date(),
+                    opened_date: new Date()
+                }
+            );
+
+            nbFiniched.value++;
+        });
+        treeStructureConnect();
+    }
+]);
+
+dbQueue.value[0]();
 
 const nbDots = ref(1);
 
@@ -29,12 +169,24 @@ setInterval(() => {
     nbDots.value++;
 }, 500);
 
-setTimeout(() => {
-    emit('nextStep', {
-        event: null,
-        details: {}
-    })
-}, 10000);
+watch(nbFiniched, () => {
+    // gestion des différentes requêtes dans une queue 
+    // pour ne pas que les connections se fassent en même temps.
+    const tmp = [...dbQueue.value];
+    tmp.shift();
+    dbQueue.value = tmp;
+    if (dbQueue.value[0]) dbQueue.value[0]();
+    // FIN DE LA GESTION DE LA QUEUE
+
+    if (nbFiniched.value === 3) {
+        setTimeout(() => {
+            emit('nextStep', {
+                event: null,
+                details: {}
+            });
+        }, 2000);
+    }
+});
 </script>
 
 <style lang="scss" scoped>

@@ -18,15 +18,13 @@
 
       <MacOsDock position="right" />
 
-      <MacOsCursor />
-
       <MacOsSystemLoader v-if="systemLoading" @loaded="handleSystemLoaded" />
     </MacDesktop>
   </template>
 
   <installation @installed="installed = true" v-else />
 
-  <Test v-if="ACTIVE_TEST_DB" />
+  <MacOsCursor />
 </template>
 
 <script setup>
@@ -48,11 +46,6 @@ const { charging, chargingTime, dischargingTime, level } = useBattery();
 const { width: screenWidth } = useWindowSize();
 const { currentApp, setCurrentApp } = useCurrentApp();
 const systemLoading = ref(true);
-
-/* TESTS DES HOOKS INDEXED DB */
-import Test from '@/components/Test.vue';
-const ACTIVE_TEST_DB = ref(false);
-/* FIN DES TESTS DES HOOKS INDEXED DB */
 
 setCurrentApp(APPLICATION.FINDER);
 

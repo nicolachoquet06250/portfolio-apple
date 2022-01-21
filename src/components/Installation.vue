@@ -28,6 +28,7 @@
 import { computed, ref, defineEmits } from 'vue';
 import { useMenu, isRebooted } from '@/hooks/installation/menu';
 import { useLangues } from '@/hooks/installation/langue';
+import { useWait } from '@/hooks/wait';
 
 import LanguesStep from '@/install/Langues.vue';
 import StartInstallStep from '@/install/StartInstall.vue';
@@ -47,6 +48,7 @@ const emit = defineEmits(['installed']);
 
 const { menus, rebooted, stepTitle } = useMenu();
 const { langue } = useLangues();
+const { isWait, isNotWait } = useWait();
 
 const formattedDate = ref(
   new Date().getHours() + ':' + new Date().getMinutes()
@@ -103,6 +105,7 @@ const components = [
         onNext(e) {
             console.log(e.details);
             console.log('Passer à l\'installation');
+            isWait();
             currentStep.value++;
         },
         onPrevious(e) {
@@ -116,11 +119,13 @@ const components = [
         onPrevious(e) {
             console.log(e.details);
             console.log('Revenir à l\'étape de choix du disque');
+            isNotWait();
             currentStep.value--;
         },
         onNext(e) {
             console.log(e.details);
             console.log('Passer à l\'étape de reboot');
+            isNotWait();
             currentStep.value++;
         }
     },
@@ -211,6 +216,7 @@ const components = [
         onNext(e) {
             console.log(e.details);
             console.log('Finir le process et aller sur le bureau');
+            localStorage.setItem('installed', '1');
             emit('installed');
         }
     }
