@@ -72,9 +72,9 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 ### Objectifs
 
 [<span style="color: gray"> ? </span>] Mac OS :
- - [<span style="color: gray"> ? </span>] Processus d'installation
+ - [<span style="color: green">&check; </span>] Processus d'installation
    - [<span style="color: green">&check;</span>] Parcour visuel
-   - [<span style="color: red">&cross;</span>] Installation de l'arboraissence grâce à l'api javascript IndexedDB
+   - [<span style="color: green">&check;</span>] Installation de l'arboraissence grâce à l'api javascript IndexedDB
  - [<span style="color: green">&check;</span>] Dock macOS
  - [<span style="color: green">&check;</span>] Bureau macOS
  - [<span style="color: green">&check;</span>] Fonctionnalité "Secouer pour trouver le curseur"
@@ -84,8 +84,8 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
  - [<span style="color: green">&check;</span>] Fonctionalité de fermeture / minification / maximisation d'une application
  - [<span style="color: green">&check;</span>] Fonctionnalité de déplacement d'une application
  - [<span style="color: green">&check;</span>] Fonctionnalité de redimentionnement d'une application
- - [<span style="color: gray"> ? </span>] Animation d'ouverture / fermeture / minification d'une application :
-   - [<span style="color: red">&cross;</span>] Animation d'ouverture d'une application
+ - [<span style="color: green">&check;</span>] Animation d'ouverture / fermeture / minification d'une application :
+   - [<span style="color: green">&check;</span>] Animation d'ouverture d'une application
    - [<span style="color: green">&check;</span>] Animation de fermeture d'une application
    - [<span style="color: green">&check;</span>] Animation de minimification d'une application
    - [<span style="color: green">&check;</span>] Animation de maximisation d'une application
