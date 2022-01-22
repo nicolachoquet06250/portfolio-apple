@@ -221,6 +221,10 @@ const selectSubMenuItem = (item, e) => {
 
                 &:first-child {
                     padding-left: 10px;
+
+                    * {
+                      font-size: 20px;
+                    }
                 }
 
                 ul {

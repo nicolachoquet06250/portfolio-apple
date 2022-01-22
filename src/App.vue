@@ -23,7 +23,45 @@
 
         <InstallDesktopIcon v-if="installSkipped" @install="installMac()" />
 
-        <MacOsAlert v-if="displayAlert" @close="hideAlert" />
+        <MacOsAlert v-if="displayAlert" 
+                    @close="hideAlert" 
+                    @validate="hideAlert">
+          <template v-slot:title>
+            <span>{{ alertContent.title }}</span>
+          </template>
+
+          <template v-slot:body>
+            <p v-for="(p, i) of alertContent.content" :key="i">
+              {{ p }}
+            </p>
+          </template>
+
+          <template v-slot:footer>
+            <Checkbox id="dont-ask-again">
+                Dont ask again
+            </Checkbox>
+          </template>
+        </MacOsAlert>
+
+        <MacOsAlert v-if="displayAlertAppInDev && alertAppInDev.show" 
+                    @close="hideAlertAppInDev" 
+                    @validate="hideAlertAppInDev">
+          <template v-slot:title>
+            <span>{{ alertAppInDev.title }}</span>
+          </template>
+
+          <template v-slot:body>
+            <p v-for="(p, i) of alertAppInDev.content" :key="i">
+              {{ p }}
+            </p>
+          </template>
+
+          <template v-slot:footer>
+            <Checkbox v-model="alertAppInDev.dontShowAgain" id="dont-show-again">
+                Ne plus voir cette alerte
+            </Checkbox>
+          </template>
+        </MacOsAlert>
 
         <MacOsDock position="right" />
       </MacDesktop>
@@ -46,6 +84,7 @@ import MacOsSystemLoader from '@/components/MacOsSystemLoader.vue';
 import Installation from '@/components/Installation.vue';
 import LoginView from '@/components/LoginView.vue';
 import InstallDesktopIcon from '@/components/InstallDesktopIcon.vue';
+import Checkbox from '@/components/Checkbox.vue';
 
 import { ref, reactive, watch } from "vue";
 import { useNetwork, useBattery, useWindowSize } from "@vueuse/core";
@@ -63,12 +102,35 @@ const connected = ref(false);
 const installed = ref(localStorage.getItem('installed') !== null);
 const installSkipped = ref(localStorage.getItem('install_skipped') !== null);
 const displayAlert = ref(false);
+const displayAlertAppInDev = ref(true);
+const alertContent = reactive({
+  title: 'Alert title will be here',
+  content: [
+    `Lorem ipsum dolor sit amet consectetur adipisicing elit. 
+    Reiciendis nesciunt veritatis praesentium veniam eveniet nostrum, 
+    enim natus corrupti!`
+  ]
+});
+const alertAppInDev = reactive({
+  show: localStorage.getItem('dontShowWarningAlertAgain') === null,
+  dontShowAgain: localStorage.getItem('dontShowWarningAlertAgain') !== null,
+  title: 'Application en developement',
+  content: [
+    `Cette application est en cours de développement.`,
+    `Toutes les fonctionnalitées ne fonctionnent pas encore.`,
+    `Merci de votre compréhantion.`
+  ]
+});
+
 const showAlert = () => {
   displayAlert.value = true;
 };
 const hideAlert = () => {
   displayAlert.value = false;
 };
+const hideAlertAppInDev = () => {
+  displayAlertAppInDev.value = false;
+}
 const handleSystemLoaded = () => {
   systemLoading.value = false;
 };
@@ -144,6 +206,14 @@ watch([isOnline, charging, chargingTime, dischargingTime, level], () => {
   desktopTopBar.battery.dischargingTime = dischargingTime.value;
   desktopTopBar.battery.level = level.value;
 });
+
+watch(() => alertAppInDev.dontShowAgain, () => {
+  if (alertAppInDev.dontShowAgain) {
+    localStorage.setItem('dontShowWarningAlertAgain', '1');
+  } else {
+    localStorage.removeItem('dontShowWarningAlertAgain');
+  }
+})
 </script>
 
 <style lang="scss">

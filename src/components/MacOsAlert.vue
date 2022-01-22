@@ -5,15 +5,15 @@
         </div>
 
         <div class="alert-title">
-            Alert title will be here
+            <slot name="title"></slot>
         </div>
 
         <div class="alert-text">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Reiciendis nesciunt veritatis praesentium veniam eveniet nostrum, enim natus corrupti!
+            <slot name="body"></slot>
         </div>
 
         <div class="btn-container column">
-            <Button>
+            <Button @click="$emit('validate', $event)">
                 Validate
             </Button>
             
@@ -21,9 +21,7 @@
                 Cancel
             </Button>
 
-            <Checkbox id="dont-ask-again">
-                Dont ask again
-            </Checkbox>
+            <slot name="footer"></slot>
         </div>
     </div>
 </template>
@@ -34,9 +32,8 @@ import appstore from '@/assets/dock/appstore.png';
 import { useWindowSize } from "@vueuse/core";
 
 import Button from '@/components/Button.vue';
-import Checkbox from '@/components/Checkbox.vue';
 
-defineEmits(['close']);
+defineEmits(['close', 'validate']);
 
 const { width } = useWindowSize();
 
