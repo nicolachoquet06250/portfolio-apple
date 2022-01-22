@@ -9,6 +9,17 @@ export const INDEX_PARAMS = {
     UNIQUE: { unique: true }
 };
 
+export const TABLES = {
+    ACCOUNT: 'account',
+    SETTINGS: 'settings',
+    TREE_STRUCTURE: 'tree_structure'
+};
+
+/**
+ * @param {String} table 
+ */
+export const getParams = table => [`portfolio-apple_${table}`, table];
+
 export const useDatabase = (dbName, table) => {
     const request = ref(null);
     const error = ref(null);
@@ -54,6 +65,11 @@ export const useDatabase = (dbName, table) => {
         }
     });
 
+    /**
+     * @param {IDBDatabase} db 
+     * @param {Boolean} created 
+     * @returns {{ db: IDBDatabase, context: { add: (...els) => void, remove: (...els) => void, get(id) => import('vue').ComputedGetter<Array<any>>, getAllValues() => import('vue').ComputedGetter<Array<any>>, getAllKeys() => import('vue').ComputedGetter<Array<any>>, getFromIndex(index, value) => import('vue').ComputedGetter<Array<any>>, addIndex: (key, params) => void } }}
+     */
     const getCbParamObject = (db, created = true) => {
         const store = created 
             ? db.createObjectStore(table, keyOptions) 
@@ -137,6 +153,58 @@ export const useDatabase = (dbName, table) => {
         }
 
         return params;
+    };
+
+    const connect = () => {
+        request.value = indexedDB.open(dbName, 1);
+
+        request.value.onerror = function() {
+            error.value = 'IndexedDB n\'est pas pris en charge par votre navigateur';
+        };
+    };
+
+    /**
+     * @param {Function} cb 
+     * @returns {{ onSuccess: Function, connect: Function }}
+     */
+    function _onUpgradeNeeded(cb) {
+        onUpgradeNeeded.value = e => {
+            const db = e.target.result;
+
+            cb = cb?.bind(this);
+            
+            cb?.(getCbParamObject(db));
+
+            db.close();
+            request.value = null;
+        };
+
+        return {
+            onSuccess: _onSuccess,
+            connect
+        }
+    }
+
+    /**
+     * @param {Function} cb 
+     * @returns {{ onUpgradeNeeded: Function, connect: Function }}
+     */
+    function _onSuccess(cb) {
+        onSuccess.value = e => {
+            const db = e.target.result;
+
+            cb = cb?.bind(this);
+
+            cb?.(getCbParamObject(db, false));
+
+            db.close();
+            request.value = null;
+        };
+
+        return {
+            onUpgradeNeeded: _onUpgradeNeeded,
+            connect
+        }
     }
 
     return {
@@ -144,36 +212,8 @@ export const useDatabase = (dbName, table) => {
         request: computed(() => request.value),
         results: computed(() => results.value),
 
-        onSuccess(cb) {
-            onSuccess.value = e => {
-                const db = e.target.result;
-
-                cb = cb?.bind(this);
-
-                cb?.(getCbParamObject(db, false));
-
-                db.close();
-                request.value = null;
-            };
-        },
-        onUpgradeNeeded(cb) {
-            onUpgradeNeeded.value = e => {
-                const db = e.target.result;
-
-                cb = cb?.bind(this);
-                
-                cb?.(getCbParamObject(db));
-
-                db.close();
-                request.value = null;
-            };
-        },
-        connect() {
-            request.value = indexedDB.open(dbName, 1);
-
-            request.value.onerror = function() {
-                error.value = 'IndexedDB n\'est pas pris en charge par votre navigateur';
-            };
-        }
+        onSuccess: _onSuccess,
+        onUpgradeNeeded: _onUpgradeNeeded,
+        connect
     };
 };

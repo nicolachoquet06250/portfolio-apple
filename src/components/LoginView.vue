@@ -2,7 +2,7 @@
     <div class="login-view">
         <div class="login-view-header">
             <span> 
-                Français 
+                {{ displayedLangue }} 
                 <i class="far fa-keyboard"></i>
             </span>
 
@@ -29,14 +29,14 @@
         
         <div class="login-view-body">
             <div class="account-container">
-                <div class="account" clickable
+                <div v-for="account of accounts" :key="account.id" 
+                    class="account" clickable
                     @click="login($event, {
-                        full_name: 'Nicolas Choquet',
-                        account_name: 'nchoquet'
+                        ...account
                     })">
                     <img :src="defaultProfilePic" />
 
-                    <h3> Nicolas Choquet </h3>
+                    <h3> {{ account.full_name }} </h3>
 
                     <div class="password-container">
                         <input type="password" 
@@ -93,20 +93,28 @@
 </template>
 
 <script setup>
-import { ref, defineEmits } from 'vue';
+import { ref, defineEmits, watch } from 'vue';
 import { useNetwork, useBattery } from "@vueuse/core";
 import { useWait } from '@/hooks/wait';
+import { useDatabase, TABLES, getParams } from '@/hooks/database';
 import defaultProfilePic from '@/assets/default-profile-pic.png';
 import iconSuspend from '@/assets/icon-suspend-login-view.png';
 
 const emit = defineEmits(['connected']);
 
 const { isWait, isNotWait } = useWait();
+const { onSuccess: onAccountSuccess, results: accounts } = useDatabase(...getParams(TABLES.ACCOUNT));
+const { onSuccess: onSettingsSuccess, results: settings } = useDatabase(...getParams(TABLES.SETTINGS));
 const { isOnline } = useNetwork();
 const { 
     charging, chargingTime, 
     dischargingTime, level
 } = useBattery();
+
+onAccountSuccess(({ context: { getAllValues } }) => getAllValues()).connect();
+onSettingsSuccess(({ context: { getFromIndex } }) => getFromIndex('field', 'langue')).connect();
+
+const displayedLangue = ref('');
 
 const formattedDate = ref(
   new Date().toLocaleDateString("fr-FR", {
@@ -129,6 +137,7 @@ setInterval(() => {
 const login = (event, user) => {
     isWait();
 
+    console.log(user);
     setTimeout(() => {
         isNotWait();
 
@@ -139,7 +148,9 @@ const login = (event, user) => {
             }
         });
     }, 1500);
-}
+};
+
+watch(settings, () => (displayedLangue.value = settings.value.value.displayed));
 </script>
 
 <style lang="scss" scoped>

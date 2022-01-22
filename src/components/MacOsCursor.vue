@@ -47,7 +47,6 @@ watch(waiting, () => {
     clearInterval(interval.value);
 
     document.querySelector('#app').classList.remove('waiting');
-    console.log(cmp.value);
     document.querySelector('#app').classList.remove(`waiting-${(cmp.value)}`);
     
     cmp.value = 0;
