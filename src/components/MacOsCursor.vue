@@ -13,6 +13,8 @@ const interval = ref(null);
 const cmp = ref(0);
 
 if (waiting.value) {
+  document.querySelector('#app').classList.add('waiting');
+
   interval.value = setInterval(async () => {
     document.querySelector('#app').classList.remove(`waiting-${(cmp.value)}`);
     cmp.value++;

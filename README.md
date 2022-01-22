@@ -75,6 +75,8 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
  - [<span style="color: green">&check; </span>] Processus d'installation
    - [<span style="color: green">&check;</span>] Parcour visuel
    - [<span style="color: green">&check;</span>] Installation de l'arboraissence grâce à l'api javascript IndexedDB
+ - [<span style="color: green;">&check;</span>] Ecran de connection
+ - [<span style="color: green;">&check;</span>] Permettre à l'utilisateur d'installer le système après l'avoir passé
  - [<span style="color: green">&check;</span>] Dock macOS
  - [<span style="color: green">&check;</span>] Bureau macOS
  - [<span style="color: green">&check;</span>] Fonctionnalité "Secouer pour trouver le curseur"

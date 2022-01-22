@@ -1,28 +1,36 @@
 <template>
-  <template v-if="installed">
-    <IOSDesktop
-      v-if="isMobile || isTablet || screenWidth <= 507"
-      :apps="[]"
-      :current-app-name="currentApp"
-      background-image="/img/wallpapers/macos-wallpaper.jpg"
-      :top-bar="desktopTopBar"></IOSDesktop>
+  <template v-if="installed || installSkipped">
+    <template v-if="isMobile || isTablet || screenWidth <= 507">
+      <IOSDesktop
+            :apps="[]"
+            :current-app-name="currentApp"
+            background-image="/img/wallpapers/macos-wallpaper.jpg"
+            :top-bar="desktopTopBar"></IOSDesktop>
+    </template>
 
-    <MacDesktop
-      v-else
-      :apps="[]"
-      :current-app-name="currentApp"
-      background-image="/img/wallpapers/macos-wallpaper.jpg"
-      :top-bar="desktopTopBar">
+    <template v-else>
+      <MacOsSystemLoader v-if="systemLoading" 
+                         @loaded="handleSystemLoaded" />
 
-      <MacOsAlert v-if="displayAlert" @close="hideAlert" />
+      <LoginView v-if="!connected && !installSkipped" 
+                 @connected="connected = true" />
 
-      <MacOsDock position="right" />
+      <MacDesktop v-else
+        :apps="[]"
+        :current-app-name="currentApp"
+        background-image="/img/wallpapers/macos-wallpaper.jpg"
+        :top-bar="desktopTopBar">
 
-      <MacOsSystemLoader v-if="systemLoading" @loaded="handleSystemLoaded" />
-    </MacDesktop>
+        <InstallDesktopIcon v-if="installSkipped" @install="installMac()" />
+
+        <MacOsAlert v-if="displayAlert" @close="hideAlert" />
+
+        <MacOsDock position="right" />
+      </MacDesktop>
+    </template>
   </template>
 
-  <installation @installed="installed = true" v-else />
+  <Installation v-else @installed="hasInstalled($event)" />
 
   <MacOsCursor />
 </template>
@@ -36,6 +44,8 @@ import MacOsCursor from '@/components/MacOsCursor.vue';
 import MacOsAlert from '@/components/MacOsAlert.vue';
 import MacOsSystemLoader from '@/components/MacOsSystemLoader.vue';
 import Installation from '@/components/Installation.vue';
+import LoginView from '@/components/LoginView.vue';
+import InstallDesktopIcon from '@/components/InstallDesktopIcon.vue';
 
 import { ref, reactive, watch } from "vue";
 import { useNetwork, useBattery, useWindowSize } from "@vueuse/core";
@@ -49,7 +59,9 @@ const systemLoading = ref(true);
 
 setCurrentApp(APPLICATION.FINDER);
 
+const connected = ref(false);
 const installed = ref(localStorage.getItem('installed') !== null);
+const installSkipped = ref(localStorage.getItem('install_skipped') !== null);
 const displayAlert = ref(false);
 const showAlert = () => {
   displayAlert.value = true;
@@ -59,6 +71,18 @@ const hideAlert = () => {
 };
 const handleSystemLoaded = () => {
   systemLoading.value = false;
+};
+const hasInstalled = e => {
+  installed.value = true;
+  if (e.install_skipped) {
+    installSkipped.value = true;
+  }
+};
+const installMac = () => {
+  localStorage.removeItem('installed');
+  installed.value = false;
+  localStorage.removeItem('install_skipped');
+  installSkipped.value = false;
 };
 
 const desktopTopBar = reactive({

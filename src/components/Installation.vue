@@ -64,7 +64,10 @@ const components = [
         component: LanguesStep,
         onNext(e) {
             if (e.details.skip_install) {
-                emit('installed');
+                localStorage.setItem('install_skipped', '1');
+                emit('installed', {
+                    install_skipped: true
+                });
             }
             console.log(e.details)
             console.log('passer à l\'étape de démarrage de l\'installation');
@@ -217,7 +220,9 @@ const components = [
             console.log(e.details);
             console.log('Finir le process et aller sur le bureau');
             localStorage.setItem('installed', '1');
-            emit('installed');
+            emit('installed', {
+                install_skipped: false
+            });
         }
     }
 ];

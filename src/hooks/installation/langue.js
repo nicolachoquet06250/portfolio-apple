@@ -27,7 +27,7 @@ export const COUNTRIES = [
     },
     {
         value: 'en',
-        displayed: 'Royaumes-Unis',
+        displayed: 'Royaume-Uni',
         lang: 'en'
     },
 ];
