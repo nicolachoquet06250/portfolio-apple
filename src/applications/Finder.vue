@@ -176,6 +176,7 @@ watch(root, () => {
 
         img {
             margin-bottom: 5px;
+            height: 60px;
         }
     }
 }
