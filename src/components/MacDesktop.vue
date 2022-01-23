@@ -1,5 +1,6 @@
 <template>
-  <div id="desktop" :class="{ dark: isDark }" @contextmenu.prevent.stop="showContextMenu()">
+  <div id="desktop" :class="{ dark: isDark }" 
+        @contextmenu.prevent.stop="showContextMenu($event)">
       <div class="top-bar">
           <div class="menu">
               <ul>
@@ -183,6 +184,62 @@
           </div>
       </div>
 
+      <ul class="context-menu" v-if="displayContextMenu" ref="contextMenu">
+          <li>
+                <button>
+                    New folder
+                </button>
+          </li>
+
+          <li>
+                <button>
+                    New file
+                </button>
+          </li>
+
+          <li>
+              <hr />
+          </li>
+
+          <li>
+                <button>
+                    Copy
+                </button>
+          </li>
+
+          <li>
+                <button>
+                    Cut
+                </button>
+          </li>
+
+          <li>
+                <button>
+                    Past
+                </button>
+          </li>
+          
+          <li>
+              <hr />
+          </li>
+
+          <li>
+                <button>
+                    Open in terminal
+                </button>
+          </li>
+
+          <li>
+              <hr />
+          </li>
+
+          <li>
+                <button>
+                    Show more options
+                </button>
+          </li>
+      </ul>
+
       <slot></slot>
 
       <ToogleLiteDarkMode />
@@ -197,7 +254,7 @@
 </template>
 
 <script setup>
-import { defineProps, ref, computed, watch } from "vue";
+import { defineProps, ref, computed, watch, reactive } from "vue";
 import { APPLICATION_STATE, useOpenedApplications, useCurrentApp } from '@/hooks/apps';
 import { useDark } from '@/hooks/theme';
 import { onClickOutside, useToggle } from '@vueuse/core';
@@ -241,7 +298,7 @@ const displayLightValue = computed(() => `${lightValue.value}%`);
 const soundValue = ref(50);
 const displaySoundValue = computed(() => `${soundValue.value}%`);
 
-const showSettingsHub = ref(true);
+const showSettingsHub = ref(false);
 const toggleSettingsHub = useToggle(showSettingsHub);
 const settingsHub = ref(null);
 const displaySettingsHub = computed(() => showSettingsHub.value ? 'flex' : 'none');
@@ -328,8 +385,22 @@ setInterval(() => {
 const oldSecondClass = ref(null);
 const nbIdenticSecondClass = ref(0);
 
-const showContextMenu = () => {
-  console.log('context menu on desktop');
+const displayContextMenu = ref(false);
+const contextMenu = ref(null);
+onClickOutside(contextMenu, () => (displayContextMenu.value = false));
+const contextMenuPosition = reactive({
+    x: 0,
+    y: 0
+});
+const contextMenuPositionX = computed(() => contextMenuPosition.x + 20 + 'px');
+const contextMenuPositionY = computed(() => contextMenuPosition.y + 'px');
+
+const showContextMenu = e => {
+    console.log(e);
+    console.log('context menu on desktop');
+    contextMenuPosition.x = e.clientX;
+    contextMenuPosition.y = e.clientY;
+    displayContextMenu.value = true;
 };
 
 const selectSubMenuItem = (item, e) => {
@@ -375,6 +446,16 @@ watch(refs, () => {
                     * {
                         color: white;
                     }
+                }
+            }
+        }
+
+        .context-menu {
+            background: rgba(0, 0, 0, .3);
+
+            ul li button {
+                &:active, &:focus, &:hover {
+                    background-color: rgba(0, 0, 0, .3);
                 }
             }
         }
@@ -777,6 +858,52 @@ watch(refs, () => {
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+
+    .context-menu {
+        position: absolute;
+        top: v-bind(contextMenuPositionY);
+        left: v-bind(contextMenuPositionX);
+        list-style: none;
+        padding: 10px;
+        margin: 0;
+        background: rgba(255, 255, 255, .3);
+        backdrop-filter: blur(1.5rem);
+        min-width: 300px;
+        border-radius: 10px;
+
+        li {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+
+            + li > button {
+                margin-top: 5px;
+            }
+
+            hr {
+                flex: 1;
+                margin-bottom: 2px;
+                border: 1px solid rgba(0, 0, 0, .1);
+            }
+
+            button {
+                flex: 1;
+                display: flex;
+                flex-direction: row;
+                justify-content: flex-start;
+                align-items: center;
+                padding: 10px;
+                border: 0;
+                background-color: transparent;
+                border-radius: 5px;
+
+                &:hover, &:active, &:focus {
+                    background-color: rgba(255, 255, 255, .3);
                 }
             }
         }
