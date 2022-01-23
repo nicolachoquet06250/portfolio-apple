@@ -80,7 +80,8 @@
               </li>
               
               <li>
-                  <button class="double-icon">
+                  <button class="double-icon" 
+                          @click="toggleSettingsHub">
                       <i class="fas fa-toggle-off"></i>
                       <i class="fas fa-toggle-on"></i>
                   </button>
@@ -107,6 +108,81 @@
           </div>
       </div>
 
+      <div class="settings-hub" ref="settingsHub">
+          <div>
+              <section class="network-container">
+                  <ul>
+                      <li>
+                          <div>
+                              <i class="fas fa-wifi" v-if="topBar.network.wifi.online"></i>
+                          </div>
+
+                          <div>
+                              <span> Wi-Fi </span>
+                              <span> Bbox-7C3F </span>
+                          </div>
+                      </li>
+                  </ul>
+              </section>
+          </div>
+
+          <div>
+              <section class="light-container">
+                  <span>
+                      Display
+                  </span>
+
+                  <input type="range" class="light-range" 
+                        :value="lightValue" 
+                        @input="lightValue = $event.target.value" 
+                        max="100" />
+
+                  <i class="far fa-sun"></i>
+              </section>
+          </div>
+
+          <div>
+              <section class="music-container">
+                  <img :src="musicIcon" />
+
+                  <span>
+                      The best songs of 2020
+                  </span>
+
+                  <div>
+                      <button>
+                          <i class="fas fa-play"></i>
+                      </button>
+
+                      <button>
+                          <i class="fas fa-forward"></i>
+                      </button>
+                  </div>
+              </section>
+          </div>
+
+          <div>
+              <section class="sound-container">
+                  <span>
+                      Sound
+                  </span>
+
+                  <div>
+                      <input type="range" class="sound-range"
+                            :value="soundValue" 
+                            @input="soundValue = $event.target.value" 
+                            max="100" />
+
+                      <i class="fas fa-volume-mute"></i>
+
+                      <button>
+                          <i class="fas fa-podcast"></i>
+                      </button>
+                  </div>
+              </section>
+          </div>
+      </div>
+
       <slot></slot>
 
       <ToogleLiteDarkMode />
@@ -124,10 +200,11 @@
 import { defineProps, ref, computed, watch } from "vue";
 import { APPLICATION_STATE, useOpenedApplications, useCurrentApp } from '@/hooks/apps';
 import { useDark } from '@/hooks/theme';
-import { onClickOutside } from '@vueuse/core';
+import { onClickOutside, useToggle } from '@vueuse/core';
 import MacApplication from '@/components/MacApplication.vue';
 import ToogleLiteDarkMode from '@/components/ToogleLiteDarkMode.vue';
 import siriIcon from "@/assets/icons/siri.png";
+import musicIcon from '@/assets/icons/icon-Music.png';
 
 const { currentApp } = useCurrentApp();
 const { openedApplications, initApplicationHistory } = useOpenedApplications();
@@ -157,6 +234,18 @@ const props = defineProps({
 });
 
 const refs = props.topBar.menu.map(() => ref(null));
+
+const lightValue = ref(50);
+const displayLightValue = computed(() => `${lightValue.value}%`);
+
+const soundValue = ref(50);
+const displaySoundValue = computed(() => `${soundValue.value}%`);
+
+const showSettingsHub = ref(true);
+const toggleSettingsHub = useToggle(showSettingsHub);
+const settingsHub = ref(null);
+const displaySettingsHub = computed(() => showSettingsHub.value ? 'flex' : 'none');
+onClickOutside(settingsHub, () => (showSettingsHub.value = false));
 
 const appleMenu = ref([
     {
@@ -272,6 +361,20 @@ watch(refs, () => {
             .menu ul li button {
                 &:active, &:hover, &.active {
                     background-color: rgba(0, 0, 0, .05);
+                }
+            }
+
+            + .settings-hub {
+                background: rgba(0, 0, 0, .3);
+                backdrop-filter: blur(1.5rem);
+
+                > div {
+                    background: rgba(0, 0, 0, .1);
+                    backdrop-filter: blur(1.5rem);
+
+                    * {
+                        color: white;
+                    }
                 }
             }
         }
@@ -449,21 +552,230 @@ watch(refs, () => {
                         font-size: v-bind(topBarFontSize);
                         background: none;
                         border: none;
+                        position: relative;
 
                         &.double-icon {
-                          display: flex;
-                          flex-direction: column;
-                          justify-content: center;
-                          align-items: center;
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: center;
+                            align-items: center;
 
-                          i {
-                            font-size: .7rem;
-                          }
+                            i {
+                                font-size: .7rem;
+                            }
                         }
                     }
 
                     img {
                         width: 20px;
+                    }
+                }
+            }
+        }
+
+        + .settings-hub {
+            display: v-bind(displaySettingsHub);
+            position: absolute;
+            right: 0;
+            top: 0;
+            z-index: 1;
+            margin-top: 40px;
+            margin-right: 5px;
+            width: 400px;
+            height: auto;
+            background-color: white;
+            flex-direction: column;
+            border-radius: 15px;
+            padding: 10px;
+            box-shadow: 0px 0px 15px 5px rgba(0, 0, 0, .3);
+
+            > div {
+                padding: 5px;
+                border-radius: 10px;
+                background-color: #E8EEF1;
+                -webkit-box-shadow: 0px 0px 15px 5px #000000; 
+                box-shadow: 0px 0px 15px 5px rgba(0, 0, 0, .3);
+
+                &:not(:first-child) {
+                    margin-top: 5px;
+                }
+
+                &:not(:last-child) {
+                    margin-bottom: 5px;
+                }
+
+                > section {
+                    &.network-container {
+                        ul {
+                            list-style: none;
+                            padding-left: 5px;
+
+                            li {
+                                display: flex;
+                                flex-direction: row;
+                                position: relative;
+
+                                &::after {
+                                    content: '>';
+                                    position: absolute;
+                                    right: 20px;
+                                    top: calc(50% - 15px);
+                                    font-size: 25px;
+                                    color: #cbd0d3;
+                                }
+
+                                > div {
+                                    display: flex;
+                                    flex-direction: column;
+
+                                    &:first-child {
+                                        display: flex;
+                                        flex-direction: row;
+                                        justify-content: center;
+                                        align-items: center;
+                                        width: 40px;
+                                        height: 40px;
+                                        border-radius: 50px;
+                                        background-color: #007aff;
+                                        color: white;
+                                        margin-right: 10px;
+                                    }
+
+                                    > span:first-child {
+                                        font-weight: bold;
+                                    }
+
+                                    > span:last-child {
+                                        color: #cbd0d3;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    &.light-container,
+                    &.sound-container {
+                        display: flex;
+                        flex-direction: column;
+                        padding-left: 10px;
+                        padding-right: 10px;
+                        padding-bottom: 10px;
+                        position: relative;
+
+                        > span {
+                            font-size: 20px;
+                            font-weight: bold;
+                            margin-bottom: 10px;
+                        }
+
+                        > div {
+                            display: flex;
+                            flex-direction: row;
+                            justify-content: space-around;
+                            align-items: center;
+
+                            input[type=range] {
+                                margin-right: 4px!important;
+                                background-size: v-bind(displaySoundValue) 100%!important;
+                            }
+
+                            > button {
+                              border-radius: 20px;
+                              background-color: #dcdddd;
+                              border: 0;
+                              display: flex;
+                              flex-direction: column;
+                              justify-content: center;
+                              align-items: center;
+                            }
+                        }
+
+                        > input[type=range],
+                        > div input[type=range] {
+                            flex: 1;
+                            -webkit-appearance: none;
+                            padding: 0;
+                            outline: none;
+                            opacity: .8;
+                            box-sizing: border-box;
+                            transition: opacity .2s;
+                            height: auto;
+                            margin: 0;
+                            background: #dcdbdb;
+                            border: 1px solid #cbcfd2;
+                            --thumb-radius: 50%;
+                            border-radius: 30px;
+                            background-image: linear-gradient(#ffffff, #ffffff);
+                            background-size: v-bind(displayLightValue) 100%;
+                            background-repeat: no-repeat;
+
+                            + i {
+                                position: absolute;
+                                left: 15px;
+                                top: 40px;
+                                color: #ececec;
+
+                                + button {
+                                    width: 30px;
+                                    height: 30px;
+                                }
+                            }
+
+                            &::-webkit-slider-runnable-track {
+                                width: 100%;
+                                position: relative;
+                                height: 25px;
+                                box-shadow: none;
+                                border-radius: 14px;
+                                border: none;
+                            }
+
+                            &::-webkit-slider-thumb {
+                                -webkit-appearance: none;
+                                width: 25px;
+                                height: 25px;
+                                box-sizing: border-box;
+                                padding: 0.25em;
+                                border: 1px solid #888;
+                                border-radius: 50%;
+                                box-shadow: 0 0 0.5em #fff inset;
+                                background: white;
+                            }
+                        }
+                    }
+
+                    &.music-container {
+                        display: flex;
+                        flex-direction: row;
+                        justify-content: flex-start;
+                        align-items: center;
+
+                        img {
+                            width: 70px;
+                        }
+
+                        span {
+                            font-weight: bold;
+                        }
+
+                        div {
+                            display: flex;
+                            flex-direction: row;
+                            justify-content: flex-end;
+                            align-items: center;
+                            flex: 1;
+
+                            button {
+                                border: 0;
+                                background: transparent;
+
+                                i {
+                                    font-size: 20px;
+                                    margin: 10px;
+                                    color: #767879;
+                                }
+                            }
+                        }
                     }
                 }
             }
