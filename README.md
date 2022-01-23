@@ -91,6 +91,11 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
    - [<span style="color: green">&check;</span>] Animation de fermeture d'une application
    - [<span style="color: green">&check;</span>] Animation de minimification d'une application
    - [<span style="color: green">&check;</span>] Animation de maximisation d'une application
+ - [<span style="color: gray"> ? </span>] Fonctionnalité Spotlight
+   - Ouvrir : **ctrl+f** / **ctrl+F** / **loupe**
+   - Fermer : **clique à côté** / **touche Echape**
+ - [<span style="color: green">&check;</span>] Hub de Paramétrage
+ - [<span style="color: green">&check;</span>] Dark / Light mode
  - [<span style="color: red">&cross;</span>] Applications à développer :
    - [<span style="color: red">&cross;</span>] Paramètres
    - [<span style="color: gray"> ? </span>] Finder
@@ -103,6 +108,8 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
    - [<span style="color: red">&cross;</span>] Corbeille
      - Système de mise à la corbeille des fichiers que l'on veux supprimer
  - [<span style="color: gray"> ? </span>] Customiser le menu contextuel
+     - [<span style="color: green">&check;</span>] Bureau
+     - [<span style="color: gray"> ? </span>] Applications
 
 [<span style="color: red">&cross;</span>] IOS
  - [<span style="color: red">&cross;</span>] Barre d'applications
