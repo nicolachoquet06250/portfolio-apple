@@ -207,7 +207,7 @@ const closeApplication = () => {
 
     &.dark {
         .left-bloc {
-            background-color: #323436;
+            background-color: #7c7c7c;
 
             * {
                 color: white;
@@ -239,8 +239,33 @@ const closeApplication = () => {
             right: 0;
             display: block;
             background: transparent;
-            //background: white;
             border-radius: 10px;
+        }
+
+        &.dark {
+            .left-bloc {
+                background-color: #323436;
+
+                .btn-container button {
+                    &.btn-close,
+                    &.btn-minmax,
+                    &.btn-todock {
+                        background-color: #4b4c4e;
+                    }
+                }
+            }
+        }
+
+        .left-bloc {
+            background-color: #f6f6f6;
+
+            .btn-container button {
+                &.btn-close,
+                &.btn-minmax,
+                &.btn-todock {
+                    background-color: #e3e3e3;
+                }
+            }
         }
     }
 
@@ -277,7 +302,7 @@ const closeApplication = () => {
         align-items: flex-start;
         width: 150px;
         padding-top: 10px;
-        background-color: #F2EAEE;
+        background-color: #fefefe;
         border-radius: 10px 0 0 10px;
 
         .btn-container {
