@@ -1,255 +1,257 @@
 <template>
   <div id="desktop" :class="{ dark: isDark }" 
         @contextmenu.prevent.stop="showContextMenu($event)">
-      <div class="top-bar">
-          <div class="menu">
-              <ul>
-                  <li>
-                      <button @click="selectedMenu = selectedMenu === '' ? 'apple' : ''" :class="{
-                        active: selectedMenu === 'apple'
-                      }">
-                          <i class="fab fa-apple"></i>
-                      </button>
+        <div class="top-bar">
+            <div class="menu">
+                <ul>
+                    <li>
+                        <button @click="selectedMenu = selectedMenu === '' ? 'apple' : ''" :class="{
+                            active: selectedMenu === 'apple'
+                        }">
+                            <i class="fab fa-apple"></i>
+                        </button>
 
-                      <ul class="sub-menu" ref="appleMenuRef">
-                          <li v-for="(appleMenuItem, i) of appleMenu" :key="i" >
-                              <button v-if="appleMenuItem.name"
-                                      @click.prevent.stop="selectSubMenuItem(appleMenuItem, $event)">
-                                  <span>
-                                      {{ appleMenuItem.name }}
-                                  </span>
+                        <ul class="sub-menu" ref="appleMenuRef">
+                            <li v-for="(appleMenuItem, i) of appleMenu" :key="i" >
+                                <button v-if="appleMenuItem.name"
+                                        @click.prevent.stop="selectSubMenuItem(appleMenuItem, $event)">
+                                    <span>
+                                        {{ appleMenuItem.name }}
+                                    </span>
 
-                                  <span v-if="appleMenuItem.shortcut">
-                                      {{ appleMenuItem.shortcut }}
-                                  </span>
-                              </button>
+                                    <span v-if="appleMenuItem.shortcut">
+                                        {{ appleMenuItem.shortcut }}
+                                    </span>
+                                </button>
 
-                              <template v-else>
-                                  <hr />
-                              </template>
-                          </li>
-                      </ul>
-                  </li>
+                                <template v-else>
+                                    <hr />
+                                </template>
+                            </li>
+                        </ul>
+                    </li>
 
-                  <li>
-                      {{ currentAppName.substr(0, 1).toUpperCase() }}{{ currentAppName.substr(1, currentAppName.length - 1) }}
-                  </li>
+                    <li>
+                        {{ currentAppName.substr(0, 1).toUpperCase() }}{{ currentAppName.substr(1, currentAppName.length - 1) }}
+                    </li>
 
-                  <li>
-                      <ul>
-                          <li v-for="(item, i) of topBar.menu" :key="item.name"
-                              :class="{
-                                  'menu-item': true,
-                                  [`menu-item-${i}`]: true
-                              }">
-                              <button @click="selectedMenu = item.name; item.click?.($event)"
-                                      :class="{
-                                          active: selectedMenu === item.name
-                                      }">
-                                  {{ item.name }}
-                              </button>
-                              
-                              <ul class="sub-menu" v-if="item.children.length > 0" 
-                                  :ref="refs[i]">
-                                  <li v-for="(_item, _i) of (item?.children ?? [])" :key="_i">
-                                      <button @click="selectSubMenuItem(_item, $event)">
-                                          {{ _item.name }}
-                                      </button>
-                                  </li>
-                              </ul>
-                          </li>
-                      </ul>
-                  </li>
-              </ul>
-          </div>
+                    <li>
+                        <ul>
+                            <li v-for="(item, i) of topBar.menu" :key="item.name"
+                                :class="{
+                                    'menu-item': true,
+                                    [`menu-item-${i}`]: true
+                                }">
+                                <button @click="selectedMenu = item.name; item.click?.($event)"
+                                        :class="{
+                                            active: selectedMenu === item.name
+                                        }">
+                                    {{ item.name }}
+                                </button>
+                                
+                                <ul class="sub-menu" v-if="item.children.length > 0" 
+                                    :ref="refs[i]">
+                                    <li v-for="(_item, _i) of (item?.children ?? [])" :key="_i">
+                                        <button @click="selectSubMenuItem(_item, $event)">
+                                            {{ _item.name }}
+                                        </button>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
 
-          <div class="connectivity">
-            <ul>
-              <li>
-                  {{ topBar.battery.level * 100 }}%
-                  <i
-                      :class="{
-                          fas: true,
-                          'fa-battery-empty': !topBar.battery.charging && topBar.battery.level * 100 === 0,
-                          'fa-battery-quarter': !topBar.battery.charging && topBar.battery.level * 100 <= 25,
-                          'fa-battery-half': !topBar.battery.charging && topBar.battery.level * 100 === 50,
-                          'fa-battery-full': !topBar.battery.charging && topBar.battery.level * 100 > 50,
-                          'fa-car-battery': topBar.battery.charging
-                      }"
-                      :title="topBar.battery.dischargingTime"
-                  ></i>
-              </li>
-              
-              <li>
-                  <button class="double-icon" 
-                          @click="toggleSettingsHub">
-                      <i class="fas fa-toggle-off"></i>
-                      <i class="fas fa-toggle-on"></i>
-                  </button>
-              </li>
+            <div class="connectivity">
+                <ul>
+                <li>
+                    {{ topBar.battery.level * 100 }}%
+                    <i
+                        :class="{
+                            fas: true,
+                            'fa-battery-empty': !topBar.battery.charging && topBar.battery.level * 100 === 0,
+                            'fa-battery-quarter': !topBar.battery.charging && topBar.battery.level * 100 <= 25,
+                            'fa-battery-half': !topBar.battery.charging && topBar.battery.level * 100 === 50,
+                            'fa-battery-full': !topBar.battery.charging && topBar.battery.level * 100 > 50,
+                            'fa-car-battery': topBar.battery.charging
+                        }"
+                        :title="topBar.battery.dischargingTime"
+                    ></i>
+                </li>
+                
+                <li>
+                    <button class="double-icon" 
+                            @click="toggleSettingsHub">
+                        <i class="fas fa-toggle-off"></i>
+                        <i class="fas fa-toggle-on"></i>
+                    </button>
+                </li>
 
-              <li>
-                <button class="search-btn">
-                  <i class="fas fa-search"></i>
-                </button>
-              </li>
-              
-              <li>
-                  <i class="fas fa-wifi" v-if="topBar.network.wifi.online"></i>
-              </li>
+                <li>
+                    <button class="search-btn">
+                    <i class="fas fa-search"></i>
+                    </button>
+                </li>
+                
+                <li>
+                    <i class="fas fa-wifi" v-if="topBar.network.wifi.online"></i>
+                </li>
 
-              <li>
-                {{ formattedDate }}
-              </li>
+                <li>
+                    {{ formattedDate }}
+                </li>
 
-              <li>
-                <img :src="siriIcon" />
-              </li>
-            </ul>
-          </div>
-      </div>
+                <li>
+                    <img :src="siriIcon" />
+                </li>
+                </ul>
+            </div>
+        </div>
 
-      <div class="settings-hub" ref="settingsHub">
-          <div>
-              <section class="network-container">
-                  <ul>
-                      <li>
-                          <div>
-                              <i class="fas fa-wifi" v-if="topBar.network.wifi.online"></i>
-                          </div>
+        <div class="settings-hub" ref="settingsHub">
+            <div>
+                <section class="network-container">
+                    <ul>
+                        <li>
+                            <div>
+                                <i class="fas fa-wifi" v-if="topBar.network.wifi.online"></i>
+                            </div>
 
-                          <div>
-                              <span> Wi-Fi </span>
-                              <span> Bbox-7C3F </span>
-                          </div>
-                      </li>
-                  </ul>
-              </section>
-          </div>
+                            <div>
+                                <span> Wi-Fi </span>
+                                <span> Bbox-7C3F </span>
+                            </div>
+                        </li>
+                    </ul>
+                </section>
+            </div>
 
-          <div>
-              <section class="light-container">
-                  <span>
-                      Display
-                  </span>
+            <div>
+                <section class="light-container">
+                    <span>
+                        Display
+                    </span>
 
-                  <input type="range" class="light-range" 
-                        :value="lightValue" 
-                        @input="lightValue = $event.target.value" 
-                        max="100" />
-
-                  <i class="far fa-sun"></i>
-              </section>
-          </div>
-
-          <div>
-              <section class="music-container">
-                  <img :src="musicIcon" />
-
-                  <span>
-                      The best songs of 2020
-                  </span>
-
-                  <div>
-                      <button>
-                          <i class="fas fa-play"></i>
-                      </button>
-
-                      <button>
-                          <i class="fas fa-forward"></i>
-                      </button>
-                  </div>
-              </section>
-          </div>
-
-          <div>
-              <section class="sound-container">
-                  <span>
-                      Sound
-                  </span>
-
-                  <div>
-                      <input type="range" class="sound-range"
-                            :value="soundValue" 
-                            @input="soundValue = $event.target.value" 
+                    <input type="range" class="light-range" 
+                            :value="lightValue" 
+                            @input="lightValue = $event.target.value" 
                             max="100" />
 
-                      <i class="fas fa-volume-mute"></i>
+                    <i class="far fa-sun"></i>
+                </section>
+            </div>
 
-                      <button>
-                          <i class="fas fa-podcast"></i>
-                      </button>
-                  </div>
-              </section>
-          </div>
-      </div>
+            <div>
+                <section class="music-container">
+                    <img :src="musicIcon" />
 
-      <ul class="context-menu" v-if="displayContextMenu" ref="contextMenu">
-          <li>
-                <button>
-                    New folder
-                </button>
-          </li>
+                    <span>
+                        The best songs of 2020
+                    </span>
 
-          <li>
-                <button>
-                    New file
-                </button>
-          </li>
+                    <div>
+                        <button>
+                            <i class="fas fa-play"></i>
+                        </button>
 
-          <li>
-              <hr />
-          </li>
+                        <button>
+                            <i class="fas fa-forward"></i>
+                        </button>
+                    </div>
+                </section>
+            </div>
 
-          <li>
-                <button>
-                    Copy
-                </button>
-          </li>
+            <div>
+                <section class="sound-container">
+                    <span>
+                        Sound
+                    </span>
 
-          <li>
-                <button>
-                    Cut
-                </button>
-          </li>
+                    <div>
+                        <input type="range" class="sound-range"
+                                :value="soundValue" 
+                                @input="soundValue = $event.target.value" 
+                                max="100" />
 
-          <li>
-                <button>
-                    Past
-                </button>
-          </li>
-          
-          <li>
-              <hr />
-          </li>
+                        <i class="fas fa-volume-mute"></i>
 
-          <li>
-                <button>
-                    Open in terminal
-                </button>
-          </li>
+                        <button>
+                            <i class="fas fa-podcast"></i>
+                        </button>
+                    </div>
+                </section>
+            </div>
+        </div>
 
-          <li>
-              <hr />
-          </li>
+        <ul class="context-menu" v-if="displayContextMenu" ref="contextMenu">
+            <li>
+                    <button>
+                        New folder
+                    </button>
+            </li>
 
-          <li>
-                <button>
-                    Show more options
-                </button>
-          </li>
-      </ul>
+            <li>
+                    <button>
+                        New file
+                    </button>
+            </li>
 
-      <slot></slot>
+            <li>
+                <hr />
+            </li>
 
-      <ToogleLiteDarkMode />
+            <li>
+                    <button>
+                        Copy
+                    </button>
+            </li>
 
-      <MacApplication v-for="app of Object.keys(openedApplications)" 
-                      :key="openedApplications[app].name"
-                      :opened="openedApplications[app].state === APPLICATION_STATE.OPENED"
-                      :app-name="openedApplications[app].name"
-                      :has-header="AppHeaderComponent !== null"
-                      :app-code="app" />
+            <li>
+                    <button>
+                        Cut
+                    </button>
+            </li>
+
+            <li>
+                    <button>
+                        Past
+                    </button>
+            </li>
+            
+            <li>
+                <hr />
+            </li>
+
+            <li>
+                    <button>
+                        Open in terminal
+                    </button>
+            </li>
+
+            <li>
+                <hr />
+            </li>
+
+            <li>
+                    <button>
+                        Show more options
+                    </button>
+            </li>
+        </ul>
+
+        <slot></slot>
+
+        <ToogleLiteDarkMode />
+
+        <MacApplication v-for="app of Object.keys(openedApplications)" 
+                        :key="openedApplications[app].name"
+                        :opened="openedApplications[app].state === APPLICATION_STATE.OPENED"
+                        :app-name="openedApplications[app].name"
+                        :has-header="AppHeaderComponent !== null"
+                        :app-code="app" />
+
+        <Spotlight />
   </div>
 </template>
 
@@ -260,6 +262,7 @@ import { useDark } from '@/hooks/theme';
 import { onClickOutside, useToggle } from '@vueuse/core';
 import MacApplication from '@/components/MacApplication.vue';
 import ToogleLiteDarkMode from '@/components/ToogleLiteDarkMode.vue';
+import Spotlight from '@/components/Spotlight.vue';
 import siriIcon from "@/assets/icons/siri.png";
 import musicIcon from '@/assets/icons/icon-Music.png';
 
