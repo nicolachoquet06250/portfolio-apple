@@ -19,7 +19,7 @@
                      @dblclick="selectItem(item)" clickable>
                     <img :src="item.icon" class="finder-item-icon">
 
-                    <span class="finder-item-text" v-if="item.type === 'directory' || item.type === 'unknown'">
+                    <span class="finder-item-text" v-if="item.type === 'directory' || item.type === 'unknown' || item.type === 'application'">
                         {{ item.name }}
                     </span>
                     <span class="finder-item-text" v-else>
