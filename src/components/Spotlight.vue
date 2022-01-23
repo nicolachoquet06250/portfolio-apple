@@ -11,15 +11,28 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, defineProps, defineEmits } from 'vue';
 import { onClickOutside, useToggle, onKeyDown, onKeyUp } from '@vueuse/core';
 
+const props = defineProps({
+    open: {
+        default: false
+    }
+})
+
+const emit = defineEmits(['close']);
+
 const spotlight = ref(null);
-const displaySpotlight = ref(false);
+const displaySpotlight = ref(props.open);
 const toggleSpotlight = useToggle(displaySpotlight);
 const readyToDisplayed = ref(false);
 
-onClickOutside(spotlight, () => toggleSpotlight());
+const closeSpotlight = () => {
+    displaySpotlight.value = false;
+    emit('close');
+}
+
+onClickOutside(spotlight, () => closeSpotlight());
 
 onKeyDown(['f', 'F'], e => {
     if (e.ctrlKey) {
@@ -37,10 +50,16 @@ onKeyUp(['f', 'F'], () => {
     }
 });
 
+onKeyUp('Escape', () => closeSpotlight());
+
 watch(spotlight, () => {
     if (spotlight.value) {
         spotlight.value?.querySelector('input').focus();
     }
+})
+
+watch(() => props.open, () => {
+    displaySpotlight.value = props.open;
 })
 </script>
 

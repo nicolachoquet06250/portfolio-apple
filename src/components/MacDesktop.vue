@@ -65,46 +65,45 @@
 
             <div class="connectivity">
                 <ul>
-                <li>
-                    {{ topBar.battery.level * 100 }}%
-                    <i
-                        :class="{
-                            fas: true,
-                            'fa-battery-empty': !topBar.battery.charging && topBar.battery.level * 100 === 0,
-                            'fa-battery-quarter': !topBar.battery.charging && topBar.battery.level * 100 <= 25,
-                            'fa-battery-half': !topBar.battery.charging && topBar.battery.level * 100 === 50,
-                            'fa-battery-full': !topBar.battery.charging && topBar.battery.level * 100 > 50,
-                            'fa-car-battery': topBar.battery.charging
-                        }"
-                        :title="topBar.battery.dischargingTime"
-                    ></i>
-                </li>
-                
-                <li>
-                    <button class="double-icon" 
-                            @click="toggleSettingsHub">
-                        <i class="fas fa-toggle-off"></i>
-                        <i class="fas fa-toggle-on"></i>
-                    </button>
-                </li>
+                    <li>
+                        {{ topBar.battery.level * 100 }}%
 
-                <li>
-                    <button class="search-btn">
-                    <i class="fas fa-search"></i>
-                    </button>
-                </li>
-                
-                <li>
-                    <i class="fas fa-wifi" v-if="topBar.network.wifi.online"></i>
-                </li>
+                        <i :class="{
+                                fas: true,
+                                'fa-battery-empty': !topBar.battery.charging && topBar.battery.level * 100 === 0,
+                                'fa-battery-quarter': !topBar.battery.charging && topBar.battery.level * 100 <= 25,
+                                'fa-battery-half': !topBar.battery.charging && topBar.battery.level * 100 === 50,
+                                'fa-battery-full': !topBar.battery.charging && topBar.battery.level * 100 > 50,
+                                'fa-car-battery': topBar.battery.charging
+                            }" :title="topBar.battery.dischargingTime"></i>
+                    </li>
+                    
+                    <li>
+                        <button class="double-icon" 
+                                @click="toggleSettingsHub">
+                            <i class="fas fa-toggle-off"></i>
 
-                <li>
-                    {{ formattedDate }}
-                </li>
+                            <i class="fas fa-toggle-on"></i>
+                        </button>
+                    </li>
 
-                <li>
-                    <img :src="siriIcon" />
-                </li>
+                    <li>
+                        <button class="search-btn" @click="openSpotlight = true">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </li>
+                    
+                    <li>
+                        <i class="fas fa-wifi" v-if="topBar.network.wifi.online"></i>
+                    </li>
+
+                    <li>
+                        {{ formattedDate }}
+                    </li>
+
+                    <li>
+                        <img :src="siriIcon" />
+                    </li>
                 </ul>
             </div>
         </div>
@@ -251,7 +250,7 @@
                         :has-header="AppHeaderComponent !== null"
                         :app-code="app" />
 
-        <Spotlight />
+        <Spotlight :open="openSpotlight" @close="openSpotlight = false" />
   </div>
 </template>
 
@@ -294,6 +293,8 @@ const props = defineProps({
 });
 
 const refs = props.topBar.menu.map(() => ref(null));
+
+const openSpotlight = ref(false);
 
 const lightValue = ref(50);
 const displayLightValue = computed(() => `${lightValue.value}%`);
