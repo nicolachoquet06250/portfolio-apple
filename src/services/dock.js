@@ -91,11 +91,11 @@ export class Dock {
         const distanceFromPointer = this.mousePosition - center;
         const scale = scaling(distanceFromPointer) * this.scale;
         const icon = this.icons[index];
-        icon.style.setProperty(
+        icon?.style.setProperty(
             "transform",
             `translateX(${offset}px) scale(${scale + 1})`
         );
-        icon.style.setProperty(
+        icon?.style.setProperty(
             "transform-origin",
             `${TransformOrigins[direction.toString()]} bottom`
         );

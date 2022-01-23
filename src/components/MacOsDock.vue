@@ -1,6 +1,9 @@
 <template>
     <div class="dock__wrapper">
-        <div class="dock" ref="dock">
+        <div :class="{ 
+            dock: true,
+            dark: isDark
+        }" ref="dock">
             <DockIcon v-for="icon of icons" :key="icon" 
                       @click="icon.click($event)" @mouseover="icon.mouseover" @mouseout="icon.mouseout" 
                       :img="icon.img" :active="openedApplications[icon.code] && openedApplications[icon.code]?.state !== APPLICATION_STATE.CLOSED" />
@@ -13,6 +16,7 @@ import DockIcon from '@/components/DockIcon.vue';
 
 import { ref, watch } from 'vue';
 import { CURSOR, useCursor } from '@/hooks/cursor';
+import { useDark } from '@/hooks/theme';
 import { APPLICATION, APPLICATION_STATE, useOpenedApplications, useCurrentApp } from '@/hooks/apps';
 import { Dock } from '@/services/dock';
 
@@ -28,6 +32,9 @@ import photos from '@/assets/dock/photos.png';
 const { setCursor } = useCursor();
 const { openApplication, openedApplications } = useOpenedApplications();
 const { setCurrentApp } = useCurrentApp();
+const { isDark } = useDark();
+
+const iconSize = ref('50px');
 
 const dock = ref(null);
 
@@ -120,6 +127,18 @@ watch(dock, () => {
 .dock {
     position: relative;
     display: flex;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    background-color: rgba(255, 255, 255, .7);
+
+    &.dark {
+        background-color: rgba(0, 0, 0, .3);
+        border: .5px solid rgba(255, 255, 255, .5);
+    }
 
     &__wrapper {
         position: fixed;
@@ -135,8 +154,8 @@ watch(dock, () => {
         position: relative;
         z-index: 2;
         cursor: pointer;
-        width: 64px;
-        height: 64px;
+        width: v-bind(iconSize);
+        height: v-bind(iconSize);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -151,8 +170,8 @@ watch(dock, () => {
         }
 
         img {
-            width: 64px;
-            height: 64px;
+            width: v-bind(iconSize);
+            height: v-bind(iconSize);
             object-fit: contain
         }
 
@@ -160,12 +179,12 @@ watch(dock, () => {
             content: '';
             position: absolute;
             display: block;
-            width: 5px;
-            height: 5px;
+            width: 2px;
+            height: 2px;
             border: 1px solid lightgray;
             border-radius: 10px;
             background: lightgray;
-            top: 0;
+            bottom: -5px;
             transform: translateY(-55%);
         }
     }

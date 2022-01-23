@@ -4,7 +4,7 @@
       <IOSDesktop
             :apps="[]"
             :current-app-name="currentApp"
-            background-image="/img/wallpapers/macos-wallpaper.jpg"
+            background-image="/img/wallpapers/wallpaper-install-macos.jpg"
             :top-bar="desktopTopBar"></IOSDesktop>
     </template>
 
@@ -18,7 +18,7 @@
       <MacDesktop v-else
         :apps="[]"
         :current-app-name="currentApp"
-        background-image="/img/wallpapers/macos-wallpaper.jpg"
+        :background-image="wallpaper"
         :top-bar="desktopTopBar">
 
         <InstallDesktopIcon v-if="installSkipped" @install="installMac()" />
@@ -89,17 +89,20 @@ import Checkbox from '@/components/Checkbox.vue';
 import { ref, reactive, watch } from "vue";
 import { useNetwork, useBattery, useWindowSize } from "@vueuse/core";
 import { APPLICATION, useCurrentApp } from "@/hooks/apps";
+import { useInstalled } from '@/hooks/installed';
 
 const { isOnline } = useNetwork();
 const { charging, chargingTime, dischargingTime, level } = useBattery();
 const { width: screenWidth } = useWindowSize();
 const { currentApp, setCurrentApp } = useCurrentApp();
+const { installed, isInstalled, isNotInstalled } = useInstalled();
+
 const systemLoading = ref(true);
 
 setCurrentApp(APPLICATION.FINDER);
 
+const wallpaper = ref('/img/wallpapers/wallpaper-install-macos.jpg');
 const connected = ref(false);
-const installed = ref(localStorage.getItem('installed') !== null);
 const installSkipped = ref(localStorage.getItem('install_skipped') !== null);
 const displayAlert = ref(false);
 const displayAlertAppInDev = ref(true);
@@ -135,14 +138,13 @@ const handleSystemLoaded = () => {
   systemLoading.value = false;
 };
 const hasInstalled = e => {
-  installed.value = true;
+  isInstalled();
   if (e.install_skipped) {
     installSkipped.value = true;
   }
 };
 const installMac = () => {
-  localStorage.removeItem('installed');
-  installed.value = false;
+  isNotInstalled();
   localStorage.removeItem('install_skipped');
   installSkipped.value = false;
 };

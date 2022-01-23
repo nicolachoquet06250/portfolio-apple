@@ -9,12 +9,18 @@
         </div>
 
         <template v-else>
-            <div v-if="Object.keys(menus).length > 0"> <i class="fab fa-apple"></i> </div>
+            <div v-if="Object.keys(menus).length > 0">
+                <i class="fab fa-apple"></i>
+            </div>
 
             <div> {{ stepTitle }} </div>
 
             <div v-for="menuTab of Object.keys(menus)" :key="menuTab" clickable>
                 {{ menuTab }}
+            </div>
+
+            <div v-if="Object.keys(menus).length > 0">
+                <img :src="langue.flag" />
             </div>
         </template>
     </div>
@@ -242,6 +248,7 @@ const CurrentStep = computed(() => components[currentStep.value].component);
         background: transparent;
         display: flex;
         flex-direction: row;
+        justify-content: flex-start;
 
         * {
             color: white;
@@ -263,6 +270,16 @@ const CurrentStep = computed(() => components[currentStep.value].component);
 
             &:nth-child(2) {
                 font-weight: bold;
+            }
+
+            &:last-child {
+                flex: 1;
+                justify-content: flex-end;
+                padding-right: 15px;
+
+                img {
+                    width: 20px;
+                }
             }
         }
     }

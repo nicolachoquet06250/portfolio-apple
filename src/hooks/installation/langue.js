@@ -1,4 +1,7 @@
 import { ref, computed } from 'vue';
+import iconFrFlag from '@/assets/flags/flag-french.png';
+import iconUkFlag from '@/assets/flags/flag-uk.png';
+import iconUsFlag from '@/assets/flags/flag-usa.png';
 
 const selectedLangue = ref('');
 const selectedCountry = ref('');
@@ -6,10 +9,12 @@ const selectedCountry = ref('');
 export const LANGUES = [
     {
         value: 'fr',
+        flag: iconFrFlag,
         displayed: 'Français'
     },
     {
         value: 'en',
+        flag: iconUkFlag,
         displayed: 'English'
     }
 ];
@@ -17,16 +22,19 @@ export const LANGUES = [
 export const COUNTRIES = [
     {
         value: 'us',
+        flag: iconUsFlag,
         displayed: 'Etats-Unis',
         lang: 'en'
     },
     {
         value: 'fr',
+        flag: iconFrFlag,
         displayed: 'France',
         lang: 'fr'
     },
     {
         value: 'en',
+        flag: iconUkFlag,
         displayed: 'Royaume-Uni',
         lang: 'en'
     },

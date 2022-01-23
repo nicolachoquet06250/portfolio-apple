@@ -7,7 +7,7 @@ export const THEMES = [
     {
         icon: iconThemeMacLite,
         label: 'Clair',
-        value: 'lite'
+        value: 'light'
     },
     {
         icon: iconThemeMacDark,
