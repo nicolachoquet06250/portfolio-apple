@@ -1,5 +1,8 @@
 <template>
-    <div class="left-side">
+    <div :class="{
+        'left-side': true,
+        dark: isDark
+    }">
         <button @click="backInPath()">
             <i class="fas fa-chevron-left"></i>
         </button>
@@ -11,7 +14,10 @@
         <h1> {{ selectedTab }} </h1>
     </div>
 
-    <div class="right-side">
+    <div :class="{
+        'right-side': true,
+        dark: isDark
+    }">
         <div>
             <button>
                 <i class="fas fa-border-all"></i>
@@ -51,12 +57,18 @@
 
 <script setup>
 import { useFinder } from '@/hooks/finder';
+import { useDark } from '@/hooks/theme';
 
 const { selectedTab, backInPath } = useFinder(5);
+const { isDark } = useDark();
 </script>
 
 <style lang="scss">
 .app-header-bar {
+    &.dark * {
+        color: white!important;
+    }
+
     .left-side {
         display: flex;
         flex-direction: row;

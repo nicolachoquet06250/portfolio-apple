@@ -6,7 +6,8 @@
             'not-header': !hasHeader,
             [appCode]: true,
             active: currentApp === appCode,
-            close
+            close,
+            dark: isDark
         }" v-if="opened" 
         ref="application"
         @contextmenu.prevent.stop="showContextMenu()"
@@ -73,11 +74,14 @@
 <script setup>
 import { defineProps, computed, ref, watch, reactive } from 'vue';
 import { useCurrentApp, useOpenedApplications, useAppActions } from '@/hooks/apps';
+import { useDark } from '@/hooks/theme';
 import { useWindowSize } from '@vueuse/core';
 
 const { setCurrentApp, currentApp } = useCurrentApp();
 const { lastApplicationOpened, applicationToDock, minifyApplication, maximizeApplication, openedApplications } = useOpenedApplications();
 const { width: windowWidth } = useWindowSize();
+const { isDark } = useDark();
+
 const windowWidthForCss = computed(() => `${windowWidth.value}px`);
 
 const props = defineProps({
@@ -200,6 +204,30 @@ const closeApplication = () => {
     box-shadow: 2px 20px 36px -5px rgba(0,0,0,0.59);
     width: v-bind(applicationWidth);
     height: v-bind(applicationHeight);
+
+    &.dark {
+        .left-bloc {
+            background-color: #323436;
+
+            * {
+                color: white;
+            }
+
+            .menu-container {
+                button.active {
+                    background-color: rgba(255, 255, 255, .3);
+                }
+            }
+        }
+
+        .right-bloc {
+            background-color: #1e1e1e;
+
+            * {
+                color: white;
+            }
+        }
+    }
 
     &:not(.active) {
         &::after {
