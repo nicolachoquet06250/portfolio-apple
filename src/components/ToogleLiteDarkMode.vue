@@ -29,7 +29,8 @@ button {
     flex-direction: column;
     justify-content: space-evenly;
     align-items: center;
-    position: absolute;
+    position: relative;
+    margin-left: 15px;
     right: 10px;
     margin-top: 10px;
 
