@@ -221,7 +221,7 @@
 
         <ul class="context-menu" v-if="displayContextMenu" ref="contextMenu">
             <li>
-                <button @click="addDirectory(`/${user.account_name}/Desktop`, 'toto')">
+                <button @click="addDirectory(`/${user.account_name}/Desktop`)">
                     New folder
                 </button>
             </li>
@@ -275,11 +275,31 @@
             </li>
         </ul>
 
-        <div class="desktop-grid-column" v-for="treeColumn of treeToGrid" :key="treeColumn">
+        <div class="desktop-grid-column" v-for="(treeColumn, i) of treeToGrid" :key="treeColumn">
             <button class="desktop-grid-cel" v-for="treeCel of treeColumn" :key="treeCel">
                 <img :src="iconDirectory" />
 
                 <span> {{ treeCel.name }} </span>
+            </button>
+
+            {{ i }} {{ treeToGrid.length }}
+
+            <button class="desktop-grid-cel" v-if="i === treeToGrid.length - 1 && displayNewDirectory">
+                <img :src="iconDirectory" />
+
+                <span> 
+                    <input type="text" v-model="newDirectoryName" ref="newDirectoryRef" />
+                </span>
+            </button>
+        </div>
+
+        <div class="desktop-grid-column" v-if="treeToGrid.length === 0 && displayNewDirectory">
+            <button class="desktop-grid-cel" v-if="displayNewDirectory">
+                <img :src="iconDirectory" />
+
+                <span> 
+                    <input type="text" v-model="newDirectoryName" ref="newDirectoryRef" />
+                </span>
             </button>
         </div>
 
@@ -303,7 +323,7 @@ import { useAuthUser } from '@/hooks/account';
 import { useDatabase, TABLES, getParams } from '@/hooks/database';
 import { useInstalled } from '@/hooks/installed';
 import { useDark } from '@/hooks/theme';
-import { onClickOutside, useToggle } from '@vueuse/core';
+import { onClickOutside, useToggle, onKeyUp } from '@vueuse/core';
 import MacApplication from '@/components/MacApplication.vue';
 import ToogleLiteDarkMode from '@/components/ToogleLiteDarkMode.vue';
 import Spotlight from '@/components/Spotlight.vue';
@@ -333,7 +353,6 @@ watch(treeStructure, () => {
     treeToGrid.value = treeStructure.value.reduce((r, c) => {
         if (c.parent === `/${user.value.account_name}/Desktop`) {
             if (r.cmp === 0) {
-                //c.parent === `/${user.value.account_name}/Desktop` ? [...r.result, c] : r.result
                 return { 
                     result: [...r.result, [c]], 
                     cmp: r.cmp + 1
@@ -344,29 +363,43 @@ watch(treeStructure, () => {
                     cmp: 0
                 };
             }
-            //return c.parent === `/${user.value.account_name}/Desktop` ? [...r, c] : r;
         } else {
             return r;
         }
     }, { cmp: 0, result: [] }).result;
 });
 
-const addDirectory = (root, name) => {
+const displayNewDirectory = ref(false);
+const newDirectoryName = ref('new directory');
+const newDirectoryRef = ref(null);
+onClickOutside(newDirectoryRef, () => (displayNewDirectory.value = false));
+onKeyUp('Enter', () => {
     onSuccess(({ context: { add, getAllValues } }) => {
         add({
-            name,
-            parent: root,
+            name: newDirectoryName.value,
+            parent: `/${user.value.account_name}/Desktop`,
             type: 'directory',
             extention: null,
             content: null,
             creation_date: new Date(),
             opened_date: new Date(),
             updated_date: new Date(),
-            user_id: user.id
+            user_id: user.value.id
         });
 
         getAllValues();
+
+        displayNewDirectory.value = false;
+        newDirectoryName.value = 'new directory';
     }).connect();
+})
+onKeyUp('Escape', () => {
+    displayNewDirectory.value = false;
+    newDirectoryName.value = 'new directory';
+})
+const addDirectory = (root) => {
+    displayNewDirectory.value = true;
+    displayContextMenu.value = false;
 }
 
 initApplicationHistory();
@@ -1164,6 +1197,13 @@ watch([contextMenu, () => contextMenuPosition.x], () => {
             justify-content: center;
             align-items: center;
             font-weight: bold;
+
+            input {
+                width: 100%;
+                background-color: transparent;
+                outline: 1px solid lightskyblue;
+                border-radius: 4px;
+            }
 
             &:active, &:focus {
                 background-color: lightskyblue;

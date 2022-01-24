@@ -7,7 +7,7 @@ const authUser = reactive({
 })
 
 export const useAuthUser = () => ({
-    user: computed(() => useAuthUser),
+    user: computed(() => authUser),
 
     authUser(id, full_name, account_name) {
         authUser.id = id;
