@@ -464,6 +464,17 @@ watch(refs, () => {
 watch(isDark, () => {
     toggleLightDarkModeButtonTextColor.value = isDark.value ? 'white' : 'black';
 })
+
+watch([contextMenu, () => contextMenuPosition.x], () => {
+    if (contextMenu.value) {
+        if ((document.body.offsetWidth - contextMenu.value.offsetWidth) < contextMenuPosition.x) {
+            contextMenuPosition.x -= contextMenu.value.offsetWidth + 20;
+        }
+        if ((document.body.offsetHeight - contextMenu.value.offsetHeight) < contextMenuPosition.y) {
+            contextMenuPosition.y -= contextMenu.value.offsetHeight - 20;
+        }
+    }
+});
 </script>
 
 <style lang="scss" scoped>
