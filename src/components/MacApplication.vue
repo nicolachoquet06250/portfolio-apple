@@ -314,8 +314,8 @@ const closeApplication = () => {
 
             button {
                 cursor: pointer;
-                height: 10px;
-                width: 10px;
+                height: 12px;
+                width: 12px;
                 border: none;
                 border-radius: 10px;
                 background: white;
