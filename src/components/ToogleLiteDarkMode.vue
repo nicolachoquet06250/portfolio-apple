@@ -10,8 +10,16 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, defineProps } from 'vue';
 import { useDark } from '@/hooks/theme';
+
+const props = defineProps({
+    color: {
+        default: 'whitesmoke'
+    }
+});
+
+const color = computed(() => props.color);
 
 const { isDark, toggleDark } = useDark();
 const nextMode = computed(() => isDark.value ? 'Light' : 'Dark');
@@ -37,6 +45,7 @@ button {
     * {
         font-size: 15px;
         color: whitesmoke;
+        color: v-bind(color);
         font-weight: bold;
     }
 

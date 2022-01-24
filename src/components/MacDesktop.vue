@@ -124,6 +124,10 @@
                         </li>
                     </ul>
                 </section>
+
+                <section class="dark-light-mode-container">
+                    <ToogleLiteDarkMode :color="toggleLightDarkModeButtonTextColor" />
+                </section>
             </div>
 
             <div>
@@ -135,9 +139,9 @@
                     <input type="range" class="light-range" 
                             :value="lightValue" 
                             @input="lightValue = $event.target.value" 
-                            max="100" />
+                            max="100" style="width: 100%;" />
 
-                    <i class="far fa-sun"></i>
+                    <i class="far fa-sun" style="z-index: -1;"></i>
                 </section>
             </div>
 
@@ -167,11 +171,11 @@
                         Sound
                     </span>
 
-                    <div>
+                    <div style="width: 100%;">
                         <input type="range" class="sound-range"
                                 :value="soundValue" 
                                 @input="soundValue = $event.target.value" 
-                                max="100" />
+                                max="100" style="width: 100%;" />
 
                         <i class="fas fa-volume-mute"></i>
 
@@ -273,8 +277,6 @@
 
         <slot></slot>
 
-        <ToogleLiteDarkMode />
-
         <MacApplication v-for="app of Object.keys(openedApplications)" 
                         :key="openedApplications[app].name"
                         :opened="openedApplications[app].state === APPLICATION_STATE.OPENED"
@@ -324,9 +326,9 @@ const props = defineProps({
   }),
 });
 
-console.log(props.topBar.battery);
-
 const refs = props.topBar.menu.map(() => ref(null));
+
+const toggleLightDarkModeButtonTextColor = ref(isDark.value ? 'white' : 'black');
 
 const alimSource = computed(() => props.topBar.battery.charging ? 'Secteur' : 'batterie');
 
@@ -458,6 +460,10 @@ const selectSubMenuItem = (item, e) => {
 watch(refs, () => {
   refs.map(m => onClickOutside(m, () => (selectedMenu.value = '')))
 });
+
+watch(isDark, () => {
+    toggleLightDarkModeButtonTextColor.value = isDark.value ? 'white' : 'black';
+})
 </script>
 
 <style lang="scss" scoped>
@@ -487,8 +493,8 @@ watch(refs, () => {
             backdrop-filter: blur(1.5rem);
 
             > div {
-                background: rgba(0, 0, 0, .1);
-                backdrop-filter: blur(1.5rem);
+                //background: rgba(0, 0, 0, .1);
+                //backdrop-filter: blur(1.5rem);
 
                 * {
                     color: white;
@@ -741,11 +747,9 @@ watch(refs, () => {
         box-shadow: 0px 0px 15px 5px rgba(0, 0, 0, .3);
 
         > div {
-            padding: 5px;
+            display: flex;
+            flex-direction: row;
             border-radius: 10px;
-            background-color: #E8EEF1;
-            -webkit-box-shadow: 0px 0px 15px 5px #000000; 
-            box-shadow: 0px 0px 15px 5px rgba(0, 0, 0, .3);
 
             &:not(:first-child) {
                 margin-top: 5px;
@@ -756,8 +760,30 @@ watch(refs, () => {
             }
 
             > section {
+                padding: 5px;
+                border-radius: 10px;
+                -webkit-box-shadow: 0px 0px 15px 5px #000000; 
+                box-shadow: 0px 0px 15px 5px rgba(0, 0, 0, .3);
+                flex: 1;
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+
+                &:first-child {
+                    margin-right: 5px;
+                    margin-left: 5px;
+                }
+
+                &:last-child {
+                    margin-left: 5px;
+                    margin-right: 5px;
+                }
+
                 &.network-container {
                     ul {
+                        flex: 1; 
+                        height: calc(100% - 20px);
                         list-style: none;
                         padding-left: 5px;
 
@@ -769,7 +795,7 @@ watch(refs, () => {
                             &::after {
                                 content: '>';
                                 position: absolute;
-                                right: 20px;
+                                right: 10px;
                                 top: calc(50% - 15px);
                                 font-size: 25px;
                                 color: #cbd0d3;
@@ -802,6 +828,10 @@ watch(refs, () => {
                             }
                         }
                     }
+                }
+
+                &.dark-light-mode-container {
+                    padding-bottom: 10px;
                 }
 
                 &.light-container,
@@ -863,8 +893,9 @@ watch(refs, () => {
                         + i {
                             position: absolute;
                             left: 15px;
-                            top: 40px;
+                            top: 45px;
                             color: #ececec;
+                            z-index: -1;
 
                             + button {
                                 width: 30px;
@@ -892,6 +923,10 @@ watch(refs, () => {
                             box-shadow: 0 0 0.5em #fff inset;
                             background: white;
                         }
+                    }
+
+                    > input[type=range] + i {
+                        top: 43px;
                     }
                 }
 
