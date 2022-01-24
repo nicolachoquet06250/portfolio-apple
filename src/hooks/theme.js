@@ -8,7 +8,7 @@ const { onSuccess, results: settings } = useDatabase(...getParams(TABLES.SETTING
 const { connect } = onSuccess(({ context: { getFromIndex } }) => getFromIndex('field', 'theme'));
 
 const html = ref(document.querySelector('html'));
-const isDark = ref(false);
+const isDark = ref(localStorage.getItem('vueuse-color-scheme') === 'auto');
 
 watch(html, () => {
     isDark.value = html.value.classList.contains('dark');

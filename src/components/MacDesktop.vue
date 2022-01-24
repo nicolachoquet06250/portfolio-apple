@@ -66,16 +66,18 @@
             <div class="connectivity">
                 <ul>
                     <li>
-                        {{ topBar.battery.level * 100 }}%
+                        <button @click="toggleBatteryData()">
+                            {{ topBar.battery.level * 100 }}%
 
-                        <i :class="{
-                                fas: true,
-                                'fa-battery-empty': !topBar.battery.charging && topBar.battery.level * 100 === 0,
-                                'fa-battery-quarter': !topBar.battery.charging && topBar.battery.level * 100 <= 25,
-                                'fa-battery-half': !topBar.battery.charging && topBar.battery.level * 100 === 50,
-                                'fa-battery-full': !topBar.battery.charging && topBar.battery.level * 100 > 50,
-                                'fa-car-battery': topBar.battery.charging
-                            }" :title="topBar.battery.dischargingTime"></i>
+                            <i :class="{
+                                    fas: true,
+                                    'fa-battery-empty': !topBar.battery.charging && topBar.battery.level * 100 === 0,
+                                    'fa-battery-quarter': !topBar.battery.charging && topBar.battery.level * 100 <= 25,
+                                    'fa-battery-half': !topBar.battery.charging && topBar.battery.level * 100 === 50,
+                                    'fa-battery-full': !topBar.battery.charging && topBar.battery.level * 100 > 50 || topBar.battery.charging && topBar.battery.chargingTime === 0,
+                                    'fa-car-battery': topBar.battery.charging && topBar.battery.chargingTime > 0
+                                }" :title="topBar.battery.dischargingTime"></i>
+                        </button>
                     </li>
                     
                     <li>
@@ -180,6 +182,38 @@
                         </button>
                     </div>
                 </section>
+            </div>
+        </div>
+
+        <div class="battery-data" ref="batteryData">
+            <div>
+                <span> Batterie </span>
+
+                <span> {{ topBar.battery.level * 100 }}% </span>
+            </div>
+
+            <div>
+                <span>
+                    Source d'alimentation {{ alimSource }}
+                </span>
+
+                <template v-if="topBar.battery.charging">
+                    <span v-if="topBar.battery.chargingTime > 0">
+                        <!--1 h 36 mn remaining-->
+                        {{ topBar.battery.chargingTime }}s restantes
+                    </span>
+
+                    <span v-else>
+                        Batterie chargée
+                    </span>
+                </template>
+
+                <template v-else>
+                    <span>
+                        <!--1 h 36 mn remaining-->
+                        {{ topBar.battery.dischargingTime }}s restantes
+                    </span>
+                </template>
             </div>
         </div>
 
@@ -292,7 +326,11 @@ const props = defineProps({
   }),
 });
 
+console.log(props.topBar.battery);
+
 const refs = props.topBar.menu.map(() => ref(null));
+
+const alimSource = computed(() => props.topBar.battery.charging ? 'Secteur' : 'batterie');
 
 const openSpotlight = ref(false);
 
@@ -307,6 +345,12 @@ const toggleSettingsHub = useToggle(showSettingsHub);
 const settingsHub = ref(null);
 const displaySettingsHub = computed(() => showSettingsHub.value ? 'flex' : 'none');
 onClickOutside(settingsHub, () => (showSettingsHub.value = false));
+
+const showBatteryData = ref(false);
+const toggleBatteryData = useToggle(showBatteryData);
+const batteryData = ref(null);
+const displayBatteryData = computed(() => showBatteryData.value ? 'flex' : 'none');
+onClickOutside(batteryData, () => (showBatteryData.value = false));
 
 const appleMenu = ref([
     {
@@ -438,18 +482,41 @@ watch(refs, () => {
                     background-color: rgba(0, 0, 0, .05);
                 }
             }
+        }
 
-            + .settings-hub {
-                background: rgba(0, 0, 0, .3);
+        .settings-hub {
+            background-color: rgba(0, 0, 0, .3);
+            backdrop-filter: blur(1.5rem);
+
+            > div {
+                background: rgba(0, 0, 0, .1);
                 backdrop-filter: blur(1.5rem);
 
-                > div {
-                    background: rgba(0, 0, 0, .1);
-                    backdrop-filter: blur(1.5rem);
+                * {
+                    color: white;
+                }
+            }
+        }
 
-                    * {
-                        color: white;
+        .battery-data {
+            background-color: rgba(0, 0, 0, .3);
+            backdrop-filter: blur(1.5rem);
+
+            > div {
+                &:first-child {
+                    span {
+                        &:first-child {
+                            color: white;
+                        }
+
+                        &:last-child {
+                            color: rgba(255, 255, 255, .7);;
+                        }
                     }
+                }
+
+                &:last-child span {
+                    color: rgba(255, 255, 255, .7);;
                 }
             }
         }
@@ -657,211 +724,260 @@ watch(refs, () => {
                 }
             }
         }
+    }
 
-        + .settings-hub {
-            display: v-bind(displaySettingsHub);
-            position: absolute;
-            right: 0;
-            top: 0;
-            z-index: 1;
-            margin-top: 40px;
-            margin-right: 5px;
-            width: 400px;
-            height: auto;
-            background-color: white;
-            flex-direction: column;
-            border-radius: 15px;
-            padding: 10px;
+    .settings-hub {
+        display: v-bind(displaySettingsHub);
+        position: absolute;
+        right: 0;
+        top: 0;
+        z-index: 1;
+        margin-top: 40px;
+        margin-right: 5px;
+        width: 400px;
+        height: auto;
+        background-color: white;
+        flex-direction: column;
+        border-radius: 15px;
+        padding: 10px;
+        box-shadow: 0px 0px 15px 5px rgba(0, 0, 0, .3);
+
+        > div {
+            padding: 5px;
+            border-radius: 10px;
+            background-color: #E8EEF1;
+            -webkit-box-shadow: 0px 0px 15px 5px #000000; 
             box-shadow: 0px 0px 15px 5px rgba(0, 0, 0, .3);
 
-            > div {
-                padding: 5px;
-                border-radius: 10px;
-                background-color: #E8EEF1;
-                -webkit-box-shadow: 0px 0px 15px 5px #000000; 
-                box-shadow: 0px 0px 15px 5px rgba(0, 0, 0, .3);
+            &:not(:first-child) {
+                margin-top: 5px;
+            }
 
-                &:not(:first-child) {
-                    margin-top: 5px;
-                }
+            &:not(:last-child) {
+                margin-bottom: 5px;
+            }
 
-                &:not(:last-child) {
-                    margin-bottom: 5px;
-                }
+            > section {
+                &.network-container {
+                    ul {
+                        list-style: none;
+                        padding-left: 5px;
 
-                > section {
-                    &.network-container {
-                        ul {
-                            list-style: none;
-                            padding-left: 5px;
+                        li {
+                            display: flex;
+                            flex-direction: row;
+                            position: relative;
 
-                            li {
+                            &::after {
+                                content: '>';
+                                position: absolute;
+                                right: 20px;
+                                top: calc(50% - 15px);
+                                font-size: 25px;
+                                color: #cbd0d3;
+                            }
+
+                            > div {
                                 display: flex;
-                                flex-direction: row;
-                                position: relative;
+                                flex-direction: column;
 
-                                &::after {
-                                    content: '>';
-                                    position: absolute;
-                                    right: 20px;
-                                    top: calc(50% - 15px);
-                                    font-size: 25px;
+                                &:first-child {
+                                    display: flex;
+                                    flex-direction: row;
+                                    justify-content: center;
+                                    align-items: center;
+                                    width: 40px;
+                                    height: 40px;
+                                    border-radius: 50px;
+                                    background-color: #007aff;
+                                    color: white;
+                                    margin-right: 10px;
+                                }
+
+                                > span:first-child {
+                                    font-weight: bold;
+                                }
+
+                                > span:last-child {
                                     color: #cbd0d3;
                                 }
-
-                                > div {
-                                    display: flex;
-                                    flex-direction: column;
-
-                                    &:first-child {
-                                        display: flex;
-                                        flex-direction: row;
-                                        justify-content: center;
-                                        align-items: center;
-                                        width: 40px;
-                                        height: 40px;
-                                        border-radius: 50px;
-                                        background-color: #007aff;
-                                        color: white;
-                                        margin-right: 10px;
-                                    }
-
-                                    > span:first-child {
-                                        font-weight: bold;
-                                    }
-
-                                    > span:last-child {
-                                        color: #cbd0d3;
-                                    }
-                                }
                             }
                         }
                     }
+                }
 
-                    &.light-container,
-                    &.sound-container {
-                        display: flex;
-                        flex-direction: column;
-                        padding-left: 10px;
-                        padding-right: 10px;
-                        padding-bottom: 10px;
-                        position: relative;
+                &.light-container,
+                &.sound-container {
+                    display: flex;
+                    flex-direction: column;
+                    padding-left: 10px;
+                    padding-right: 10px;
+                    padding-bottom: 10px;
+                    position: relative;
 
-                        > span {
-                            font-size: 20px;
-                            font-weight: bold;
-                            margin-bottom: 10px;
-                        }
-
-                        > div {
-                            display: flex;
-                            flex-direction: row;
-                            justify-content: space-around;
-                            align-items: center;
-
-                            input[type=range] {
-                                margin-right: 4px!important;
-                                background-size: v-bind(displaySoundValue) 100%!important;
-                            }
-
-                            > button {
-                              border-radius: 20px;
-                              background-color: #dcdddd;
-                              border: 0;
-                              display: flex;
-                              flex-direction: column;
-                              justify-content: center;
-                              align-items: center;
-                            }
-                        }
-
-                        > input[type=range],
-                        > div input[type=range] {
-                            flex: 1;
-                            -webkit-appearance: none;
-                            padding: 0;
-                            outline: none;
-                            opacity: .8;
-                            box-sizing: border-box;
-                            transition: opacity .2s;
-                            height: auto;
-                            margin: 0;
-                            background: #dcdbdb;
-                            border: 1px solid #cbcfd2;
-                            --thumb-radius: 50%;
-                            border-radius: 30px;
-                            background-image: linear-gradient(#ffffff, #ffffff);
-                            background-size: v-bind(displayLightValue) 100%;
-                            background-repeat: no-repeat;
-
-                            + i {
-                                position: absolute;
-                                left: 15px;
-                                top: 40px;
-                                color: #ececec;
-
-                                + button {
-                                    width: 30px;
-                                    height: 30px;
-                                }
-                            }
-
-                            &::-webkit-slider-runnable-track {
-                                width: 100%;
-                                position: relative;
-                                height: 25px;
-                                box-shadow: none;
-                                border-radius: 14px;
-                                border: none;
-                            }
-
-                            &::-webkit-slider-thumb {
-                                -webkit-appearance: none;
-                                width: 25px;
-                                height: 25px;
-                                box-sizing: border-box;
-                                padding: 0.25em;
-                                border: 1px solid #888;
-                                border-radius: 50%;
-                                box-shadow: 0 0 0.5em #fff inset;
-                                background: white;
-                            }
-                        }
+                    > span {
+                        font-size: 20px;
+                        font-weight: bold;
+                        margin-bottom: 10px;
                     }
 
-                    &.music-container {
+                    > div {
                         display: flex;
                         flex-direction: row;
-                        justify-content: flex-start;
+                        justify-content: space-around;
                         align-items: center;
 
-                        img {
-                            width: 70px;
+                        input[type=range] {
+                            margin-right: 4px!important;
+                            background-size: v-bind(displaySoundValue) 100%!important;
                         }
 
-                        span {
-                            font-weight: bold;
-                        }
-
-                        div {
+                        > button {
+                            border-radius: 20px;
+                            background-color: #dcdddd;
+                            border: 0;
                             display: flex;
-                            flex-direction: row;
-                            justify-content: flex-end;
+                            flex-direction: column;
+                            justify-content: center;
                             align-items: center;
-                            flex: 1;
+                        }
+                    }
 
-                            button {
-                                border: 0;
-                                background: transparent;
+                    > input[type=range],
+                    > div input[type=range] {
+                        flex: 1;
+                        -webkit-appearance: none;
+                        padding: 0;
+                        outline: none;
+                        opacity: .8;
+                        box-sizing: border-box;
+                        transition: opacity .2s;
+                        height: auto;
+                        margin: 0;
+                        background: #dcdbdb;
+                        border: 1px solid #cbcfd2;
+                        --thumb-radius: 50%;
+                        border-radius: 30px;
+                        background-image: linear-gradient(#ffffff, #ffffff);
+                        background-size: v-bind(displayLightValue) 100%;
+                        background-repeat: no-repeat;
 
-                                i {
-                                    font-size: 20px;
-                                    margin: 10px;
-                                    color: #767879;
-                                }
+                        + i {
+                            position: absolute;
+                            left: 15px;
+                            top: 40px;
+                            color: #ececec;
+
+                            + button {
+                                width: 30px;
+                                height: 30px;
+                            }
+                        }
+
+                        &::-webkit-slider-runnable-track {
+                            width: 100%;
+                            position: relative;
+                            height: 25px;
+                            box-shadow: none;
+                            border-radius: 14px;
+                            border: none;
+                        }
+
+                        &::-webkit-slider-thumb {
+                            -webkit-appearance: none;
+                            width: 25px;
+                            height: 25px;
+                            box-sizing: border-box;
+                            padding: 0.25em;
+                            border: 1px solid #888;
+                            border-radius: 50%;
+                            box-shadow: 0 0 0.5em #fff inset;
+                            background: white;
+                        }
+                    }
+                }
+
+                &.music-container {
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: flex-start;
+                    align-items: center;
+
+                    img {
+                        width: 70px;
+                    }
+
+                    span {
+                        font-weight: bold;
+                    }
+
+                    div {
+                        display: flex;
+                        flex-direction: row;
+                        justify-content: flex-end;
+                        align-items: center;
+                        flex: 1;
+
+                        button {
+                            border: 0;
+                            background: transparent;
+
+                            i {
+                                font-size: 20px;
+                                margin: 10px;
+                                color: #767879;
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+
+    .battery-data {
+        display: v-bind(displayBatteryData);
+        position: absolute;
+        right: 220px;
+        flex-direction: column;
+        background: white;
+        z-index: 1;
+        margin-top: 5px;
+        width: 350px;
+        padding: 15px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        border-radius: 15px;
+        background-color: white;
+        box-shadow: 0px 0px 15px 5px rgb(0 0 0 / 30%);
+
+        > div {
+            display: flex;
+            margin-top: 5px;
+            margin-bottom: 5px;
+
+            &:first-child {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+
+                > span {
+                    &:first-child {
+                        font-weight: bold;
+                    }
+
+                    &:last-child {
+                        color: #767879;
+                    }
+                }
+            }
+
+            &:last-child {
+                flex-direction: column;
+                justify-content: center;
+                align-items: flex-start;
+
+                span {
+                    color: #767879;
                 }
             }
         }
