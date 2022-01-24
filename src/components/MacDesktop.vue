@@ -192,7 +192,7 @@
 
             <div>
                 <span>
-                    Source d'alimentation {{ alimSource }}
+                    Source d'alimentation: {{ alimSource }}
                 </span>
 
                 <template v-if="topBar.battery.charging">
@@ -217,15 +217,15 @@
 
         <ul class="context-menu" v-if="displayContextMenu" ref="contextMenu">
             <li>
-                    <button>
-                        New folder
-                    </button>
+                <button>
+                    New folder
+                </button>
             </li>
 
             <li>
-                    <button>
-                        New file
-                    </button>
+                <button>
+                    New file
+                </button>
             </li>
 
             <li>
@@ -233,21 +233,21 @@
             </li>
 
             <li>
-                    <button>
-                        Copy
-                    </button>
+                <button>
+                    Copy
+                </button>
             </li>
 
             <li>
-                    <button>
-                        Cut
-                    </button>
+                <button>
+                    Cut
+                </button>
             </li>
 
             <li>
-                    <button>
-                        Past
-                    </button>
+                <button>
+                    Past
+                </button>
             </li>
             
             <li>
@@ -255,9 +255,9 @@
             </li>
 
             <li>
-                    <button>
-                        Open in terminal
-                    </button>
+                <button>
+                    Open in terminal
+                </button>
             </li>
 
             <li>
@@ -265,9 +265,9 @@
             </li>
 
             <li>
-                    <button>
-                        Show more options
-                    </button>
+                <button>
+                    Show more options
+                </button>
             </li>
         </ul>
 
