@@ -67,8 +67,6 @@
                 <ul>
                     <li>
                         <button @click="toggleBatteryData()">
-                            {{ topBar.battery.level * 100 }}%
-
                             <i :class="{
                                     fas: true,
                                     'fa-battery-empty': !topBar.battery.charging && topBar.battery.level * 100 === 0,
