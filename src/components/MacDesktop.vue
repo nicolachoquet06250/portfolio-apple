@@ -221,7 +221,7 @@
 
         <ul class="context-menu" v-if="displayContextMenu" ref="contextMenu">
             <li>
-                <button>
+                <button @click="addDirectory(`/${user.account_name}/Desktop`, 'toto')">
                     New folder
                 </button>
             </li>
@@ -275,6 +275,14 @@
             </li>
         </ul>
 
+        <div class="desktop-grid-column" v-for="treeColumn of treeToGrid" :key="treeColumn">
+            <button class="desktop-grid-cel" v-for="treeCel of treeColumn" :key="treeCel">
+                <img :src="iconDirectory" />
+
+                <span> {{ treeCel.name }} </span>
+            </button>
+        </div>
+
         <slot></slot>
 
         <MacApplication v-for="app of Object.keys(openedApplications)" 
@@ -291,16 +299,75 @@
 <script setup>
 import { defineProps, ref, computed, watch, reactive } from "vue";
 import { APPLICATION_STATE, useOpenedApplications, useCurrentApp } from '@/hooks/apps';
+import { useAuthUser } from '@/hooks/account';
+import { useDatabase, TABLES, getParams } from '@/hooks/database';
+import { useInstalled } from '@/hooks/installed';
 import { useDark } from '@/hooks/theme';
 import { onClickOutside, useToggle } from '@vueuse/core';
 import MacApplication from '@/components/MacApplication.vue';
 import ToogleLiteDarkMode from '@/components/ToogleLiteDarkMode.vue';
 import Spotlight from '@/components/Spotlight.vue';
 import siriIcon from "@/assets/icons/siri.png";
-import musicIcon from '@/assets/icons/icon-Music.png';
 
+import musicIcon from '@/assets/icons/icon-Music.png';
+import iconAppleTV from '@/assets/icons/icon-AppleTV.png';
+import iconDirectory from '@/assets/icons/icon-directory.png';
+import iconMessages from '@/assets/icons/icon-Messages.png';
+import iconMp4 from '@/assets/icons/icon-mp4.png';
+import iconPages from '@/assets/icons/icon-Pages.png';
+import iconPng from '@/assets/icons/icon-png.png';
+import iconUnknownFile from '@/assets/icons/icon-unknownFile.png';
+
+const { user } = useAuthUser();
 const { currentApp } = useCurrentApp();
 const { openedApplications, initApplicationHistory } = useOpenedApplications();
+const { installed } = useInstalled();
+const { onSuccess, results: treeStructure } = useDatabase(...getParams(TABLES.TREE_STRUCTURE));
+
+if (installed.value) {
+    onSuccess(({ context: { getAllValues } }) => getAllValues()).connect();
+}
+
+const treeToGrid = ref([]);
+watch(treeStructure, () => {
+    treeToGrid.value = treeStructure.value.reduce((r, c) => {
+        if (c.parent === `/${user.value.account_name}/Desktop`) {
+            if (r.cmp === 0) {
+                //c.parent === `/${user.value.account_name}/Desktop` ? [...r.result, c] : r.result
+                return { 
+                    result: [...r.result, [c]], 
+                    cmp: r.cmp + 1
+                };
+            } else if (r.cmp < 5) {
+                return { 
+                    result: [...r.result, [...r.result[r.result.length - 1], c]], 
+                    cmp: 0
+                };
+            }
+            //return c.parent === `/${user.value.account_name}/Desktop` ? [...r, c] : r;
+        } else {
+            return r;
+        }
+    }, { cmp: 0, result: [] }).result;
+});
+
+const addDirectory = (root, name) => {
+    onSuccess(({ context: { add, getAllValues } }) => {
+        add({
+            name,
+            parent: root,
+            type: 'directory',
+            extention: null,
+            content: null,
+            creation_date: new Date(),
+            opened_date: new Date(),
+            updated_date: new Date(),
+            user_id: user.id
+        });
+
+        getAllValues();
+    }).connect();
+}
 
 initApplicationHistory();
 
@@ -592,10 +659,7 @@ watch([contextMenu, () => contextMenuPosition.x], () => {
                         margin-top: 2px;
                         margin-bottom: 2px;
 
-                        &:active, &:hover, &.active {
-                            background-color: rgba(255, 255, 255, .05);
-                            backdrop-filter: blur(11.5rem);
-
+                        &:active, &.active {
                             + ul.sub-menu {
                                 display: flex;
                                 flex-direction: column;
@@ -659,6 +723,11 @@ watch([contextMenu, () => contextMenuPosition.x], () => {
                                     }
                                 }
                             }
+                        }
+
+                        &:active, &:hover, &.active {
+                            background-color: rgba(255, 255, 255, .05);
+                            backdrop-filter: blur(11.5rem);
                         }
                     }
 
@@ -1069,6 +1138,43 @@ watch([contextMenu, () => contextMenuPosition.x], () => {
                 &:hover, &:active, &:focus {
                     background-color: rgba(255, 255, 255, .3);
                 }
+            }
+        }
+    }
+
+    .desktop-grid {
+        &-column {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            justify-content: flex-start;
+            align-items: flex-start;
+            padding: 10px;
+        }
+
+        &-cel {
+            background: transparent;
+            border: 0;
+            border-radius: 10px;
+            color: white;
+            width: 100px;
+            height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+
+            &:active, &:focus {
+                background-color: lightskyblue;
+
+                span {
+                    color: black;
+                }
+            }
+
+            img {
+                width: 80%;
             }
         }
     }

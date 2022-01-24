@@ -97,11 +97,13 @@ import { ref, defineEmits, watch } from 'vue';
 import { useNetwork, useBattery } from "@vueuse/core";
 import { useWait } from '@/hooks/wait';
 import { useDatabase, TABLES, getParams } from '@/hooks/database';
+import { useAuthUser } from '@/hooks/account';
 import defaultProfilePic from '@/assets/default-profile-pic.png';
 import iconSuspend from '@/assets/icon-suspend-login-view.png';
 
 const emit = defineEmits(['connected']);
 
+const { authUser } = useAuthUser();
 const { isWait, isNotWait } = useWait();
 const { onSuccess: onAccountSuccess, results: accounts } = useDatabase(...getParams(TABLES.ACCOUNT));
 const { onSuccess: onSettingsSuccess, results: settings } = useDatabase(...getParams(TABLES.SETTINGS));
@@ -138,6 +140,9 @@ const login = (event, user) => {
     isWait();
 
     console.log(user);
+
+    authUser(user.id, user.full_name, user.account_name);
+
     setTimeout(() => {
         isNotWait();
 
