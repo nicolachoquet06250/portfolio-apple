@@ -250,7 +250,7 @@
                  v-for="(treeColumn, x) of treeToGrid" :key="x">
                 <button class="desktop-grid-cel" 
                         v-for="(treeCel, y) of treeColumn" :key="y"
-                        @click="selectDirectory(treeCel, { x, y })"
+                        @focus="selectDirectory(treeCel, { x, y })"
                         :ref="el => { if(selectedDirectory === treeCel.name) { selectedDirectoryRef = el } }"
                         @contextmenu.prevent.stop="showDirectoryContextMenu({
                             event: $event,
