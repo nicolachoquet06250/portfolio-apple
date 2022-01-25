@@ -1,6 +1,6 @@
 <template>
   <div id="desktop" :class="{ dark: isDark }" 
-        @contextmenu.prevent.stop="showContextMenu($event)">
+        @contextmenu.prevent.stop="showDesktopContextMenu($event)">
         <div class="top-bar">
             <div class="menu">
                 <ul>
@@ -222,70 +222,49 @@
         </div>
 
         <ul class="context-menu" v-if="displayContextMenu" ref="contextMenu">
-            <li>
-                <button @click="addDirectory(`/${user.account_name}/Desktop`)">
-                    New folder
-                </button>
-            </li>
+            <template v-if="(contextMenuItems[0] instanceof Array)">
+                <template v-for="(items, index) of contextMenuItems" :key="index">
+                    <li v-for="(item, i) of items" :key="i">
+                        <button @click="item.click?.($event)">
+                            {{ item.name }}
+                        </button>
+                    </li>
+                </template>
 
-            <li>
-                <button>
-                    New file
-                </button>
-            </li>
+                <li>
+                    <hr />
+                </li>
+            </template>
 
-            <li>
-                <hr />
-            </li>
-
-            <li>
-                <button>
-                    Copy
-                </button>
-            </li>
-
-            <li>
-                <button>
-                    Cut
-                </button>
-            </li>
-
-            <li>
-                <button>
-                    Past
-                </button>
-            </li>
-            
-            <li>
-                <hr />
-            </li>
-
-            <li>
-                <button>
-                    Open in terminal
-                </button>
-            </li>
-
-            <li>
-                <hr />
-            </li>
-
-            <li>
-                <button>
-                    Show more options
-                </button>
-            </li>
+            <template v-else>
+                <li v-for="(item, i) of contextMenuItems" :key="i">
+                    <button @click="item.click?.($event)">
+                        {{ item.name }}
+                    </button>
+                </li>
+            </template>
         </ul>
 
         <div class="desktop-grid">
-            <div class="desktop-grid-column" v-for="(treeColumn, i) of treeToGrid" :key="treeColumn">
-                <button class="desktop-grid-cel" v-for="treeCel of treeColumn" :key="treeCel">
+            <div class="desktop-grid-column" 
+                 v-for="(treeColumn, x) of treeToGrid" :key="x">
+                <button class="desktop-grid-cel" 
+                        v-for="(treeCel, y) of treeColumn" :key="y"
+                        @contextmenu.prevent.stop="showDirectoryContextMenu({
+                            event: $event,
+                            id: treeCel.id,
+                            x, y
+                        })">
                     <img :src="iconDirectory" />
 
                     <span> {{ treeCel.name }} </span>
                 </button>
 
-                <button class="desktop-grid-cel desktop-grid-cel_new-directory" v-if="i === treeToGrid.length - 1 && treeToGrid[i].lenght < 5 && displayNewDirectory" ref="newDirectoryRef">
+                <!--{{ x }} {{ treeToGrid.length }} {{ treeToGrid[x].length }}-->
+
+                <button class="desktop-grid-cel desktop-grid-cel_new-directory" 
+                        v-if="x === treeToGrid.length - 1 && treeToGrid[x].length < 5 && displayNewDirectory" 
+                        ref="newDirectoryRef">
                     <img :src="iconDirectory" />
 
                     <span> 
@@ -326,6 +305,7 @@ import { useAuthUser } from '@/hooks/account';
 import { useDatabase, TABLES, getParams } from '@/hooks/database';
 import { useInstalled } from '@/hooks/installed';
 import { useDark } from '@/hooks/theme';
+import { useContextualMenu } from '@/hooks/contextual-menu';
 import { onClickOutside, useToggle, onKeyUp } from '@vueuse/core';
 import MacApplication from '@/components/MacApplication.vue';
 import ToogleLiteDarkMode from '@/components/ToogleLiteDarkMode.vue';
@@ -343,6 +323,7 @@ import iconUnknownFile from '@/assets/icons/icon-unknownFile.png';
 
 const { user } = useAuthUser();
 const { currentApp } = useCurrentApp();
+const { setContextMenu, contextMenu: contextMenuItems } = useContextualMenu();
 const { openedApplications, initApplicationHistory } = useOpenedApplications();
 const { installed } = useInstalled();
 const { onSuccess, results: treeStructure } = useDatabase(...getParams(TABLES.TREE_STRUCTURE));
@@ -351,6 +332,11 @@ if (installed.value) {
     onSuccess(({ context: { getAllValues } }) => getAllValues()).connect();
 }
 
+/*const selectedDirectoryGridPosition = reactive({
+    x: null,
+    y: null
+});
+const selectedDirectoryAction = ref('');*/
 const treeToGrid = ref([]);
 watch(treeStructure, () => {
     const maxPerColumn = 5;
@@ -358,23 +344,42 @@ watch(treeStructure, () => {
     const tmp = [];
     let cmp = 0;
 
+    let x = 0;
+    let y = 0;
     for (const c of treeStructure.value) {
         if (c.parent === `/${user.value.account_name}/Desktop`) {
             if (cmp === 0) {
+                /*if (x === selectedDirectoryGridPosition.x - 1 && y === selectedDirectoryGridPosition.y - 1) {
+                    if (selectedDirectoryAction.value === 'remove') {
+                        tmp.push([{
+                            void: true
+                        }, c])
+                        cmp++;
+                        y++;
+                        continue;
+                    }
+                }*/
+
                 tmp.push([c]);
+
                 cmp++;
+                y++;
             } else if (cmp < maxPerColumn) {
                 const lastElement = tmp.pop();
                 lastElement.push(c);
                 tmp.push(lastElement);
+
                 cmp++;
+                y++;
             } else if (cmp === maxPerColumn) {
                 const lastElement = tmp.pop();
                 lastElement.push(c);
                 tmp.push(lastElement);
+
                 cmp = 0;
+                y = 0;
+                x++;
             }
-            console.log(tmp);
         } else {
             continue;
         }
@@ -415,7 +420,42 @@ onKeyUp('Escape', () => {
 const addDirectory = () => {
     displayNewDirectory.value = true;
     displayContextMenu.value = false;
-}
+};
+
+const showDirectoryContextMenu = e => {
+    console.log('context menu on directory');
+    console.log(e.id, e.x, e.y);
+
+    //selectedDirectoryGridPosition.x = e.x;
+    //selectedDirectoryGridPosition.y = e.y;
+
+    setContextMenu([
+        {
+            name: 'Remove',
+            click() {
+                console.log('supprimer un répertoire');
+                selectedDirectoryAction.value = 'remove';
+
+                onSuccess(({ context: { remove, getAllValues } }) => {
+                    remove(e.id);
+                    getAllValues();
+                }).connect();
+
+                displayContextMenu.value = false;
+            }
+        },
+        /*{
+            name: 'Rename',
+            click() {
+                
+            }
+        }*/
+    ]);
+
+    contextMenuPosition.x = e.event.clientX;
+    contextMenuPosition.y = e.event.clientY;
+    displayContextMenu.value = true;
+};
 
 initApplicationHistory();
 
@@ -558,9 +598,42 @@ const contextMenuPosition = reactive({
 const contextMenuPositionX = computed(() => contextMenuPosition.x + 20 + 'px');
 const contextMenuPositionY = computed(() => contextMenuPosition.y + 'px');
 
-const showContextMenu = e => {
-    console.log(e);
+const showDesktopContextMenu = e => {
     console.log('context menu on desktop');
+
+    setContextMenu([
+        [
+            {
+                name: 'New folder',
+                click: () => addDirectory()
+            },
+            {
+                name: 'New file'
+            }
+        ],
+        [
+            {
+                name: 'Copy'
+            },
+            {
+                name: 'Cut'
+            },
+            {
+                name: 'Past'
+            }
+        ],
+        [
+            {
+                name: 'Open in terminal'
+            }
+        ],
+        [
+            {
+                name: 'Show more options'
+            }
+        ]
+    ]);
+
     contextMenuPosition.x = e.clientX;
     contextMenuPosition.y = e.clientY;
     displayContextMenu.value = true;
