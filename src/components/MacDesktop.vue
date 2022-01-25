@@ -229,11 +229,11 @@
                             {{ item.name }}
                         </button>
                     </li>
-                </template>
 
-                <li>
-                    <hr />
-                </li>
+                    <li v-if="index < contextMenuItems.length - 1">
+                        <hr />
+                    </li>
+                </template>
             </template>
 
             <template v-else>
