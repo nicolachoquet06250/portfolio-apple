@@ -250,6 +250,8 @@
                  v-for="(treeColumn, x) of treeToGrid" :key="x">
                 <button class="desktop-grid-cel" 
                         v-for="(treeCel, y) of treeColumn" :key="y"
+                        @click="selectDirectory(treeCel, { x, y })"
+                        :ref="el => { if(selectedDirectory === treeCel.name) { selectedDirectoryRef = el } }"
                         @contextmenu.prevent.stop="showDirectoryContextMenu({
                             event: $event,
                             id: treeCel.id,
@@ -425,6 +427,26 @@ const addDirectory = () => {
     displayNewDirectory.value = true;
     displayContextMenu.value = false;
 };
+const selectedDirectory = ref('');
+const selectedDirectoryId = ref(null);
+const selectedDirectoryPosition = reactive({
+    x: 0,
+    y: 0
+});
+const selectedDirectoryRef = ref(null);
+const selectDirectory = (treeCel, { x, y }) => {
+    selectedDirectory.value = treeCel.name;
+    selectedDirectoryId.value = treeCel.id;
+    selectedDirectoryPosition.x = x;
+    selectedDirectoryPosition.y = y;
+}
+onClickOutside(selectedDirectoryRef, () => selectedDirectory.value = '');
+onKeyUp('Delete', () => {
+    onSuccess(({ context: { remove, getAllValues } }) => {
+        remove(selectedDirectoryId.value);
+        getAllValues();
+    }).connect();
+});
 
 const showDirectoryContextMenu = e => {
     console.log('context menu on directory');
