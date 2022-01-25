@@ -9,9 +9,9 @@ const authUser = reactive({
 export const useAuthUser = () => ({
     user: computed(() => authUser),
 
-    authUser(id, full_name, account_name) {
+    authUser(id, fullName, accountName) {
         authUser.id = id;
-        authUser.full_name = full_name;
-        authUser.account_name = account_name;
+        authUser.full_name = fullName;
+        authUser.account_name = accountName;
     }
 });

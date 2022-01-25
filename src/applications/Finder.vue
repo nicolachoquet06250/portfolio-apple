@@ -1,5 +1,6 @@
 <template>
-    <div class="finder-root" ref="root">
+    <div class="finder-root" ref="finderBody"
+         @contextmenu="showFinderContextMenu()">
         <div class="finder-breadcrum" v-if="showBreadcrum">
             <div class="breadcrum-item" 
                  v-for="item of breadcrum" :key="item">
@@ -10,13 +11,16 @@
         <div class="finder-container">
             <div class="finder-line" 
                  v-for="line of showedItems" :key="line">
-                <div :class="{
+                <button :class="{
                         'finder-item': true,
                         active: activedItem === item.name
                     }" 
                      v-for="item of line" :key="item"
-                     @click="clickOnItem(item)"
-                     @dblclick="selectItem(item)" clickable>
+                     :ref="el => { if (activedItem === item.name) { selectedDir = el; selectedItem = item } }"
+                     @focus="activeItem(item.name)"
+                     @click="activeItem(item.name)"
+                     @dblclick="selectItem(item)"
+                     @contextmenu.prevent.stop="showDirectoryContextMenu(item)">
                     <img :src="item.icon" class="finder-item-icon">
 
                     <span class="finder-item-text" v-if="item.type === 'directory' || item.type === 'unknown' || item.type === 'application'">
@@ -25,19 +29,28 @@
                     <span class="finder-item-text" v-else>
                         {{ item.name }}.{{ item.extention }}
                     </span>
-                </div>
+                </button>
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
-import { useCurrentApp } from '@/hooks/apps';
-import { useFinder } from '@/hooks/finder';
+import { ref, computed, watch, onBeforeUnmount } from 'vue';
+import { useCurrentApp, useOpenedApplications } from '@/hooks/apps';
+import { useFinder, useRootDirectory } from '@/hooks/finder';
+import { useContextualMenu } from '@/hooks/contextual-menu';
+import { onClickOutside, onKeyUp, useMouse } from '@vueuse/core';
 
-const { setCurrentAppMenus } = useCurrentApp();
+const { x: mouseX, y: mouseY } = useMouse();
+const { setCurrentAppMenus, setCurrentApp } = useCurrentApp();
+const { openApplication } = useOpenedApplications();
 const { selectTab, selectItem, activeItem, showedItems, activedItem, breadcrum } = useFinder(5);
+const { root, setRoot, setSubDirectory } = useRootDirectory();
+const {
+    setContextMenu, showContextMenu, 
+    hideContextMenu, setContextMenuPosition
+} = useContextualMenu();
 
 const TABS = {
     APPLICATIONS: 'Applications',
@@ -48,7 +61,12 @@ const TABS = {
     DOWNLOADS: 'Downloads'
 };
 
-selectTab(TABS.RECENT);
+selectTab(root.value ?? TABS.RECENT);
+
+onBeforeUnmount(() => {
+    setRoot(TABS.RECENT);
+    setSubDirectory('');
+});
 
 setCurrentAppMenus({
     TitleSection1: {
@@ -56,48 +74,128 @@ setCurrentAppMenus({
         text: 'Favorites'
     },
     [TABS.APPLICATIONS]: {
+        active: root.value === TABS.APPLICATIONS,
         click() {
             selectTab(TABS.APPLICATIONS);
         }
     },
     [TABS.RECENT]: {
-        active: true,
+        active: root.value === TABS.RECENT || !root.value,
         click() {
             selectTab(TABS.RECENT);
         }
     },
     [TABS.AIRDROP]: {
+        active: root.value === TABS.AIRDROP,
         click() {
             selectTab(TABS.AIRDROP);
         }
     },
     [TABS.DESKTOP]: {
+        active: root.value === TABS.DESKTOP,
         click() {
             selectTab(TABS.DESKTOP);
         }
     },
     [TABS.DOCUMENTS]: {
+        active: root.value === TABS.DOCUMENTS,
         click() {
             selectTab(TABS.DOCUMENTS);
         }
     },
     [TABS.DOWNLOADS]: {
+        active: root.value === TABS.DOWNLOADS,
         click() {
             selectTab(TABS.DOWNLOADS);
         }
     }
 })
 
-const root = ref(null);
+const finderBody = ref(null);
+const selectedDir = ref(null);
+const selectedItem = ref(null);
+onClickOutside(selectedDir, () => {
+    selectedDir.value = null;
+    selectedItem.value = null;
+});
+onKeyUp('Enter', () => {
+    if (selectedDir.value) {
+        selectItem(selectedItem.value);
+    }
+})
 const showBreadcrum = computed(() => breadcrum.value.length > 1);
 
 const openAlert = () => displayAlert.value = true;
 const hideAlert = () => displayAlert.value = false;
-const clickOnItem = item => activeItem(item.name);
 
-watch(root, () => {
-    if (root.value) {
-        root.value.parentElement.parentElement.parentElement.addEventListener('click', e => {
+/**
+ * @param {String} appCode
+ */
+const openApp = appCode => {
+    openApplication(appCode);
+    setCurrentApp(appCode);
+};
+
+const showFinderContextMenu = () => {
+    console.log('context menu on finder');
+
+    setContextMenu([
+        [
+            {
+                name: 'New folder',
+                //click: () => addDirectory()
+            },
+            {
+                name: 'New file'
+            }
+        ],
+        [
+            {
+                name: 'Copy'
+            },
+            {
+                name: 'Cut'
+            },
+            {
+                name: 'Past'
+            }
+        ],
+        [
+            {
+                name: 'Open in terminal'
+            }
+        ],
+        [
+            {
+                name: 'Show more options'
+            }
+        ]
+    ]);
+
+    setContextMenuPosition(mouseX.value, mouseY.value);
+    showContextMenu();
+};
+
+const showDirectoryContextMenu = e => {
+    console.log('context menu on directory');
+
+    setContextMenu([
+        {
+            name: 'Remove',
+            click() {
+                remove(e.id);
+                hideContextMenu();
+            }
+        }
+    ]);
+
+    setContextMenuPosition(mouseX.value, mouseY.value);
+    showContextMenu();
+};
+
+watch(finderBody, () => {
+    if (finderBody.value) {
+        finderBody.value.parentElement.parentElement.parentElement.addEventListener('click', e => {
             e.preventDefault();
             e.stopPropagation();
 
@@ -164,6 +262,10 @@ watch(root, () => {
         align-items: center;
         width: 100px;
         padding: 5px;
+        background-color: transparent;
+        border: 0;
+        color: white;
+        outline: 0;
 
         &.active {
             background-color: lightskyblue;

@@ -38,6 +38,7 @@
                     <li>
                         <ul>
                             <li v-for="(item, i) of topBar.menu" :key="item.name"
+                                :ref="el => { if (el) { refs[i] = el } }"
                                 :class="{
                                     'menu-item': true,
                                     [`menu-item-${i}`]: true
@@ -251,6 +252,7 @@
                 <button class="desktop-grid-cel" 
                         v-for="(treeCel, y) of treeColumn" :key="y"
                         @focus="selectDirectory(treeCel, { x, y })"
+                        @dblclick="openAppFromDesktop(treeCel.name)"
                         :ref="el => { if(selectedDirectory === treeCel.name) { selectedDirectoryRef = el } }"
                         @contextmenu.prevent.stop="showDirectoryContextMenu({
                             event: $event,
@@ -301,18 +303,20 @@
 
 <script setup>
 import { defineProps, ref, computed, watch, reactive } from "vue";
-import { APPLICATION_STATE, useOpenedApplications, useCurrentApp } from '@/hooks/apps';
+import { APPLICATION, APPLICATION_STATE, useOpenedApplications, useCurrentApp } from '@/hooks/apps';
 import { useAuthUser } from '@/hooks/account';
+import { useRootDirectory, useTreeActions } from '@/hooks/finder';
 import { useDatabase, TABLES, getParams } from '@/hooks/database';
 import { useInstalled } from '@/hooks/installed';
 import { useDark } from '@/hooks/theme';
 import { useContextualMenu } from '@/hooks/contextual-menu';
 import { onClickOutside, useToggle, onKeyUp, useMouse } from '@vueuse/core';
+
 import MacApplication from '@/components/MacApplication.vue';
 import ToogleLiteDarkMode from '@/components/ToogleLiteDarkMode.vue';
 import Spotlight from '@/components/Spotlight.vue';
-import siriIcon from "@/assets/icons/siri.png";
 
+import siriIcon from "@/assets/icons/siri.png";
 import musicIcon from '@/assets/icons/icon-Music.png';
 import iconAppleTV from '@/assets/icons/icon-AppleTV.png';
 import iconDirectory from '@/assets/icons/icon-directory.png';
@@ -324,14 +328,20 @@ import iconUnknownFile from '@/assets/icons/icon-unknownFile.png';
 
 const { x: mouseX, y: mouseY } = useMouse();
 const { user } = useAuthUser();
-const { currentApp } = useCurrentApp();
-const { setContextMenu, contextMenu: contextMenuItems } = useContextualMenu();
-const { openedApplications, initApplicationHistory } = useOpenedApplications();
+const { currentApp, setCurrentApp } = useCurrentApp();
+const {
+    show: displayContextMenu,
+    position: contextMenuPosition,
+    setContextMenu, showContextMenu, hideContextMenu, setContextMenuPosition,
+    contextMenu: contextMenuItems
+} = useContextualMenu();
+const { openedApplications, initApplicationHistory, openApplication } = useOpenedApplications();
 const { installed } = useInstalled();
-const { onSuccess, results: treeStructure } = useDatabase(...getParams(TABLES.TREE_STRUCTURE));
+const { setRoot, setSubDirectory } = useRootDirectory();
+const { tree: treeStructure, add, get, remove } = useTreeActions();
 
 if (installed.value) {
-    onSuccess(({ context: { getAllValues } }) => getAllValues()).connect();
+    get();
 }
 
 const treeToGrid = ref([]);
@@ -384,24 +394,10 @@ watch(newDirectoryRef, () => {
 });
 
 const createDirectory = () => {
-    onSuccess(({ context: { add, getAllValues } }) => {
-        add({
-            name: newDirectoryName.value,
-            parent: `/${user.value.account_name}/Desktop`,
-            type: 'directory',
-            extention: null,
-            content: null,
-            creation_date: new Date(),
-            opened_date: new Date(),
-            updated_date: new Date(),
-            user_id: user.value.id
-        });
+    add(`/${user.value.account_name}/Desktop`, newDirectoryName.value);
 
-        getAllValues();
-
-        displayNewDirectory.value = false;
-        newDirectoryName.value = 'new directory';
-    }).connect();
+    displayNewDirectory.value = false;
+    newDirectoryName.value = 'new directory';
 };
 onKeyUp('Enter', () => {
     if (displayNewDirectory.value) {
@@ -414,7 +410,7 @@ onKeyUp('Escape', () => {
 })
 const addDirectory = () => {
     displayNewDirectory.value = true;
-    displayContextMenu.value = false;
+    hideContextMenu();
 };
 const selectedDirectory = ref('');
 const selectedDirectoryId = ref(null);
@@ -430,12 +426,7 @@ const selectDirectory = (treeCel, { x, y }) => {
     selectedDirectoryPosition.y = y;
 }
 onClickOutside(selectedDirectoryRef, () => selectedDirectory.value = '');
-onKeyUp('Delete', () => {
-    onSuccess(({ context: { remove, getAllValues } }) => {
-        remove(selectedDirectoryId.value);
-        getAllValues();
-    }).connect();
-});
+onKeyUp('Delete', () => remove(selectedDirectoryId.value));
 
 const showDirectoryContextMenu = e => {
     console.log('context menu on directory');
@@ -444,22 +435,14 @@ const showDirectoryContextMenu = e => {
         {
             name: 'Remove',
             click() {
-                console.log('supprimer un répertoire');
-                //selectedDirectoryAction.value = 'remove';
-
-                onSuccess(({ context: { remove, getAllValues } }) => {
-                    remove(e.id);
-                    getAllValues();
-                }).connect();
-
-                displayContextMenu.value = false;
+                remove(e.id);
+                hideContextMenu();
             }
         }
     ]);
 
-    contextMenuPosition.x = mouseX.value;
-    contextMenuPosition.y = mouseY.value;
-    displayContextMenu.value = true;
+    setContextMenuPosition(mouseX.value, mouseY.value);
+    showContextMenu();
 };
 
 initApplicationHistory();
@@ -486,7 +469,7 @@ const props = defineProps({
   }),
 });
 
-const refs = props.topBar.menu.map(() => ref(null));
+const refs = ref([]);
 
 const toggleLightDarkModeButtonTextColor = ref(isDark.value ? 'white' : 'black');
 
@@ -593,15 +576,23 @@ setInterval(() => {
 const oldSecondClass = ref(null);
 const nbIdenticSecondClass = ref(0);
 
-const displayContextMenu = ref(false);
 const contextMenu = ref(null);
-onClickOutside(contextMenu, () => (displayContextMenu.value = false));
-const contextMenuPosition = reactive({
-    x: 0,
-    y: 0
-});
-const contextMenuPositionX = computed(() => contextMenuPosition.x + 20 + 'px');
-const contextMenuPositionY = computed(() => contextMenuPosition.y + 'px');
+onClickOutside(contextMenu, () => hideContextMenu());
+const contextMenuPositionX = computed(() => contextMenuPosition.value.x + 20 + 'px');
+const contextMenuPositionY = computed(() => contextMenuPosition.value.y + 'px');
+
+/**
+ * @param {String} appCode
+ */
+const openApp = appCode => {
+    openApplication(appCode);
+    setCurrentApp(appCode);
+};
+const openAppFromDesktop = dirName => {
+    setSubDirectory(dirName);
+    setRoot(`Desktop`);
+    openApp(APPLICATION.FINDER);
+};
 
 const showDesktopContextMenu = () => {
     console.log('context menu on desktop');
@@ -630,6 +621,15 @@ const showDesktopContextMenu = () => {
         [
             {
                 name: 'Open in terminal'
+            },
+            {
+                name: 'Open in finder',
+                click(e) {
+                    setSubDirectory('');
+                    setRoot('Desktop');
+                    openApp(APPLICATION.FINDER);
+                    hideContextMenu();
+                }
             }
         ],
         [
@@ -639,9 +639,8 @@ const showDesktopContextMenu = () => {
         ]
     ]);
 
-    contextMenuPosition.x = mouseX.value;
-    contextMenuPosition.y = mouseY.value;
-    displayContextMenu.value = true;
+    setContextMenuPosition(mouseX.value, mouseY.value);
+    showContextMenu();
 };
 
 const selectSubMenuItem = (item, e) => {
@@ -658,13 +657,13 @@ watch(isDark, () => {
     toggleLightDarkModeButtonTextColor.value = isDark.value ? 'white' : 'black';
 })
 
-watch([contextMenu, () => contextMenuPosition.x], () => {
+watch([contextMenu, () => contextMenuPosition.value.x], () => {
     if (contextMenu.value) {
-        if ((document.body.offsetWidth - contextMenu.value.offsetWidth) < contextMenuPosition.x) {
-            contextMenuPosition.x -= contextMenu.value.offsetWidth + 20;
+        if ((document.body.offsetWidth - contextMenu.value.offsetWidth) < contextMenuPosition.value.x) {
+            setContextMenuPosition(contextMenuPosition.value.x - contextMenu.value.offsetWidth - 20, contextMenuPosition.value.y);
         }
-        if ((document.body.offsetHeight - contextMenu.value.offsetHeight) < contextMenuPosition.y) {
-            contextMenuPosition.y -= contextMenu.value.offsetHeight - 20;
+        if ((document.body.offsetHeight - contextMenu.value.offsetHeight) < contextMenuPosition.value.y) {
+            setContextMenuPosition(contextMenuPosition.value.x, contextMenuPosition.value.y - contextMenu.value.offsetHeight + 20);
         }
     }
 });
@@ -731,6 +730,10 @@ watch([contextMenu, () => contextMenuPosition.x], () => {
 
         .context-menu {
             background: rgba(0, 0, 0, .3);
+
+            * {
+                color: rgba(255, 255, 255, .5)!important;
+            }
 
             ul li button {
                 &:active, &:focus, &:hover {

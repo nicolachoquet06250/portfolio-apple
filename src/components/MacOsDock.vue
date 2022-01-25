@@ -119,7 +119,9 @@ const icons = ref([
 ]);
 
 watch(dock, () => {
-    new Dock(dock.value);
+    if (dock.value) {
+        new Dock(dock.value);
+    }
 });
 </script>
 

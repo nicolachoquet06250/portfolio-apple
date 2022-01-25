@@ -10,7 +10,6 @@
             dark: isDark
         }" v-if="opened" 
         ref="application"
-        @contextmenu.prevent.stop="showContextMenu()"
         @click="handleApplicationClick($event)"
         :style="{
             'min-width': '777px'
@@ -137,9 +136,6 @@ const appToDock = () => {
     applicationToDock(props.appName);
     setCurrentApp(lastApplicationOpened.value);
 };
-const showContextMenu = () => {
-  console.log('context menu on ' + props.appName + ' application');
-};
 const handleLeftMenuClick = (currentAppMenu, e) => {
     currentAppMenu?.click(e);
     Array.from(e.target.parentElement.parentElement.querySelectorAll('button.active')).map(c => c.classList.remove('active'));
@@ -204,6 +200,7 @@ const closeApplication = () => {
     box-shadow: 2px 20px 36px -5px rgba(0,0,0,0.59);
     width: v-bind(applicationWidth);
     height: v-bind(applicationHeight);
+    border-radius: 10px;
 
     &.dark {
         .left-bloc {
