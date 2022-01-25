@@ -434,7 +434,7 @@ const showDirectoryContextMenu = e => {
             name: 'Remove',
             click() {
                 console.log('supprimer un répertoire');
-                selectedDirectoryAction.value = 'remove';
+                //selectedDirectoryAction.value = 'remove';
 
                 onSuccess(({ context: { remove, getAllValues } }) => {
                     remove(e.id);
