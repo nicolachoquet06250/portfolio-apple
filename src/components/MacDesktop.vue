@@ -274,7 +274,7 @@
             </div>
 
             <div class="desktop-grid-column" 
-                 v-if="treeToGrid.length === 0 || treeToGrid[treeToGrid.length - 1].length > 5 && displayNewDirectory">
+                 v-if="(treeToGrid.length === 0 || treeToGrid[treeToGrid.length - 1].length > 5) && displayNewDirectory">
                 <button class="desktop-grid-cel desktop-grid-cel_new-directory" ref="newDirectoryRefWhenVoid">
                     <img :src="iconDirectory" />
 
