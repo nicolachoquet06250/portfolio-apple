@@ -403,7 +403,11 @@ const createDirectory = () => {
         newDirectoryName.value = 'new directory';
     }).connect();
 };
-onKeyUp('Enter', createDirectory);
+onKeyUp('Enter', () => {
+    if (displayNewDirectory.value) {
+        createDirectory();
+    }
+});
 onKeyUp('Escape', () => {
     displayNewDirectory.value = false;
     newDirectoryName.value = 'new directory';
