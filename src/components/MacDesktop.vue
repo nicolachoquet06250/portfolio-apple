@@ -741,6 +741,8 @@ watch([contextMenu, () => contextMenuPosition.x], () => {
         backdrop-filter: blur(1.5rem);
         display: flex;
         font-size: v-bind(topBarFontSize);
+        position: relative;
+        z-index: 2;
 
         * {
             color: white;
@@ -1317,6 +1319,7 @@ watch([contextMenu, () => contextMenuPosition.x], () => {
             }
 
             &:active, &:focus {
+                outline: 0;
                 background-color: lightskyblue;
 
                 span {
