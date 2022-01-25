@@ -5,8 +5,11 @@
             dark: isDark
         }" ref="dock">
             <DockIcon v-for="icon of icons" :key="icon" 
-                      @click="icon.click($event)" @mouseover="icon.mouseover" @mouseout="icon.mouseout" 
-                      :img="icon.img" :active="openedApplications[icon.code] && openedApplications[icon.code]?.state !== APPLICATION_STATE.CLOSED" />
+                      @click="icon.click($event)" @mouseover="icon.mouseover" 
+                      @mouseout="icon.mouseout" 
+                      :code="icon.code"
+                      :img="icon.img" 
+                      :active="openedApplications[icon.code] && openedApplications[icon.code]?.state !== APPLICATION_STATE.CLOSED" />
         </div>
     </div>
 </template>
@@ -152,7 +155,7 @@ watch(dock, () => {
         z-index: 8;
     }
 
-    .dock-icon {
+    &-icon {
         position: relative;
         z-index: 2;
         cursor: pointer;

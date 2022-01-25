@@ -38,7 +38,7 @@ export class Dock {
      */
     constructor(el) {
         this.root = el;
-        this.icons = Array.from(el.children);
+        this.icons = Array.from(el.querySelectorAll('.dock-icon'));
         if (this.icons.length === 0) {
             return;
         }
