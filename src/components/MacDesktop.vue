@@ -307,7 +307,7 @@ import { useDatabase, TABLES, getParams } from '@/hooks/database';
 import { useInstalled } from '@/hooks/installed';
 import { useDark } from '@/hooks/theme';
 import { useContextualMenu } from '@/hooks/contextual-menu';
-import { onClickOutside, useToggle, onKeyUp } from '@vueuse/core';
+import { onClickOutside, useToggle, onKeyUp, useMouse } from '@vueuse/core';
 import MacApplication from '@/components/MacApplication.vue';
 import ToogleLiteDarkMode from '@/components/ToogleLiteDarkMode.vue';
 import Spotlight from '@/components/Spotlight.vue';
@@ -322,6 +322,7 @@ import iconPages from '@/assets/icons/icon-Pages.png';
 import iconPng from '@/assets/icons/icon-png.png';
 import iconUnknownFile from '@/assets/icons/icon-unknownFile.png';
 
+const { x: mouseX, y: mouseY } = useMouse();
 const { user } = useAuthUser();
 const { currentApp } = useCurrentApp();
 const { setContextMenu, contextMenu: contextMenuItems } = useContextualMenu();
@@ -333,11 +334,6 @@ if (installed.value) {
     onSuccess(({ context: { getAllValues } }) => getAllValues()).connect();
 }
 
-/*const selectedDirectoryGridPosition = reactive({
-    x: null,
-    y: null
-});
-const selectedDirectoryAction = ref('');*/
 const treeToGrid = ref([]);
 watch(treeStructure, () => {
     const maxPerColumn = 5;
@@ -350,17 +346,6 @@ watch(treeStructure, () => {
     for (const c of treeStructure.value) {
         if (c.parent === `/${user.value.account_name}/Desktop`) {
             if (cmp === 0) {
-                /*if (x === selectedDirectoryGridPosition.x - 1 && y === selectedDirectoryGridPosition.y - 1) {
-                    if (selectedDirectoryAction.value === 'remove') {
-                        tmp.push([{
-                            void: true
-                        }, c])
-                        cmp++;
-                        y++;
-                        continue;
-                    }
-                }*/
-
                 tmp.push([c]);
 
                 cmp++;
@@ -450,10 +435,6 @@ onKeyUp('Delete', () => {
 
 const showDirectoryContextMenu = e => {
     console.log('context menu on directory');
-    console.log(e.id, e.x, e.y);
-
-    //selectedDirectoryGridPosition.x = e.x;
-    //selectedDirectoryGridPosition.y = e.y;
 
     setContextMenu([
         {
@@ -469,17 +450,11 @@ const showDirectoryContextMenu = e => {
 
                 displayContextMenu.value = false;
             }
-        },
-        /*{
-            name: 'Rename',
-            click() {
-                
-            }
-        }*/
+        }
     ]);
 
-    contextMenuPosition.x = e.event.clientX;
-    contextMenuPosition.y = e.event.clientY;
+    contextMenuPosition.x = mouseX.value;
+    contextMenuPosition.y = mouseY.value;
     displayContextMenu.value = true;
 };
 
@@ -624,7 +599,7 @@ const contextMenuPosition = reactive({
 const contextMenuPositionX = computed(() => contextMenuPosition.x + 20 + 'px');
 const contextMenuPositionY = computed(() => contextMenuPosition.y + 'px');
 
-const showDesktopContextMenu = e => {
+const showDesktopContextMenu = () => {
     console.log('context menu on desktop');
 
     setContextMenu([
@@ -660,8 +635,8 @@ const showDesktopContextMenu = e => {
         ]
     ]);
 
-    contextMenuPosition.x = e.clientX;
-    contextMenuPosition.y = e.clientY;
+    contextMenuPosition.x = mouseX.value;
+    contextMenuPosition.y = mouseY.value;
     displayContextMenu.value = true;
 };
 
