@@ -108,6 +108,8 @@
             </div>
         </div>
 
+        <div class="new-directory-overlay" v-if="displayNewDirectory" @click="createDirectory()"></div>
+
         <div class="settings-hub" ref="settingsHub">
             <div>
                 <section class="network-container">
@@ -275,32 +277,33 @@
             </li>
         </ul>
 
-        <div class="desktop-grid-column" v-for="(treeColumn, i) of treeToGrid" :key="treeColumn">
-            <button class="desktop-grid-cel" v-for="treeCel of treeColumn" :key="treeCel">
-                <img :src="iconDirectory" />
+        <div class="desktop-grid">
+            <div class="desktop-grid-column" v-for="(treeColumn, i) of treeToGrid" :key="treeColumn">
+                <button class="desktop-grid-cel" v-for="treeCel of treeColumn" :key="treeCel">
+                    <img :src="iconDirectory" />
 
-                <span> {{ treeCel.name }} </span>
-            </button>
+                    <span> {{ treeCel.name }} </span>
+                </button>
 
-            {{ i }} {{ treeToGrid.length }}
+                <button class="desktop-grid-cel desktop-grid-cel_new-directory" v-if="i === treeToGrid.length - 1 && treeToGrid[i].lenght < 5 && displayNewDirectory" ref="newDirectoryRef">
+                    <img :src="iconDirectory" />
 
-            <button class="desktop-grid-cel" v-if="i === treeToGrid.length - 1 && displayNewDirectory">
-                <img :src="iconDirectory" />
+                    <span> 
+                        <input type="text" v-model="newDirectoryName" />
+                    </span>
+                </button>
+            </div>
 
-                <span> 
-                    <input type="text" v-model="newDirectoryName" ref="newDirectoryRef" />
-                </span>
-            </button>
-        </div>
+            <div class="desktop-grid-column" 
+                 v-if="treeToGrid.length === 0 || treeToGrid[treeToGrid.length - 1].length > 5 && displayNewDirectory">
+                <button class="desktop-grid-cel desktop-grid-cel_new-directory" ref="newDirectoryRefWhenVoid">
+                    <img :src="iconDirectory" />
 
-        <div class="desktop-grid-column" v-if="treeToGrid.length === 0 && displayNewDirectory">
-            <button class="desktop-grid-cel" v-if="displayNewDirectory">
-                <img :src="iconDirectory" />
-
-                <span> 
-                    <input type="text" v-model="newDirectoryName" ref="newDirectoryRef" />
-                </span>
-            </button>
+                    <span> 
+                        <input type="text" v-model="newDirectoryName" />
+                    </span>
+                </button>
+            </div>
         </div>
 
         <slot></slot>
@@ -350,30 +353,41 @@ if (installed.value) {
 
 const treeToGrid = ref([]);
 watch(treeStructure, () => {
-    treeToGrid.value = treeStructure.value.reduce((r, c) => {
+    const maxPerColumn = 5;
+
+    const tmp = [];
+    let cmp = 0;
+
+    for (const c of treeStructure.value) {
         if (c.parent === `/${user.value.account_name}/Desktop`) {
-            if (r.cmp === 0) {
-                return { 
-                    result: [...r.result, [c]], 
-                    cmp: r.cmp + 1
-                };
-            } else if (r.cmp < 5) {
-                return { 
-                    result: [...r.result, [...r.result[r.result.length - 1], c]], 
-                    cmp: 0
-                };
+            if (cmp === 0) {
+                tmp.push([c]);
+                cmp++;
+            } else if (cmp < maxPerColumn) {
+                const lastElement = tmp.pop();
+                lastElement.push(c);
+                tmp.push(lastElement);
+                cmp++;
+            } else if (cmp === maxPerColumn) {
+                const lastElement = tmp.pop();
+                lastElement.push(c);
+                tmp.push(lastElement);
+                cmp = 0;
             }
+            console.log(tmp);
         } else {
-            return r;
+            continue;
         }
-    }, { cmp: 0, result: [] }).result;
+    }
+
+    treeToGrid.value = tmp;
 });
 
 const displayNewDirectory = ref(false);
 const newDirectoryName = ref('new directory');
 const newDirectoryRef = ref(null);
-onClickOutside(newDirectoryRef, () => (displayNewDirectory.value = false));
-onKeyUp('Enter', () => {
+const newDirectoryRefWhenVoid = ref(null);
+const createDirectory = () => {
     onSuccess(({ context: { add, getAllValues } }) => {
         add({
             name: newDirectoryName.value,
@@ -392,12 +406,13 @@ onKeyUp('Enter', () => {
         displayNewDirectory.value = false;
         newDirectoryName.value = 'new directory';
     }).connect();
-})
+};
+onKeyUp('Enter', createDirectory);
 onKeyUp('Escape', () => {
     displayNewDirectory.value = false;
     newDirectoryName.value = 'new directory';
 })
-const addDirectory = (root) => {
+const addDirectory = () => {
     displayNewDirectory.value = true;
     displayContextMenu.value = false;
 }
@@ -1140,6 +1155,7 @@ watch([contextMenu, () => contextMenuPosition.x], () => {
         backdrop-filter: blur(1.5rem);
         min-width: 300px;
         border-radius: 10px;
+        z-index: 9999;
 
         li {
             display: flex;
@@ -1176,6 +1192,16 @@ watch([contextMenu, () => contextMenuPosition.x], () => {
     }
 
     .desktop-grid {
+        position: absolute;
+        top: 34px;
+        left: 0;
+        right: 0;
+        bottom: 60px;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: flex-start;
+
         &-column {
             display: flex;
             flex-direction: column;
@@ -1198,6 +1224,17 @@ watch([contextMenu, () => contextMenuPosition.x], () => {
             align-items: center;
             font-weight: bold;
 
+            span {
+                width: 100px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            &_new-directory {
+                z-index: 2;
+            }
+
             input {
                 width: 100%;
                 background-color: transparent;
@@ -1210,6 +1247,9 @@ watch([contextMenu, () => contextMenuPosition.x], () => {
 
                 span {
                     color: black;
+                    white-space: normal;
+                    overflow: visible;
+                    text-overflow: unset;
                 }
             }
 
@@ -1217,6 +1257,16 @@ watch([contextMenu, () => contextMenuPosition.x], () => {
                 width: 80%;
             }
         }
+    }
+
+    .new-directory-overlay {
+        position: absolute;
+        top: 0;
+        right: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 1;
+        background-color: transparent;
     }
 }
 </style>
