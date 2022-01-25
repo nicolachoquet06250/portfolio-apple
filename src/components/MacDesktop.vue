@@ -260,11 +260,9 @@
                     <span> {{ treeCel.name }} </span>
                 </button>
 
-                <!--{{ x }} {{ treeToGrid.length }} {{ treeToGrid[x].length }}-->
-
                 <button class="desktop-grid-cel desktop-grid-cel_new-directory" 
-                        v-if="x === treeToGrid.length - 1 && treeToGrid[x].length < 5 && displayNewDirectory" 
-                        ref="newDirectoryRef">
+                        v-if="x === treeToGrid.length - 1 && treeToGrid[x].length < 5 && displayNewDirectory"
+                        :ref="el => { if (el) { newDirectoryRef = el } else { newDirectoryRef = null } }">
                     <img :src="iconDirectory" />
 
                     <span> 
@@ -275,7 +273,8 @@
 
             <div class="desktop-grid-column" 
                  v-if="(treeToGrid.length === 0 || treeToGrid[treeToGrid.length - 1].length > 5) && displayNewDirectory">
-                <button class="desktop-grid-cel desktop-grid-cel_new-directory" ref="newDirectoryRefWhenVoid">
+                <button class="desktop-grid-cel desktop-grid-cel_new-directory"
+                        :ref="el => { if (el) { newDirectoryRef = el } else { newDirectoryRef = null } }">
                     <img :src="iconDirectory" />
 
                     <span> 
@@ -391,7 +390,12 @@ watch(treeStructure, () => {
 const displayNewDirectory = ref(false);
 const newDirectoryName = ref('new directory');
 const newDirectoryRef = ref(null);
-const newDirectoryRefWhenVoid = ref(null);
+watch(newDirectoryRef, () => {
+    if (newDirectoryRef.value) {
+        newDirectoryRef.value.querySelector('input[type=text]').select();
+    }
+});
+
 const createDirectory = () => {
     onSuccess(({ context: { add, getAllValues } }) => {
         add({
@@ -1309,7 +1313,7 @@ watch([contextMenu, () => contextMenuPosition.x], () => {
             }
 
             input {
-                width: 100%;
+                width: 90%;
                 background-color: transparent;
                 outline: 1px solid lightskyblue;
                 border-radius: 4px;
