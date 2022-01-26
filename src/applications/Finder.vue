@@ -213,7 +213,8 @@ watch(finderBody, () => {
 </script>
 
 <style>
-.dark .finder .finder-item {
+.dark .finder .finder-item,
+.dark .finder .finder-breadcrum {
     color: white;
 }
 </style>
