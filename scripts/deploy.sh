@@ -1,0 +1,1 @@
+ssh nicolas-choquet@ssh-nicolas-choquet.alwaysdata.net 'cd portfolio-apple && npm run upgrade-prod'
