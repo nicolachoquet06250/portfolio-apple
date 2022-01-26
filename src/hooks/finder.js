@@ -411,8 +411,11 @@ export const useTreeActions = () => {
     };
 };
 
-watch([selectedTab, subDirectory, items], () => {
-    breadcrum.value = [selectedTab.value];
+watch([selectedTab, subDirectory, items], (_, [oldSelectedTab]) => {
+    if (selectedTab.value !== oldSelectedTab) {
+        breadcrum.value = [selectedTab.value];
+        subDirectory.value = '';
+    }
 
     if (subDirectory.value) {
         showedItems.value = items.value.reduce((r, c) => 

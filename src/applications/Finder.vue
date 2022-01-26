@@ -212,6 +212,12 @@ watch(finderBody, () => {
 })
 </script>
 
+<style>
+.dark .finder .finder-item {
+    color: white;
+}
+</style>
+
 <style lang="scss" scoped>
 .finder {
     &-root {
@@ -235,6 +241,7 @@ watch(finderBody, () => {
         flex-direction: row;
         justify-content: flex-start;
         align-items: center;
+        color: black;
 
         .breadcrum-item:not(:last-child) {
             &::after {
@@ -264,7 +271,7 @@ watch(finderBody, () => {
         padding: 5px;
         background-color: transparent;
         border: 0;
-        color: white;
+        color: black;
         outline: 0;
 
         &.active {
