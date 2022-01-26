@@ -108,8 +108,6 @@
             </div>
         </div>
 
-        <div class="new-directory-overlay" v-if="displayNewDirectory" @click="createDirectory()"></div>
-
         <div class="settings-hub" ref="settingsHub">
             <div>
                 <section class="network-container">
@@ -245,47 +243,26 @@
             </template>
         </ul>
 
-        <div class="desktop-grid">
-            <div class="desktop-grid-column" 
-                 v-for="(treeColumn, x) of treeToGrid" :key="x">
-                <button class="desktop-grid-cel" 
-                        v-for="(treeCel, y) of treeColumn" :key="y"
-                        @focus="selectDirectory(treeCel, { x, y })"
-                        @dblclick="openAppFromDesktop(treeCel.name)"
-                        :ref="el => { if(selectedDirectory === treeCel.name) { selectedDirectoryRef = el } }"
-                        @contextmenu.prevent.stop="showDirectoryContextMenu({
-                            event: $event,
-                            id: treeCel.id,
-                            x, y
-                        })">
-                    <img :src="iconDirectory" />
+        <Grid>
+            <Column v-for="(treeColumn, x) of treeToGrid" :key="x">
+                <Directory v-for="(treeCel, y) of treeColumn" :key="y"
+                           :name="treeCel.name" :id="treeCel.id" :x="x" :y="y"
+                           @select="selectDirectory({ name: treeCel.name, id: treeCel.id }, { x, y })"
+                           @unselect="selectedDirectory = ''">
+                    {{ treeCel.name }}
+                </Directory>
 
-                    <span> {{ treeCel.name }} </span>
-                </button>
+                <NewDirectory v-model="newDirectoryName" 
+                              :show="x === treeToGrid.length - 1 && treeToGrid[x].length <= 5 && displayNewDirectory"
+                              @hide="displayNewDirectory = false" />
+            </Column>
 
-                <button class="desktop-grid-cel desktop-grid-cel_new-directory" 
-                        v-if="x === treeToGrid.length - 1 && treeToGrid[x].length < 5 && displayNewDirectory"
-                        :ref="el => { if (el) { newDirectoryRef = el } else { newDirectoryRef = null } }">
-                    <img :src="iconDirectory" />
-
-                    <span> 
-                        <input type="text" v-model="newDirectoryName" />
-                    </span>
-                </button>
-            </div>
-
-            <div class="desktop-grid-column" 
-                 v-if="(treeToGrid.length === 0 || treeToGrid[treeToGrid.length - 1].length > 5) && displayNewDirectory">
-                <button class="desktop-grid-cel desktop-grid-cel_new-directory"
-                        :ref="el => { if (el) { newDirectoryRef = el } else { newDirectoryRef = null } }">
-                    <img :src="iconDirectory" />
-
-                    <span> 
-                        <input type="text" v-model="newDirectoryName" />
-                    </span>
-                </button>
-            </div>
-        </div>
+            <Column>
+                <NewDirectory v-model="newDirectoryName"
+                              :show="(treeToGrid.length === 0 || treeToGrid[treeToGrid.length - 1].length > 5) && displayNewDirectory"
+                              @hide="displayNewDirectory = false" />
+            </Column>
+        </Grid>
 
         <slot></slot>
 
@@ -305,12 +282,15 @@ import { defineProps, ref, computed, watch, reactive } from "vue";
 import { APPLICATION, APPLICATION_STATE, useOpenedApplications, useCurrentApp } from '@/hooks/apps';
 import { useAuthUser } from '@/hooks/account';
 import { useRootDirectory, useTreeActions } from '@/hooks/finder';
-import { useDatabase, TABLES, getParams } from '@/hooks/database';
 import { useInstalled } from '@/hooks/installed';
 import { useDark } from '@/hooks/theme';
 import { useContextualMenu } from '@/hooks/contextual-menu';
-import { onClickOutside, useToggle, onKeyUp, useMouse } from '@vueuse/core';
+import { onClickOutside, useToggle, useMouse, onKeyUp } from '@vueuse/core';
 
+import Grid from '@/components/utilities/Grid.vue';
+import Column from '@/components/utilities/Column.vue';
+import NewDirectory from '@/components/utilities/NewDirectoryIcon.vue';
+import Directory from '@/components/utilities/DirectoryIcon.vue';
 import MacApplication from '@/components/MacApplication.vue';
 import ToogleLiteDarkMode from '@/components/ToogleLiteDarkMode.vue';
 import Spotlight from '@/components/Spotlight.vue';
@@ -318,12 +298,31 @@ import Spotlight from '@/components/Spotlight.vue';
 import siriIcon from "@/assets/icons/siri.png";
 import musicIcon from '@/assets/icons/icon-Music.png';
 import iconAppleTV from '@/assets/icons/icon-AppleTV.png';
-import iconDirectory from '@/assets/icons/icon-directory.png';
 import iconMessages from '@/assets/icons/icon-Messages.png';
 import iconMp4 from '@/assets/icons/icon-mp4.png';
 import iconPages from '@/assets/icons/icon-Pages.png';
 import iconPng from '@/assets/icons/icon-png.png';
 import iconUnknownFile from '@/assets/icons/icon-unknownFile.png';
+
+const props = defineProps({
+    backgroundImage: String,
+    apps: Array,
+    currentAppName: String,
+    topBar: () => ({
+        network: () => ({
+            wifi: () => ({
+                online: Boolean,
+            }),
+        }),
+        battery: () => ({
+            charging: Boolean,
+            chargingTime: Number,
+            dischargingTime: Number,
+            level: Number,
+        }),
+        menu: Array
+    })
+});
 
 const { x: mouseX, y: mouseY } = useMouse();
 const { user } = useAuthUser();
@@ -337,163 +336,31 @@ const {
 const { openedApplications, initApplicationHistory, openApplication } = useOpenedApplications();
 const { installed } = useInstalled();
 const { setRoot, setSubDirectory } = useRootDirectory();
-const { tree: treeStructure, add, get, remove } = useTreeActions();
+const { tree: treeStructure, add, get } = useTreeActions();
+const { isDark } = useDark();
+
+initApplicationHistory();
 
 if (installed.value) {
     get();
 }
 
 const treeToGrid = ref([]);
-watch(treeStructure, () => {
-    const maxPerColumn = 5;
-
-    const tmp = [];
-    let cmp = 0;
-
-    let x = 0;
-    let y = 0;
-    for (const c of treeStructure.value) {
-        if (c.parent === `/${user.value.account_name}/Desktop`) {
-            if (cmp === 0) {
-                tmp.push([c]);
-
-                cmp++;
-                y++;
-            } else if (cmp < maxPerColumn) {
-                const lastElement = tmp.pop();
-                lastElement.push(c);
-                tmp.push(lastElement);
-
-                cmp++;
-                y++;
-            } else if (cmp === maxPerColumn) {
-                const lastElement = tmp.pop();
-                lastElement.push(c);
-                tmp.push(lastElement);
-
-                cmp = 0;
-                y = 0;
-                x++;
-            }
-        } else {
-            continue;
-        }
-    }
-
-    treeToGrid.value = tmp;
-});
-
 const displayNewDirectory = ref(false);
 const newDirectoryName = ref('new directory');
-const newDirectoryRef = ref(null);
-watch(newDirectoryRef, () => {
-    if (newDirectoryRef.value) {
-        newDirectoryRef.value.querySelector('input[type=text]').select();
-    }
-});
-
-const createDirectory = () => {
-    add(`/${user.value.account_name}/Desktop`, newDirectoryName.value);
-
-    displayNewDirectory.value = false;
-    newDirectoryName.value = 'new directory';
-};
-onKeyUp('Enter', () => {
-    if (displayNewDirectory.value) {
-        createDirectory();
-    }
-});
-onKeyUp('Escape', () => {
-    displayNewDirectory.value = false;
-    newDirectoryName.value = 'new directory';
-})
-const addDirectory = () => {
-    displayNewDirectory.value = true;
-    hideContextMenu();
-};
 const selectedDirectory = ref('');
 const selectedDirectoryId = ref(null);
-const selectedDirectoryPosition = reactive({
-    x: 0,
-    y: 0
-});
-const selectedDirectoryRef = ref(null);
-const selectDirectory = (treeCel, { x, y }) => {
-    selectedDirectory.value = treeCel.name;
-    selectedDirectoryId.value = treeCel.id;
-    selectedDirectoryPosition.x = x;
-    selectedDirectoryPosition.y = y;
-}
-onClickOutside(selectedDirectoryRef, () => selectedDirectory.value = '');
-onKeyUp('Delete', () => remove(selectedDirectoryId.value));
-
-const showDirectoryContextMenu = e => {
-    console.log('context menu on directory');
-
-    setContextMenu([
-        {
-            name: 'Remove',
-            click() {
-                remove(e.id);
-                hideContextMenu();
-            }
-        }
-    ]);
-
-    setContextMenuPosition(mouseX.value, mouseY.value);
-    showContextMenu();
-};
-
-initApplicationHistory();
-
-const { isDark } = useDark();
-
-const props = defineProps({
-  backgroundImage: String,
-  apps: Array,
-  currentAppName: String,
-  topBar: () => ({
-    network: () => ({
-      wifi: () => ({
-        online: Boolean,
-      }),
-    }),
-    battery: () => ({
-      charging: Boolean,
-      chargingTime: Number,
-      dischargingTime: Number,
-      level: Number,
-    }),
-    menu: Array
-  }),
-});
-
 const refs = ref([]);
-
 const toggleLightDarkModeButtonTextColor = ref(isDark.value ? 'white' : 'black');
-
-const alimSource = computed(() => props.topBar.battery.charging ? 'Secteur' : 'batterie');
-
 const openSpotlight = ref(false);
-
 const lightValue = ref(50);
-const displayLightValue = computed(() => `${lightValue.value}%`);
-
 const soundValue = ref(50);
-const displaySoundValue = computed(() => `${soundValue.value}%`);
-
 const showSettingsHub = ref(false);
 const toggleSettingsHub = useToggle(showSettingsHub);
 const settingsHub = ref(null);
-const displaySettingsHub = computed(() => showSettingsHub.value ? 'flex' : 'none');
-onClickOutside(settingsHub, () => (showSettingsHub.value = false));
-
 const showBatteryData = ref(false);
 const toggleBatteryData = useToggle(showBatteryData);
 const batteryData = ref(null);
-const displayBatteryData = computed(() => showBatteryData.value ? 'flex' : 'none');
-onClickOutside(batteryData, () => (showBatteryData.value = false));
-
 const appleMenu = ref([
     {
       name: 'About this Mac',
@@ -549,10 +416,6 @@ const appleMenu = ref([
     }
 ]);
 const appleMenuRef = ref(null);
-onClickOutside(appleMenuRef, () => (selectedMenu.value = ''));
-
-const topBarFontSize = computed(() => '1rem');
-const backgroundImage = computed(() => `url(${props.backgroundImage})`);
 const selectedMenu = ref('');
 const formattedDate = ref(
   new Date().toLocaleDateString("fr-FR", {
@@ -562,6 +425,7 @@ const formattedDate = ref(
     minute: "2-digit",
   })
 );
+const contextMenu = ref(null);
 
 setInterval(() => {
   formattedDate.value = new Date(Date.now()).toLocaleDateString("fr-FR", {
@@ -572,27 +436,36 @@ setInterval(() => {
   });
 }, 1000);
 
-const oldSecondClass = ref(null);
-const nbIdenticSecondClass = ref(0);
+const selectedDirectoryPosition = reactive({
+    x: 0,
+    y: 0
+});
 
-const contextMenu = ref(null);
-onClickOutside(contextMenu, () => hideContextMenu());
+const alimSource = computed(() => props.topBar.battery.charging ? 'Secteur' : 'batterie');
+const displayLightValue = computed(() => `${lightValue.value}%`);
+const displaySoundValue = computed(() => `${soundValue.value}%`);
+const displaySettingsHub = computed(() => showSettingsHub.value ? 'flex' : 'none');
+const displayBatteryData = computed(() => showBatteryData.value ? 'flex' : 'none');
+const topBarFontSize = computed(() => '1rem');
+const backgroundImage = computed(() => `url(${props.backgroundImage})`);
 const contextMenuPositionX = computed(() => contextMenuPosition.value.x + 20 + 'px');
 const contextMenuPositionY = computed(() => contextMenuPosition.value.y + 'px');
 
-/**
- * @param {String} appCode
- */
-const openApp = appCode => {
-    openApplication(appCode);
-    setCurrentApp(appCode);
-};
-const openAppFromDesktop = dirName => {
-    setSubDirectory(dirName);
-    setRoot(`Desktop`);
-    openApp(APPLICATION.FINDER);
-};
+onClickOutside(settingsHub, () => (showSettingsHub.value = false));
+onClickOutside(batteryData, () => (showBatteryData.value = false));
+onClickOutside(appleMenuRef, () => (selectedMenu.value = ''));
+onClickOutside(contextMenu, () => hideContextMenu());
 
+onKeyUp(['n', 'N'], e => {
+    displayNewDirectory.value = e.shiftKey;
+})
+
+const selectDirectory = (treeCel, { x, y }) => {
+    selectedDirectory.value = treeCel.name;
+    selectedDirectoryId.value = treeCel.id;
+    selectedDirectoryPosition.x = x;
+    selectedDirectoryPosition.y = y;
+};
 const showDesktopContextMenu = () => {
     console.log('context menu on desktop');
 
@@ -600,7 +473,10 @@ const showDesktopContextMenu = () => {
         [
             {
                 name: 'New folder',
-                click: () => addDirectory()
+                click: () => {
+                    displayNewDirectory.value = true;
+                    hideContextMenu();
+                }
             },
             {
                 name: 'New file'
@@ -626,7 +502,8 @@ const showDesktopContextMenu = () => {
                 click(e) {
                     setSubDirectory('');
                     setRoot('Desktop');
-                    openApp(APPLICATION.FINDER);
+                    openApplication(APPLICATION.FINDER);
+                    setCurrentApp(APPLICATION.FINDER);
                     hideContextMenu();
                 }
             }
@@ -639,14 +516,58 @@ const showDesktopContextMenu = () => {
     ]);
 
     setContextMenuPosition(mouseX.value, mouseY.value);
-    showContextMenu();
-};
+    showContextMenu(() => {
+        // appelé au click sur l'overlay
+        add(`/${user.value.account_name}/Desktop`, newDirectoryName.value);
 
+        displayNewDirectory.value = false;
+        newDirectoryName.value = 'new directory';
+    });
+};
 const selectSubMenuItem = (item, e) => {
   const r = item?.click?.(e) ?? false;
   selectedMenu.value = '';
   return r;
 };
+
+watch(treeStructure, () => {
+    const maxPerColumn = 5;
+
+    const tmp = [];
+    let cmp = 0;
+
+    let x = 0;
+    let y = 0;
+    for (const c of treeStructure.value) {
+        if (c.parent === `/${user.value.account_name}/Desktop`) {
+            if (cmp === 0) {
+                tmp.push([c]);
+
+                cmp++;
+                y++;
+            } else if (cmp < maxPerColumn) {
+                const lastElement = tmp.pop();
+                lastElement.push(c);
+                tmp.push(lastElement);
+
+                cmp++;
+                y++;
+            } else if (cmp === maxPerColumn) {
+                const lastElement = tmp.pop();
+                lastElement.push(c);
+                tmp.push(lastElement);
+
+                cmp = 0;
+                y = 0;
+                x++;
+            }
+        } else {
+            continue;
+        }
+    }
+
+    treeToGrid.value = tmp;
+});
 
 watch(refs, () => {
   refs.value.map(m => onClickOutside(m, () => (selectedMenu.value = '')))
@@ -1269,75 +1190,6 @@ watch([contextMenu, () => contextMenuPosition.value.x], () => {
                 &:hover, &:active, &:focus {
                     background-color: rgba(255, 255, 255, .3);
                 }
-            }
-        }
-    }
-
-    .desktop-grid {
-        position: absolute;
-        top: 34px;
-        left: 0;
-        right: 0;
-        bottom: 60px;
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-start;
-        align-items: flex-start;
-
-        &-column {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            justify-content: flex-start;
-            align-items: flex-start;
-            padding: 10px;
-        }
-
-        &-cel {
-            background: transparent;
-            border: 0;
-            border-radius: 10px;
-            color: white;
-            width: 100px;
-            height: 100px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;
-
-            span {
-                width: 100px;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-
-            &_new-directory {
-                z-index: 2;
-            }
-
-            input {
-                width: 90%;
-                background-color: transparent;
-                outline: 1px solid lightskyblue;
-                border-radius: 4px;
-            }
-
-            &:active, &:focus {
-                outline: 0;
-                background-color: lightskyblue;
-
-                span {
-                    color: black;
-                    white-space: normal;
-                    overflow: visible;
-                    text-overflow: unset;
-                }
-            }
-
-            img {
-                width: 80%;
             }
         }
     }
