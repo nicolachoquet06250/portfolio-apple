@@ -50,8 +50,7 @@
                                     {{ item.name }}
                                 </button>
                                 
-                                <ul class="sub-menu" v-if="item.children.length > 0" 
-                                    :ref="refs[i]">
+                                <ul class="sub-menu" v-if="item.children.length > 0">
                                     <li v-for="(_item, _i) of (item?.children ?? [])" :key="_i">
                                         <button @click="selectSubMenuItem(_item, $event)">
                                             {{ _item.name }}
