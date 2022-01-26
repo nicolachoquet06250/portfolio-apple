@@ -650,7 +650,7 @@ const selectSubMenuItem = (item, e) => {
 };
 
 watch(refs, () => {
-  refs.map(m => onClickOutside(m, () => (selectedMenu.value = '')))
+  refs.value.map(m => onClickOutside(m, () => (selectedMenu.value = '')))
 });
 
 watch(isDark, () => {
