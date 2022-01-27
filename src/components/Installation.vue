@@ -35,6 +35,7 @@ import { computed, ref, defineEmits } from 'vue';
 import { useMenu, isRebooted } from '@/hooks/installation/menu';
 import { useLangues } from '@/hooks/installation/langue';
 import { useWait } from '@/hooks/wait';
+import { useInstalled } from '@/hooks/installed';
 
 import LanguesStep from '@/install/Langues.vue';
 import StartInstallStep from '@/install/StartInstall.vue';
@@ -55,6 +56,7 @@ const emit = defineEmits(['installed']);
 const { menus, rebooted, stepTitle } = useMenu();
 const { langue } = useLangues();
 const { isWait, isNotWait } = useWait();
+const { isSkipped } = useInstalled()
 
 const formattedDate = ref(
   new Date().getHours() + ':' + new Date().getMinutes()
@@ -70,7 +72,7 @@ const components = [
         component: LanguesStep,
         onNext(e) {
             if (e.details.skip_install) {
-                localStorage.setItem('install_skipped', '1');
+                isSkipped();
                 emit('installed', {
                     install_skipped: true
                 });

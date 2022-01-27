@@ -281,7 +281,7 @@
 import { defineProps, ref, computed, watch, reactive } from "vue";
 import { APPLICATION, APPLICATION_STATE, useOpenedApplications, useCurrentApp } from '@/hooks/apps';
 import { useAuthUser } from '@/hooks/account';
-import { useRootDirectory, useTreeActions } from '@/hooks/finder';
+import { useRootDirectory, useTreeActions, useFinder } from '@/hooks/finder';
 import { useInstalled } from '@/hooks/installed';
 import { useDark } from '@/hooks/theme';
 import { useContextualMenu } from '@/hooks/contextual-menu';
@@ -334,14 +334,19 @@ const {
     contextMenu: contextMenuItems
 } = useContextualMenu();
 const { openedApplications, initApplicationHistory, openApplication } = useOpenedApplications();
-const { installed } = useInstalled();
+const { installed, skipped } = useInstalled();
 const { setRoot, setSubDirectory } = useRootDirectory();
 const { tree: treeStructure, add, get } = useTreeActions();
 const { isDark } = useDark();
+const { selectTab } = useFinder(); 
 
 initApplicationHistory();
 
 if (installed.value) {
+    if (skipped.value) {
+        setRoot('/');
+        selectTab('Desktop');
+    }
     get();
 }
 
@@ -456,9 +461,7 @@ onClickOutside(batteryData, () => (showBatteryData.value = false));
 onClickOutside(appleMenuRef, () => (selectedMenu.value = ''));
 onClickOutside(contextMenu, () => hideContextMenu());
 
-onKeyUp(['n', 'N'], e => {
-    displayNewDirectory.value = e.shiftKey;
-})
+onKeyUp(['n', 'N'], e => (displayNewDirectory.value = e.shiftKey));
 
 const selectDirectory = (treeCel, { x, y }) => {
     selectedDirectory.value = treeCel.name;
@@ -502,6 +505,7 @@ const showDesktopContextMenu = () => {
                 click(e) {
                     setSubDirectory('');
                     setRoot('Desktop');
+                    selectTab('Desktop');
                     openApplication(APPLICATION.FINDER);
                     setCurrentApp(APPLICATION.FINDER);
                     hideContextMenu();
@@ -531,6 +535,7 @@ const selectSubMenuItem = (item, e) => {
 };
 
 watch(treeStructure, () => {
+    console.log(treeStructure.value);
     const maxPerColumn = 5;
 
     const tmp = [];
@@ -539,7 +544,9 @@ watch(treeStructure, () => {
     let x = 0;
     let y = 0;
     for (const c of treeStructure.value) {
-        if (c.parent === `/${user.value.account_name}/Desktop`) {
+        const name = skipped.value ? '' : `/${user.value.account_name}`;
+        console.log(c.parent, `${name}/Desktop`);
+        if (c.parent === `${name}/Desktop`) {
             if (cmp === 0) {
                 tmp.push([c]);
 

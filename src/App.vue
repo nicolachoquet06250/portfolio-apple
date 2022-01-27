@@ -9,62 +9,131 @@
     </template>
 
     <template v-else>
-      <MacOsSystemLoader v-if="systemLoading" 
-                         @loaded="handleSystemLoaded" />
+      <template v-if="installSkipped">
+        <MacOsSystemLoader v-if="systemLoading" @loaded="handleSystemLoaded" />
+        
+        <MacDesktop v-else
+          :apps="[]"
+          :current-app-name="currentApp"
+          :background-image="wallpaper"
+          :top-bar="desktopTopBar">
 
-      <LoginView v-if="!connected && !installSkipped" 
-                 @connected="connected = true" />
+          <Notification :image="iconCdInstall" :latence="2000">
+            <template v-slot:title>
+              <span> Installez macOS </span>
+            </template>
 
-      <MacDesktop v-else
-        :apps="[]"
-        :current-app-name="currentApp"
-        :background-image="wallpaper"
-        :top-bar="desktopTopBar">
+            <template v-slot:content>
+              <span>
+                Une nouvelle version de macOS est disponible
+              </span>
+            </template>
 
-        <InstallDesktopIcon v-if="installSkipped" @install="installMac()" />
+            <template v-slot:button>
+              <button @click="installMac()">
+                Installer
+              </button>
+            </template>
+          </Notification>
 
-        <MacOsAlert v-if="displayAlert" 
-                    @close="hideAlert" 
-                    @validate="hideAlert">
-          <template v-slot:title>
-            <span>{{ alertContent.title }}</span>
-          </template>
+          <MacOsAlert v-if="displayAlert" 
+                      @close="hideAlert" 
+                      @validate="hideAlert">
+            <template v-slot:title>
+              <span>{{ alertContent.title }}</span>
+            </template>
 
-          <template v-slot:body>
-            <p v-for="(p, i) of alertContent.content" :key="i">
-              {{ p }}
-            </p>
-          </template>
+            <template v-slot:body>
+              <p v-for="(p, i) of alertContent.content" :key="i">
+                {{ p }}
+              </p>
+            </template>
 
-          <template v-slot:footer>
-            <Checkbox id="dont-ask-again">
-                Dont ask again
-            </Checkbox>
-          </template>
-        </MacOsAlert>
+            <template v-slot:footer>
+              <Checkbox id="dont-ask-again">
+                  Dont ask again
+              </Checkbox>
+            </template>
+          </MacOsAlert>
 
-        <MacOsAlert v-if="displayAlertAppInDev && alertAppInDev.show" 
-                    @close="hideAlertAppInDev" 
-                    @validate="hideAlertAppInDev">
-          <template v-slot:title>
-            <span>{{ alertAppInDev.title }}</span>
-          </template>
+          <MacOsAlert v-if="displayAlertAppInDev && alertAppInDev.show" 
+                      @close="hideAlertAppInDev" 
+                      @validate="hideAlertAppInDev">
+            <template v-slot:title>
+              <span>{{ alertAppInDev.title }}</span>
+            </template>
 
-          <template v-slot:body>
-            <p v-for="(p, i) of alertAppInDev.content" :key="i">
-              {{ p }}
-            </p>
-          </template>
+            <template v-slot:body>
+              <p v-for="(p, i) of alertAppInDev.content" :key="i">
+                {{ p }}
+              </p>
+            </template>
 
-          <template v-slot:footer>
-            <Checkbox v-model="alertAppInDev.dontShowAgain" id="dont-show-again">
-                Ne plus voir cette alerte
-            </Checkbox>
-          </template>
-        </MacOsAlert>
+            <template v-slot:footer>
+              <Checkbox v-model="alertAppInDev.dontShowAgain" id="dont-show-again">
+                  Ne plus voir cette alerte
+              </Checkbox>
+            </template>
+          </MacOsAlert>
 
-        <MacOsDock position="right" />
-      </MacDesktop>
+          <MacOsDock />
+        </MacDesktop>
+      </template>
+
+      <template v-else>
+        <MacOsSystemLoader v-if="systemLoading" @loaded="handleSystemLoaded" />
+
+        <LoginView v-if="!connected" @connected="connected = true" />
+
+        <MacDesktop v-else
+          :apps="[]"
+          :current-app-name="currentApp"
+          :background-image="wallpaper"
+          :top-bar="desktopTopBar">
+
+          <MacOsAlert v-if="displayAlert" 
+                      @close="hideAlert" 
+                      @validate="hideAlert">
+            <template v-slot:title>
+              <span>{{ alertContent.title }}</span>
+            </template>
+
+            <template v-slot:body>
+              <p v-for="(p, i) of alertContent.content" :key="i">
+                {{ p }}
+              </p>
+            </template>
+
+            <template v-slot:footer>
+              <Checkbox id="dont-ask-again">
+                  Dont ask again
+              </Checkbox>
+            </template>
+          </MacOsAlert>
+
+          <MacOsAlert v-if="displayAlertAppInDev && alertAppInDev.show" 
+                      @close="hideAlertAppInDev" 
+                      @validate="hideAlertAppInDev">
+            <template v-slot:title>
+              <span>{{ alertAppInDev.title }}</span>
+            </template>
+
+            <template v-slot:body>
+              <p v-for="(p, i) of alertAppInDev.content" :key="i">
+                {{ p }}
+              </p>
+            </template>
+
+            <template v-slot:footer>
+              <Checkbox v-model="alertAppInDev.dontShowAgain" id="dont-show-again">
+                  Ne plus voir cette alerte
+              </Checkbox>
+            </template>
+          </MacOsAlert>
+
+          <MacOsDock />
+        </MacDesktop>
+      </template>
     </template>
   </template>
 
@@ -85,6 +154,9 @@ import Installation from '@/components/Installation.vue';
 import LoginView from '@/components/LoginView.vue';
 import InstallDesktopIcon from '@/components/InstallDesktopIcon.vue';
 import Checkbox from '@/components/Checkbox.vue';
+import Notification from '@/components/utilities/Notification.vue';
+
+import iconCdInstall from '@/assets/icon-cd-install-mac.png';
 
 import { ref, reactive, watch } from "vue";
 import { useNetwork, useBattery, useWindowSize } from "@vueuse/core";
@@ -95,7 +167,7 @@ const { isOnline } = useNetwork();
 const { charging, chargingTime, dischargingTime, level } = useBattery();
 const { width: screenWidth } = useWindowSize();
 const { currentApp, setCurrentApp } = useCurrentApp();
-const { installed, isInstalled, isNotInstalled } = useInstalled();
+const { installed, skipped: installSkipped, isInstalled, isNotInstalled, isSkipped, isNotSkipped } = useInstalled();
 
 const systemLoading = ref(true);
 
@@ -103,7 +175,7 @@ setCurrentApp(APPLICATION.FINDER);
 
 const wallpaper = ref('/img/wallpapers/wallpaper-install-macos.jpg');
 const connected = ref(false);
-const installSkipped = ref(localStorage.getItem('install_skipped') !== null);
+//const installSkipped = ref(localStorage.getItem('install_skipped') !== null);
 const displayAlert = ref(false);
 const displayAlertAppInDev = ref(true);
 const alertContent = reactive({
@@ -140,13 +212,14 @@ const handleSystemLoaded = () => {
 const hasInstalled = e => {
   isInstalled();
   if (e.install_skipped) {
-    installSkipped.value = true;
+    isSkipped();
+    //installSkipped.value = true;
   }
 };
 const installMac = () => {
   isNotInstalled();
-  localStorage.removeItem('install_skipped');
-  installSkipped.value = false;
+  isNotSkipped();
+  //installSkipped.value = false;
 };
 
 const desktopTopBar = reactive({
