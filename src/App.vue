@@ -10,7 +10,7 @@
 
     <template v-else>
       <template v-if="installSkipped">
-        <MacOsSystemLoader v-if="systemLoading" @loaded="handleSystemLoaded" />
+        <MacOsSystemLoader v-if="systemLoading" @loaded="handleSystemLoaded(true)" />
         
         <MacDesktop v-else
           :apps="[]"
@@ -19,8 +19,9 @@
           :top-bar="desktopTopBar">
 
           <Notification v-for="(notif, i) of notifsQueue" :key="i"
-                        :opened="notif.opened" :index="i"
-                        :image="notif.image" :latence="2000">
+                        :opened="notif.opened" :index="notif.index"
+                        :image="notif.image" :latence="2000"
+                        @closed="closeNotif(i)">
             <template v-slot:title>
               <span> {{ notif.title }} </span>
             </template>
@@ -64,9 +65,9 @@
       </template>
 
       <template v-else>
-        <MacOsSystemLoader v-if="systemLoading" @loaded="handleSystemLoaded" />
+        <MacOsSystemLoader v-if="systemLoading" @loaded="handleSystemLoaded(false)" />
 
-        <LoginView v-if="!connected" @connected="connected = true" />
+        <LoginView v-if="!connected" @connected="connectUser()" />
 
         <MacDesktop v-else
           :apps="[]"
@@ -75,8 +76,9 @@
           :top-bar="desktopTopBar">
 
           <Notification v-for="(notif, i) of notifsQueue" :key="i"
-                        :opened="notif.opened" :index="i"
-                        :image="notif.image" :latence="2000">
+                        :opened="notif.opened" :index="notif.index"
+                        :image="notif.image" :latence="2000"
+                        @closed="closeNotif(i)">
             <template v-slot:title>
               <span> {{ notif.title }} </span>
             </template>
@@ -162,6 +164,7 @@ const wallpaper = ref('/img/wallpapers/wallpaper-install-macos.jpg');
 const connected = ref(false);
 const displayAlert = ref(false);
 const displayAlertAppInDev = ref(true);
+const displayInstallNotif = ref(true);
 const alertContent = reactive({
   title: 'Alert title will be here',
   content: [
@@ -187,12 +190,6 @@ const showAlert = () => {
 const hideAlert = () => {
   displayAlert.value = false;
 };
-const hideAlertAppInDev = () => {
-  displayAlertAppInDev.value = false;
-}
-const handleSystemLoaded = () => {
-  systemLoading.value = false;
-};
 const hasInstalled = e => {
   isInstalled();
   if (e.install_skipped) {
@@ -205,43 +202,102 @@ const installMac = () => {
   isNotSkipped();
   //installSkipped.value = false;
 };
+const closeNotifFromId = id => {
+  notifsQueue.value = notifsQueue.value.reduce((r, c) => {
+    if (c.id === id) {
+      return [
+        ...r, 
+        {
+          ...c,
+          opened: false
+        }
+      ];
+    }
+    return [...r, c];
+  }, []);
+}
+const installNotifOpened = computed(() => (installSkipped.value === null ? false : installSkipped.value) && displayInstallNotif.value);
+const notifsQueue = ref([]);
 
-const notifsQueue = computed(() => [
-  {
-    image: iconCdInstall,
-    title: 'Installez macOS',
-    content: `Une npuvelle version de macOS est disponible`,
-    opened: installSkipped.value,
-    buttons: [
-      {
-        text: 'Installer',
-        click() {
-          installMac();
-        }
+const closeNotif = index => {
+  notifsQueue.value = notifsQueue.value.reduce((r, c) => {
+    if (r.i !== index) {
+      return {
+        i: r.i + 1,
+        t: [...r.t, {
+          ...c,
+          index: (c.index > index ? c.index - 1 : c.index)
+        }]
       }
-    ]
-  },
-  {
-    image: appstore,
-    title: alertAppInDev.title,
-    content: alertAppInDev.content.join(''),
-    opened: displayAlertAppInDev.value && alertAppInDev.show,
-    buttons: [
-      {
-        text: 'OK',
-        click() {
-          hideAlertAppInDev();
+    }
+    return { 
+      t: [...r.t, c], 
+      i: r.i + 1
+    };
+  }, { i: 0, t: []}).t;
+};
+const initNotifsQueue = () => {
+  notifsQueue.value = [
+    {
+      id: 0,
+      index: 0,
+      image: iconCdInstall,
+      title: 'Installez macOS',
+      content: `Une npuvelle version de macOS est disponible`,
+      opened: installNotifOpened,
+      buttons: [
+        {
+          text: 'Installer',
+          click() {
+            closeNotifFromId(0);
+            installMac();
+          }
+        },
+        {
+          text: 'Fermer',
+          click() {
+            displayInstallNotif.value = false;
+            closeNotifFromId(0);
+          }
         }
-      },
-      {
-        text: 'Ne plus voir',
-        click() {
-          alertAppInDev.dontShowAgain = true;
+      ]
+    },
+    {
+      id: 1,
+      index: (installNotifOpened.value ? 1 : 0),
+      image: appstore,
+      title: alertAppInDev.title,
+      content: alertAppInDev.content.join(''),
+      opened: computed(() => displayAlertAppInDev.value && alertAppInDev.show),
+      buttons: [
+        {
+          text: 'OK',
+          click() {
+            displayAlertAppInDev.value = false;
+            closeNotifFromId(1);
+          }
+        },
+        {
+          text: 'Ne plus voir',
+          click() {
+            alertAppInDev.dontShowAgain = true;
+            closeNotifFromId(1);
+          }
         }
-      }
-    ]
+      ]
+    }
+  ];
+}
+const handleSystemLoaded = (initNotifs) => {
+  systemLoading.value = false;
+  if (initNotifs) {
+    initNotifsQueue();
   }
-]);
+};
+const connectUser = () => {
+  connected.value = true;
+  initNotifsQueue();
+}
 
 const desktopTopBar = reactive({
   network: {

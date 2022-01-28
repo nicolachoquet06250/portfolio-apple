@@ -38,9 +38,11 @@
 <script setup>
 import { ref, computed, watch, onBeforeUnmount } from 'vue';
 import { useCurrentApp, useOpenedApplications } from '@/hooks/apps';
-import { useFinder, useRootDirectory } from '@/hooks/finder';
+import finder from '@/hooks/_finder';
 import { useContextualMenu } from '@/hooks/contextual-menu';
 import { onClickOutside, onKeyUp, useMouse } from '@vueuse/core';
+
+const { useFinder, useRootDirectory } = finder();
 
 const { x: mouseX, y: mouseY } = useMouse();
 const { setCurrentAppMenus, setCurrentApp } = useCurrentApp();

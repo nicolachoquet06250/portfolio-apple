@@ -2,7 +2,7 @@ import { ref, computed, watch } from 'vue';
 import { useDatabase, TABLES, getParams } from '@/hooks/database';
 import { useInstalled } from '@/hooks/installed';
 
-const { installed } = useInstalled();
+const { installed, skipped } = useInstalled();
 const { onSuccess, results: settings } = useDatabase(...getParams(TABLES.SETTINGS));
 
 const { connect } = onSuccess(({ context: { getFromIndex } }) => getFromIndex('field', 'theme'));
@@ -32,7 +32,7 @@ watch(settings, () => {
 });
 
 watch(installed, () => {
-    if (installed.value) {
+    if (installed.value && !skipped.value) {
         connect();
     }
 })

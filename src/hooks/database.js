@@ -214,6 +214,9 @@ export const useDatabase = (dbName, table) => {
 
         onSuccess: _onSuccess,
         onUpgradeNeeded: _onUpgradeNeeded,
+        removeDatabase() {
+            indexedDB.deleteDatabase(dbName);
+        },
         connect
     };
 };

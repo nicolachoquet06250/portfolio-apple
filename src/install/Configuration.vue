@@ -28,9 +28,9 @@ const { country } = useCountries();
 const { fullName, accountName, user } = useAccount();
 const { selectedTheme } = useTheme();
 const [
-    { onSuccess: onSettingsSuccess, connect: settingsConnect },
-    { onUpgradeNeeded: onAccountUpgradeNeeded, connect: accountConnect },
-    { onUpgradeNeeded: onTreeStructureUpgradeNeeded, connect: treeStructureConnect }
+    { onSuccess: onSettingsSuccess },
+    { onUpgradeNeeded: onAccountUpgradeNeeded },
+    { onUpgradeNeeded: onTreeStructureUpgradeNeeded }
 ] = [
     useDatabase('portfolio-apple_settings', 'settings'),
     useDatabase('portfolio-apple_account', 'account'),
@@ -54,8 +54,7 @@ const dbQueue = ref([
             );
 
             nbFiniched.value++;
-        });
-        settingsConnect();
+        }).connect();
     },
     () => {
         onAccountUpgradeNeeded(({ context: { addIndex, add } }) => {
@@ -67,8 +66,7 @@ const dbQueue = ref([
             });
 
             nbFiniched.value++;
-        });
-        accountConnect();
+        }).connect();
     },
     () => {
         onTreeStructureUpgradeNeeded(({ context: { add } }) => {
@@ -154,8 +152,7 @@ const dbQueue = ref([
             );
 
             nbFiniched.value++;
-        });
-        treeStructureConnect();
+        }).connect();
     }
 ]);
 

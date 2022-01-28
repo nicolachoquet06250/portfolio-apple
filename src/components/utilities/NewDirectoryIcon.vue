@@ -10,10 +10,12 @@
 
 <script setup>
 import { defineProps, defineEmits, ref, watch, onMounted } from 'vue';
-import { useTreeActions } from '@/hooks/finder';
+import finder from '@/hooks/_finder';
 import { useAuthUser } from '@/hooks/account';
 import { onKeyUp } from '@vueuse/core';
 import iconDirectory from '@/assets/icons/icon-directory.png';
+
+const { useTreeActions } = finder();
 
 const { add } = useTreeActions();
 const { user } = useAuthUser();

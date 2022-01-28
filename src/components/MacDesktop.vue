@@ -281,7 +281,7 @@
 import { defineProps, ref, computed, watch, reactive } from "vue";
 import { APPLICATION, APPLICATION_STATE, useOpenedApplications, useCurrentApp } from '@/hooks/apps';
 import { useAuthUser } from '@/hooks/account';
-import { useRootDirectory, useTreeActions, useFinder } from '@/hooks/finder';
+import finder from '@/hooks/_finder';
 import { useInstalled } from '@/hooks/installed';
 import { useDark } from '@/hooks/theme';
 import { useContextualMenu } from '@/hooks/contextual-menu';
@@ -303,6 +303,8 @@ import iconMp4 from '@/assets/icons/icon-mp4.png';
 import iconPages from '@/assets/icons/icon-Pages.png';
 import iconPng from '@/assets/icons/icon-png.png';
 import iconUnknownFile from '@/assets/icons/icon-unknownFile.png';
+
+const { useRootDirectory, useTreeActions, useFinder } = finder();
 
 const props = defineProps({
     backgroundImage: String,
@@ -533,9 +535,7 @@ const selectSubMenuItem = (item, e) => {
   selectedMenu.value = '';
   return r;
 };
-
-watch(treeStructure, () => {
-    console.log(treeStructure.value);
+const buildTree = () => {
     const maxPerColumn = 5;
 
     const tmp = [];
@@ -545,7 +545,6 @@ watch(treeStructure, () => {
     let y = 0;
     for (const c of treeStructure.value) {
         const name = skipped.value ? '' : `/${user.value.account_name}`;
-        console.log(c.parent, `${name}/Desktop`);
         if (c.parent === `${name}/Desktop`) {
             if (cmp === 0) {
                 tmp.push([c]);
@@ -574,7 +573,11 @@ watch(treeStructure, () => {
     }
 
     treeToGrid.value = tmp;
-});
+};
+
+buildTree();
+
+watch(treeStructure, buildTree);
 
 watch(refs, () => {
   refs.value.map(m => onClickOutside(m, () => (selectedMenu.value = '')))

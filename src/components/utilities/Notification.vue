@@ -2,7 +2,7 @@
     <div :class="{
         notification: true,
         open: open
-    }" @animationend="onAnimEnd" v-if="!closed">
+    }" ref="notif" v-if="!closed">
         <img :src="image" />
 
         <div class="body">
@@ -38,6 +38,7 @@ const props = defineProps({
 
 const emit = defineEmits(['closed']);
 
+const notif = ref(null);
 const open = ref(false);
 const closed = ref(!props.opened);
 const index = computed(() => props.index);
@@ -54,6 +55,8 @@ const onAnimEnd = () => {
 watch(() => props.opened, () => {
     if (!props.opened) {
         open.value = false;
+
+        setTimeout(onAnimEnd, 500);
     }
 });
 </script>

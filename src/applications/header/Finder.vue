@@ -56,8 +56,10 @@
 </template>
 
 <script setup>
-import { useFinder } from '@/hooks/finder';
+import finder from '@/hooks/_finder';
 import { useDark } from '@/hooks/theme';
+
+const { useFinder } = finder();
 
 const { selectedTab, backInPath } = useFinder(5);
 const { isDark } = useDark();

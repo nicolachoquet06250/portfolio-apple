@@ -12,11 +12,13 @@
 
 <script setup>
 import { defineProps, defineEmits, ref, onMounted } from 'vue';
-import { useRootDirectory, useTreeActions } from '@/hooks/finder';
+import finder from '@/hooks/_finder';
 import { useContextualMenu } from '@/hooks/contextual-menu';
 import { APPLICATION, useOpenedApplications, useCurrentApp } from '@/hooks/apps';
 import { useMouse, onClickOutside, onKeyUp } from '@vueuse/core';
 import iconDirectory from '@/assets/icons/icon-directory.png';
+
+const { useRootDirectory, useTreeActions } = finder();
 
 const props = defineProps({
     id: Number,
