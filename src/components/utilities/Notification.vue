@@ -2,7 +2,7 @@
     <div :class="{
         notification: true,
         open: open
-    }">
+    }" @animationend="onAnimEnd" v-if="!closed">
         <img :src="image" />
 
         <div class="body">
@@ -18,28 +18,51 @@
 </template>
 
 <script setup>
-import { defineProps, ref } from 'vue';
+import { defineProps, defineEmits, ref, watch, computed } from 'vue';
 
 const props = defineProps({
+    index: {
+        type: Number,
+        default: 0
+    },
     image: String,
     latence: {
         type: Number,
         default: 0
+    },
+    opened: {
+        type: Boolean,
+        default: true
     }
 });
 
+const emit = defineEmits(['closed']);
+
 const open = ref(false);
+const closed = ref(!props.opened);
+const index = computed(() => props.index);
 
 setTimeout(() => {
     open.value = true;
 }, props.latence);
+
+const onAnimEnd = () => {
+    emit('closed');
+    closed.value = true;
+}
+
+watch(() => props.opened, () => {
+    if (!props.opened) {
+        open.value = false;
+    }
+});
 </script>
 
 <style lang="scss" scoped>
 .notification {
     position: absolute;
     right: 5px;
-    top: 40px;
+    top: calc(40px + v-bind(index) * 90px);
     z-index: 2;
     background-color: rgba(255, 255, 255, .5);
     backdrop-filter: blur(1.5rem);
@@ -76,6 +99,16 @@ setTimeout(() => {
                 font-weight: bold;
                 margin-bottom: 5px;
             }
+
+            &:last-child  {
+                display: -webkit-box;
+                max-height: 40px;
+                max-width: 240px;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
         }
     }
 
@@ -86,7 +119,7 @@ setTimeout(() => {
 
         ::v-slotted(button) {
             flex: 1;
-            width: max-content;
+            width: 100%;
             height: 100%;
             border: 0;
             border-left: 1px solid rgba(0, 0, 0, .5);

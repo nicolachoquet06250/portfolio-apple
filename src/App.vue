@@ -18,20 +18,23 @@
           :background-image="wallpaper"
           :top-bar="desktopTopBar">
 
-          <Notification :image="iconCdInstall" :latence="2000">
+          <Notification v-for="(notif, i) of notifsQueue" :key="i"
+                        :opened="notif.opened" :index="i"
+                        :image="notif.image" :latence="2000">
             <template v-slot:title>
-              <span> Installez macOS </span>
+              <span> {{ notif.title }} </span>
             </template>
 
             <template v-slot:content>
               <span>
-                Une nouvelle version de macOS est disponible
+                {{ notif.content }}
               </span>
             </template>
 
             <template v-slot:button>
-              <button @click="installMac()">
-                Installer
+              <button v-for="(button, b) of notif.buttons" :key="b" 
+                      @click="button.click?.()">
+                {{ button.text }}
               </button>
             </template>
           </Notification>
@@ -56,26 +59,6 @@
             </template>
           </MacOsAlert>
 
-          <MacOsAlert v-if="displayAlertAppInDev && alertAppInDev.show" 
-                      @close="hideAlertAppInDev" 
-                      @validate="hideAlertAppInDev">
-            <template v-slot:title>
-              <span>{{ alertAppInDev.title }}</span>
-            </template>
-
-            <template v-slot:body>
-              <p v-for="(p, i) of alertAppInDev.content" :key="i">
-                {{ p }}
-              </p>
-            </template>
-
-            <template v-slot:footer>
-              <Checkbox v-model="alertAppInDev.dontShowAgain" id="dont-show-again">
-                  Ne plus voir cette alerte
-              </Checkbox>
-            </template>
-          </MacOsAlert>
-
           <MacOsDock />
         </MacDesktop>
       </template>
@@ -90,6 +73,27 @@
           :current-app-name="currentApp"
           :background-image="wallpaper"
           :top-bar="desktopTopBar">
+
+          <Notification v-for="(notif, i) of notifsQueue" :key="i"
+                        :opened="notif.opened" :index="i"
+                        :image="notif.image" :latence="2000">
+            <template v-slot:title>
+              <span> {{ notif.title }} </span>
+            </template>
+
+            <template v-slot:content>
+              <span>
+                {{ notif.content }}
+              </span>
+            </template>
+
+            <template v-slot:button>
+              <button v-for="(button, b) of notif.buttons" :key="b" 
+                      @click="button.click?.()">
+                {{ button.text }}
+              </button>
+            </template>
+          </Notification>
 
           <MacOsAlert v-if="displayAlert" 
                       @close="hideAlert" 
@@ -107,26 +111,6 @@
             <template v-slot:footer>
               <Checkbox id="dont-ask-again">
                   Dont ask again
-              </Checkbox>
-            </template>
-          </MacOsAlert>
-
-          <MacOsAlert v-if="displayAlertAppInDev && alertAppInDev.show" 
-                      @close="hideAlertAppInDev" 
-                      @validate="hideAlertAppInDev">
-            <template v-slot:title>
-              <span>{{ alertAppInDev.title }}</span>
-            </template>
-
-            <template v-slot:body>
-              <p v-for="(p, i) of alertAppInDev.content" :key="i">
-                {{ p }}
-              </p>
-            </template>
-
-            <template v-slot:footer>
-              <Checkbox v-model="alertAppInDev.dontShowAgain" id="dont-show-again">
-                  Ne plus voir cette alerte
               </Checkbox>
             </template>
           </MacOsAlert>
@@ -157,8 +141,9 @@ import Checkbox from '@/components/Checkbox.vue';
 import Notification from '@/components/utilities/Notification.vue';
 
 import iconCdInstall from '@/assets/icon-cd-install-mac.png';
+import appstore from '@/assets/dock/appstore.png';
 
-import { ref, reactive, watch } from "vue";
+import { ref, computed, reactive, watch } from "vue";
 import { useNetwork, useBattery, useWindowSize } from "@vueuse/core";
 import { APPLICATION, useCurrentApp } from "@/hooks/apps";
 import { useInstalled } from '@/hooks/installed';
@@ -175,7 +160,6 @@ setCurrentApp(APPLICATION.FINDER);
 
 const wallpaper = ref('/img/wallpapers/wallpaper-install-macos.jpg');
 const connected = ref(false);
-//const installSkipped = ref(localStorage.getItem('install_skipped') !== null);
 const displayAlert = ref(false);
 const displayAlertAppInDev = ref(true);
 const alertContent = reactive({
@@ -221,6 +205,43 @@ const installMac = () => {
   isNotSkipped();
   //installSkipped.value = false;
 };
+
+const notifsQueue = computed(() => [
+  {
+    image: iconCdInstall,
+    title: 'Installez macOS',
+    content: `Une npuvelle version de macOS est disponible`,
+    opened: installSkipped.value,
+    buttons: [
+      {
+        text: 'Installer',
+        click() {
+          installMac();
+        }
+      }
+    ]
+  },
+  {
+    image: appstore,
+    title: alertAppInDev.title,
+    content: alertAppInDev.content.join(''),
+    opened: displayAlertAppInDev.value && alertAppInDev.show,
+    buttons: [
+      {
+        text: 'OK',
+        click() {
+          hideAlertAppInDev();
+        }
+      },
+      {
+        text: 'Ne plus voir',
+        click() {
+          alertAppInDev.dontShowAgain = true;
+        }
+      }
+    ]
+  }
+]);
 
 const desktopTopBar = reactive({
   network: {
