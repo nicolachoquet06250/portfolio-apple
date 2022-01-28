@@ -18,10 +18,10 @@
           :background-image="wallpaper"
           :top-bar="desktopTopBar">
 
-          <Notification v-for="(notif, i) of notifsQueue" :key="i"
+          <Notification v-for="(notif, i) of notifications" :key="i"
                         :opened="notif.opened" :index="notif.index"
                         :image="notif.image" :latence="2000"
-                        @closed="closeNotif(i)">
+                        @closed="closeNotification(i)">
             <template v-slot:title>
               <span> {{ notif.title }} </span>
             </template>
@@ -75,10 +75,10 @@
           :background-image="wallpaper"
           :top-bar="desktopTopBar">
 
-          <Notification v-for="(notif, i) of notifsQueue" :key="i"
+          <Notification v-for="(notif, i) of notifications" :key="i"
                         :opened="notif.opened" :index="notif.index"
                         :image="notif.image" :latence="2000"
-                        @closed="closeNotif(i)">
+                        @closed="closeNotification(i)">
             <template v-slot:title>
               <span> {{ notif.title }} </span>
             </template>
@@ -149,12 +149,14 @@ import { ref, computed, reactive, watch } from "vue";
 import { useNetwork, useBattery, useWindowSize } from "@vueuse/core";
 import { APPLICATION, useCurrentApp } from "@/hooks/apps";
 import { useInstalled } from '@/hooks/installed';
+import { useNotifications } from '@/hooks/notifications';
 
 const { isOnline } = useNetwork();
 const { charging, chargingTime, dischargingTime, level } = useBattery();
 const { width: screenWidth } = useWindowSize();
 const { currentApp, setCurrentApp } = useCurrentApp();
 const { installed, skipped: installSkipped, isInstalled, isNotInstalled, isSkipped, isNotSkipped } = useInstalled();
+const { notifications, createNotification, deleteNotification, closeNotification } = useNotifications();
 
 const systemLoading = ref(true);
 
@@ -202,91 +204,55 @@ const installMac = () => {
   isNotSkipped();
   //installSkipped.value = false;
 };
-const closeNotifFromId = id => {
-  notifsQueue.value = notifsQueue.value.reduce((r, c) => {
-    if (c.id === id) {
-      return [
-        ...r, 
-        {
-          ...c,
-          opened: false
-        }
-      ];
-    }
-    return [...r, c];
-  }, []);
-}
 const installNotifOpened = computed(() => (installSkipped.value === null ? false : installSkipped.value) && displayInstallNotif.value);
-const notifsQueue = ref([]);
 
-const closeNotif = index => {
-  notifsQueue.value = notifsQueue.value.reduce((r, c) => {
-    if (r.i !== index) {
-      return {
-        i: r.i + 1,
-        t: [...r.t, {
-          ...c,
-          index: (c.index > index ? c.index - 1 : c.index)
-        }]
-      }
-    }
-    return { 
-      t: [...r.t, c], 
-      i: r.i + 1
-    };
-  }, { i: 0, t: []}).t;
-};
 const initNotifsQueue = () => {
-  notifsQueue.value = [
-    {
-      id: 0,
-      index: 0,
-      image: iconCdInstall,
-      title: 'Installez macOS',
-      content: `Une npuvelle version de macOS est disponible`,
-      opened: installNotifOpened,
-      buttons: [
-        {
-          text: 'Installer',
-          click() {
-            closeNotifFromId(0);
-            installMac();
-          }
-        },
-        {
-          text: 'Fermer',
-          click() {
-            displayInstallNotif.value = false;
-            closeNotifFromId(0);
-          }
+  createNotification({
+    image: iconCdInstall,
+    title: 'Installez macOS',
+    content: `Une npuvelle version de macOS est disponible`,
+    opened: installNotifOpened,
+    buttons: [
+      {
+        text: 'Installer',
+        click() {
+          deleteNotification(0);
+          installMac();
         }
-      ]
-    },
-    {
-      id: 1,
-      index: (installNotifOpened.value ? 1 : 0),
-      image: appstore,
-      title: alertAppInDev.title,
-      content: alertAppInDev.content.join(''),
-      opened: computed(() => displayAlertAppInDev.value && alertAppInDev.show),
-      buttons: [
-        {
-          text: 'OK',
-          click() {
-            displayAlertAppInDev.value = false;
-            closeNotifFromId(1);
-          }
-        },
-        {
-          text: 'Ne plus voir',
-          click() {
-            alertAppInDev.dontShowAgain = true;
-            closeNotifFromId(1);
-          }
+      },
+      {
+        text: 'Fermer',
+        click() {
+          displayInstallNotif.value = false;
+          deleteNotification(0);
         }
-      ]
-    }
-  ];
+      }
+    ]
+  });
+
+  createNotification({
+    index: (installNotifOpened.value ? 1 : 0),
+    image: appstore,
+    title: alertAppInDev.title,
+    content: alertAppInDev.content.join(''),
+    opened: computed(() => displayAlertAppInDev.value && alertAppInDev.show),
+    buttons: [
+      {
+        text: 'OK',
+        click() {
+          displayAlertAppInDev.value = false;
+          deleteNotification(1);
+        }
+      },
+      {
+        text: 'Ne plus voir',
+        click() {
+          alertAppInDev.dontShowAgain = true;
+          deleteNotification(1);
+        }
+      }
+    ]
+  });
 }
 const handleSystemLoaded = (initNotifs) => {
   systemLoading.value = false;

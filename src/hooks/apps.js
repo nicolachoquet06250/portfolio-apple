@@ -413,17 +413,6 @@ export const useOpenedApplications = () => ({
      */
     openApplication(application) {
         if (openedApplications[application.toLowerCase()]) {
-            /*if (openedApplications[application.toLowerCase()].state === APPLICATION_STATE.CLOSED) {
-
-                openedApplications[application.toLowerCase()].position = {
-                    x: 0,
-                    y: 0
-                };
-                openedApplications[application.toLowerCase()].size = {
-                    width: 777,
-                    height: 313
-                }
-            };*/
             openedApplications[application.toLowerCase()].state = APPLICATION_STATE.OPENED;
         } else {
             openedApplications[application.toLowerCase()] = {
