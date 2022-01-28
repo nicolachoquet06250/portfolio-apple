@@ -270,7 +270,6 @@
                         :key="openedApplications[app].name"
                         :opened="openedApplications[app].state === APPLICATION_STATE.OPENED"
                         :app-name="openedApplications[app].name"
-                        :has-header="AppHeaderComponent !== null"
                         :app-code="app" />
 
         <Spotlight :open="openSpotlight" @close="openSpotlight = false" />

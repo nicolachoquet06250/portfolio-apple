@@ -19,6 +19,15 @@ import TerminalHeader from '@/applications/header/Terminal.vue';
 import TrashHeader from '@/applications/header/Trash.vue';
 import PhotosHeader from '@/applications/header/Photos.vue';
 
+import FinderMenu from '@/applications/menu/Finder.vue';
+import StoreMenu from '@/applications/menu/Store.vue';
+import MailsMenu from '@/applications/menu/Mail.vue';
+//import MessagesMenu from '@/applications/menu/Messages.vue';
+//import SettingsMenu from '@/applications/menu/Settings.vue';
+//import TerminalMenu from '@/applications/menu/Terminal.vue';
+//import TrashMenu from '@/applications/menu/Trash.vue';
+import PhotosMenu from '@/applications/menu/Photos.vue';
+
 export const APPLICATION = {
     FINDER: 'finder',
     STORE: 'appstore',
@@ -39,35 +48,43 @@ export const APPLICATION_STATE = {
 export const APPLICATION_COMPONENT = {
     [APPLICATION.FINDER]: {
         body: FinderApp,
-        header: FinderHeader
+        header: FinderHeader,
+        menu: FinderMenu
     },
     [APPLICATION.STORE]: {
         body: StoreApp,
-        header: StoreHeader
+        header: StoreHeader,
+        menu: StoreMenu
     },
     [APPLICATION.PHOTOS]: {
         body: PhotosApp,
-        header: PhotosHeader
+        header: PhotosHeader,
+        menu: PhotosMenu
     },
     [APPLICATION.MAILS]: {
         body: MailsApp,
-        header: MailsHeader
+        header: MailsHeader,
+        menu: MailsMenu
     },
     [APPLICATION.MESSAGES]: {
         body: MessagesApp,
-        header: MessagesHeader
+        header: MessagesHeader,
+        //menu: MessagesMenu
     },
     [APPLICATION.SETTINGS]: {
         body: SettingsApp,
-        header: SettingsHeader
+        header: SettingsHeader,
+        //menu: SettingsMenu
     },
     [APPLICATION.TERMINAL]: {
         body: TerminalApp,
-        header: TerminalHeader
+        header: TerminalHeader,
+        //menu: TerminalMenu
     },
     [APPLICATION.TRASH]: {
         body: TrashApp,
-        header: TrashHeader
+        header: TrashHeader,
+        //menu: TrashMenu
     }
 };
 
@@ -382,14 +399,6 @@ export const useCurrentApp = () => ({
     currentAppMenus: computed(() => currentAppMenus),
 
     setCurrentApp,
-
-    /**
-     * @param {Record<String, any>} _currentAppMenus 
-     */
-    setCurrentAppMenus(_currentAppMenus) {
-        openedApplications[currentApp.value].menus = _currentAppMenus;
-    },
-
     setCurrentAppSize,
     setCurrentAppPosition
 });
@@ -423,7 +432,7 @@ export const useOpenedApplications = () => ({
                 name: application.substr(0, 1).toUpperCase() + application.substr(1, application.length - 1),
                 component: APPLICATION_COMPONENT[application.toLowerCase()]?.body,
                 componentHeader: APPLICATION_COMPONENT[application.toLowerCase()]?.header ?? null,
-                menus: {},
+                componentMenu: APPLICATION_COMPONENT[application.toLowerCase()]?.menu ?? null,
                 position: {
                     x: 0,
                     y: 0

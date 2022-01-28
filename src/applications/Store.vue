@@ -4,22 +4,6 @@
 
 <script setup>
 
-import { useCurrentApp } from '@/hooks/apps';
-
-const { setCurrentAppMenus } = useCurrentApp();
-
-setCurrentAppMenus({
-    Discover: {
-        active: true
-    },
-    Arcade: {},
-    Create: {},
-    Work: {},
-    Play: {},
-    Develop: {},
-    Categories: {},
-    Updates: {}
-});
 </script>
 
 <style lang="scss" scoped>

@@ -15,7 +15,7 @@
             'min-width': '777px'
         }">
 
-        <div class="left-bloc">
+        <div class="left-bloc" v-if="hasMenu">
             <div class="btn-container">
                 <button class="btn-close" @click.prevent="closeApplication"></button>
                 <button class="btn-minmax" @click.prevent="() => (openedApplications[appName.toLowerCase()].full_screen ? minApp() : maxApp())"></button>
@@ -23,28 +23,30 @@
             </div>
 
             <div class="menu-container">
-                <div v-for="menuItemKey of Object.keys(openedApplications[appCode]?.menus ?? {})" :key="menuItemKey">
-                    <h3 v-if="openedApplications[appCode]?.menus[menuItemKey].type && openedApplications[appCode]?.menus[menuItemKey].type === 'title'">
-                        {{ openedApplications[appCode]?.menus[menuItemKey].text }}
-                    </h3>
+                <AppMenuComponent />
 
-                    <button v-else @click="handleLeftMenuClick(openedApplications[appCode]?.menus[menuItemKey], $event)" :class="{
-                        active: openedApplications[appCode]?.menus[menuItemKey]?.active ?? false
-                    }">
-                        {{ menuItemKey }}
-                    </button>
-                </div>
+                <slot name="menu"></slot>
             </div>
         </div>
 
-        <div class="right-bloc">
-            <div class="app-header-bar" v-if="hasHeader">
-                <AppHeaderComponent />
+        <div :class="{
+            'right-bloc': true,
+            'no-menu': !hasMenu
+        }">
+            <div class="header-container">
+                <div class="btn-container" v-if="!hasMenu">
+                    <button class="btn-close" @click.prevent="closeApplication"></button>
+                    <button class="btn-minmax" @click.prevent="() => (openedApplications[appName.toLowerCase()].full_screen ? minApp() : maxApp())"></button>
+                    <button class="btn-todock" @click.prevent="appToDock"></button>
+                </div>
 
-                <slot name="header"></slot>
+                <div class="app-header-bar" v-if="hasHeader">
+                    <AppHeaderComponent />
+
+                    <slot name="header"></slot>
+                </div>
+                <div class="app-header-bar void" v-else></div>
             </div>
-            <div class="app-header-bar void" v-else></div>
-
             <div class="application-body">
                 <AppComponent />
 
@@ -85,15 +87,16 @@ const windowWidthForCss = computed(() => `${windowWidth.value}px`);
 
 const props = defineProps({
     appName: String,
-    dockHeight: Number,
     opened: Boolean,
     appCode: String
 });
 
 const AppComponent = ref(openedApplications.value[props.appCode].component);
 const AppHeaderComponent = ref(openedApplications.value[props.appCode].componentHeader);
+const AppMenuComponent = ref(openedApplications.value[props.appCode].componentMenu);
 
 const hasHeader = computed(() => AppHeaderComponent.value !== null);
+const hasMenu = computed(() => AppMenuComponent.value !== null);
 
 const opened = ref(props.opened);
 const application = ref(null);
@@ -292,6 +295,12 @@ const closeApplication = () => {
         }
     }
 
+    .header-container {
+        display: flex; 
+        flex-direction: row;
+        border-bottom: 1px solid #C5BEBE;
+    }
+
     .left-bloc {
         display: flex;
         flex-direction: column;
@@ -340,13 +349,13 @@ const closeApplication = () => {
             height: 100%;
             overflow-y: auto;
 
-            h3 {
+            ::v-slotted(h3) {
                 color: #C5BEBE;
                 font-size: 15px;
                 padding-left: 10px;
             }
 
-            button {
+            ::v-slotted(button) {
                 padding: 10px;
                 border: none;
                 background-color: transparent;
@@ -366,11 +375,44 @@ const closeApplication = () => {
         background-color: white;
         border-radius: 0 10px 10px 0;
 
+        &.no-menu {
+            border-radius: 10px;
+        }
+
+        .btn-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: center;
+            padding-left: 10px;
+
+            button {
+                cursor: pointer;
+                height: 12px;
+                width: 12px;
+                border: none;
+                border-radius: 10px;
+                background: white;
+                margin-right: 5px;
+
+                &.btn-close {
+                    background: red;
+                }
+                &.btn-minmax {
+                    background: orange;
+                }
+                &.btn-todock {
+                    background: green;
+                }
+            }
+        }
+
         .app-header-bar {
             display: flex;
             flex-direction: row;
             height: 50px;
-            border-bottom: 1px solid #C5BEBE;
+            //border-bottom: 1px solid #C5BEBE;
+            flex: 1;
 
             &.void {
                 height: 25px;

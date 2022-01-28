@@ -45,10 +45,10 @@ import { onClickOutside, onKeyUp, useMouse } from '@vueuse/core';
 const { useFinder, useRootDirectory } = finder();
 
 const { x: mouseX, y: mouseY } = useMouse();
-const { setCurrentAppMenus, setCurrentApp } = useCurrentApp();
+const { setCurrentApp } = useCurrentApp();
 const { openApplication } = useOpenedApplications();
-const { selectTab, selectItem, activeItem, showedItems, activedItem, breadcrum } = useFinder(5);
-const { root, setRoot, setSubDirectory } = useRootDirectory();
+const { selectItem, activeItem, showedItems, activedItem, breadcrum } = useFinder(5);
+const { setRoot, setSubDirectory } = useRootDirectory();
 const {
     setContextMenu, showContextMenu, 
     hideContextMenu, setContextMenuPosition
@@ -63,55 +63,10 @@ const TABS = {
     DOWNLOADS: 'Downloads'
 };
 
-selectTab(root.value ?? TABS.RECENT);
-
 onBeforeUnmount(() => {
     setRoot(TABS.RECENT);
     setSubDirectory('');
 });
-
-setCurrentAppMenus({
-    TitleSection1: {
-        type: 'title',
-        text: 'Favorites'
-    },
-    [TABS.APPLICATIONS]: {
-        active: root.value === TABS.APPLICATIONS,
-        click() {
-            selectTab(TABS.APPLICATIONS);
-        }
-    },
-    [TABS.RECENT]: {
-        active: root.value === TABS.RECENT || !root.value,
-        click() {
-            selectTab(TABS.RECENT);
-        }
-    },
-    [TABS.AIRDROP]: {
-        active: root.value === TABS.AIRDROP,
-        click() {
-            selectTab(TABS.AIRDROP);
-        }
-    },
-    [TABS.DESKTOP]: {
-        active: root.value === TABS.DESKTOP,
-        click() {
-            selectTab(TABS.DESKTOP);
-        }
-    },
-    [TABS.DOCUMENTS]: {
-        active: root.value === TABS.DOCUMENTS,
-        click() {
-            selectTab(TABS.DOCUMENTS);
-        }
-    },
-    [TABS.DOWNLOADS]: {
-        active: root.value === TABS.DOWNLOADS,
-        click() {
-            selectTab(TABS.DOWNLOADS);
-        }
-    }
-})
 
 const finderBody = ref(null);
 const selectedDir = ref(null);
