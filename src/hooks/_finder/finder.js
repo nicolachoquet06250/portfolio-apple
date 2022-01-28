@@ -37,6 +37,10 @@ const getChildren = (root, dirName) =>
                 }
             ] : r, []);
 
+export const initBreadcrum = () => {
+    breadcrum.value = [selectedTab.value];
+};
+
 /**
  * @param {Number} maxPerLine 
  * @returns 
@@ -78,9 +82,7 @@ export const useFinder = maxPerLine => {
             selectedTab.value = tab;
         },
     
-        initBreadcrum() {
-            breadcrum.value = [selectedTab.value];
-        },
+        initBreadcrum,
     
         selectItem(item) {
             if (item.type === 'directory' && breadcrum.value.indexOf(item.name) === -1) {
@@ -182,7 +184,7 @@ export const useTreeActions = () => {
 
 watch([selectedTab, subDirectory, items], (_, [oldSelectedTab]) => {
     if (selectedTab.value !== oldSelectedTab) {
-        breadcrum.value = [selectedTab.value];
+        initBreadcrum();
         subDirectory.value = '';
     }
 

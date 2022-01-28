@@ -304,7 +304,7 @@ import iconPages from '@/assets/icons/icon-Pages.png';
 import iconPng from '@/assets/icons/icon-png.png';
 import iconUnknownFile from '@/assets/icons/icon-unknownFile.png';
 
-const { useRootDirectory, useTreeActions, useFinder } = finder();
+const { useRootDirectory, useTreeActions, useFinder, initBreadcrum } = finder();
 
 const props = defineProps({
     backgroundImage: String,
@@ -508,6 +508,7 @@ const showDesktopContextMenu = () => {
                     setSubDirectory('');
                     setRoot('Desktop');
                     selectTab('Desktop');
+                    initBreadcrum();
                     openApplication(APPLICATION.FINDER);
                     setCurrentApp(APPLICATION.FINDER);
                     hideContextMenu();

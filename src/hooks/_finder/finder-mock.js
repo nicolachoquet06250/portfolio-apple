@@ -141,19 +141,21 @@ items.value = [
 ];
 
 const getChildren = (root, dirName) => {
-    const tmp = [];
-    for(const c of items.value) {
-        //console.log('parent: ', c.parent, 'path: ', `${root}/${dirName}`.replace(/\/\//g, '/'))
-        if (c.parent === `${root}/${dirName}`.replace(/\/\//g, '/')) {
-            tmp.push({
-                ...c,
-                icon: c.type === 'directory' ? iconDirectory : iconUnknownFile,
-                children: getChildren(`${root}/${dirName}`, c.name)
-            });
-        }
-    }
-    console.log(tmp);
-    return tmp;
+    return items.value.reduce((r, c) => {
+        return c.parent === `${root}/${dirName}`.replace('//', '/') 
+            ? [
+                ...r, 
+                {
+                    ...c,
+                    icon: c.type === 'directory' ? iconDirectory : iconUnknownFile,
+                    children: getChildren(`${root}/${dirName}`, c.name)
+                }
+            ] : r
+    }, []);
+};
+
+export const initBreadcrum = () => {
+    breadcrum.value = [selectedTab.value];
 };
 
 /**
@@ -195,9 +197,7 @@ export const useFinder = maxPerLine => {
             selectedTab.value = tab;
         },
     
-        initBreadcrum() {
-            breadcrum.value = [selectedTab.value];
-        },
+        initBreadcrum,
     
         selectItem(item) {
             if (item.type === 'directory' && breadcrum.value.indexOf(item.name) === -1) {
@@ -254,7 +254,6 @@ export const useTreeActions = () => {
         get() {},
 
         add(root, dirName) {
-            console.log(root, dirName)
             items.value = [
                 ...items.value,
                 {
@@ -294,10 +293,13 @@ watch([selectedTab, subDirectory, items], (_, [oldSelectedTab]) => {
     }
 
     if (subDirectory.value) {
-        console.log(items.value, selectedTab.value, subDirectory.value);
-
         showedItems.value = getChildren('/' + selectedTab.value, subDirectory.value);
         
         breadcrum.value = [selectedTab.value, ...subDirectory.value.split('/')];
+    } else {
+        breadcrum.value = [selectedTab.value];
+        const copy = [...breadcrum.value];
+
+        showedItems.value = getChildren('', copy.join('/'));
     }
 });
