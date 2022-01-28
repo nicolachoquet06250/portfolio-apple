@@ -10,7 +10,7 @@
 
 <script setup>
 import { defineProps, defineEmits, ref, watch, onMounted } from 'vue';
-import finder from '@/hooks/_finder';
+import finder from '@/hooks/finder';
 import { useAuthUser } from '@/hooks/account';
 import { onKeyUp } from '@vueuse/core';
 import iconDirectory from '@/assets/icons/icon-directory.png';

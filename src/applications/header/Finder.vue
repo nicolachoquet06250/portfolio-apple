@@ -56,7 +56,7 @@
 </template>
 
 <script setup>
-import finder from '@/hooks/_finder';
+import finder from '@/hooks/finder';
 import { useDark } from '@/hooks/theme';
 
 const { useFinder } = finder();

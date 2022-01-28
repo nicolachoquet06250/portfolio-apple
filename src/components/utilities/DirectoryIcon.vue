@@ -12,7 +12,7 @@
 
 <script setup>
 import { defineProps, defineEmits, ref, onMounted } from 'vue';
-import finder from '@/hooks/_finder';
+import finder from '@/hooks/finder';
 import { useContextualMenu } from '@/hooks/contextual-menu';
 import { APPLICATION, useOpenedApplications, useCurrentApp } from '@/hooks/apps';
 import { useMouse, onClickOutside, onKeyUp } from '@vueuse/core';

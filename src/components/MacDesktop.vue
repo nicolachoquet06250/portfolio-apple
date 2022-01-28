@@ -281,7 +281,7 @@
 import { defineProps, ref, computed, watch, reactive } from "vue";
 import { APPLICATION, APPLICATION_STATE, useOpenedApplications, useCurrentApp } from '@/hooks/apps';
 import { useAuthUser } from '@/hooks/account';
-import finder from '@/hooks/_finder';
+import finder from '@/hooks/finder';
 import { useInstalled } from '@/hooks/installed';
 import { useDark } from '@/hooks/theme';
 import { useContextualMenu } from '@/hooks/contextual-menu';

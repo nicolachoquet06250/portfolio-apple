@@ -38,7 +38,7 @@
 <script setup>
 import { ref, computed, watch, onBeforeUnmount } from 'vue';
 import { useCurrentApp, useOpenedApplications } from '@/hooks/apps';
-import finder from '@/hooks/_finder';
+import finder from '@/hooks/finder';
 import { useContextualMenu } from '@/hooks/contextual-menu';
 import { onClickOutside, onKeyUp, useMouse } from '@vueuse/core';
 
