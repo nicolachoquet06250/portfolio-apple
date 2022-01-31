@@ -247,6 +247,7 @@
             <Column v-for="(treeColumn, x) of treeToGrid" :key="x">
                 <Directory v-for="(treeCel, y) of treeColumn" :key="y"
                            :name="treeCel.name" :id="treeCel.id" :x="x" :y="y"
+                            :color="'white'" :select-color="'white'"
                            @select="selectDirectory({ name: treeCel.name, id: treeCel.id }, { x, y })"
                            @unselect="selectedDirectory = ''">
                     {{ treeCel.name }}
@@ -254,12 +255,14 @@
 
                 <NewDirectory v-model="newDirectoryName" 
                               :show="x === treeToGrid.length - 1 && treeToGrid[x].length <= 5 && displayNewDirectory"
+                              :color="'white'" :select-color="'white'"
                               @hide="displayNewDirectory = false" />
             </Column>
 
             <Column>
                 <NewDirectory v-model="newDirectoryName"
                               :show="(treeToGrid.length === 0 || treeToGrid[treeToGrid.length - 1].length > 5) && displayNewDirectory"
+                              :color="'white'" :select-color="'white'"
                               @hide="displayNewDirectory = false" />
             </Column>
         </Grid>

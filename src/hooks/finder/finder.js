@@ -92,6 +92,7 @@ export const useFinder = maxPerLine => {
                 ];
         
                 activeItem.value = '';
+                console.log(1);
                 showedItems.value = item.children;
             }
         },
@@ -123,7 +124,8 @@ export const useFinder = maxPerLine => {
     
                     return [];
                 };
-    
+
+                console.log(2)
                 showedItems.value = back(items.value);
                 breadcrum.value = breadcrum.value.reduce((r, c) => c === currentSelectedDir ? r : [...r, c], []);
             }
@@ -144,6 +146,16 @@ export const useRootDirectory = () => {
     
         setSubDirectory(subDir) {
             subDirectory.value = subDir;
+
+            if (subDirectory.value) {
+                showedItems.value = items.value.reduce((r, c) => 
+                    c.name === selectedTab.value ? c.children : r, []).reduce((r, c) => 
+                        c.parent === `/${user.value.account_name}/${selectedTab.value}/${subDirectory.value}` ? [...r, c] : r, []);
+                
+                breadcrum.value = [selectedTab.value, ...subDirectory.value.split('/')];
+            } else {
+                showedItems.value = items.value.reduce((r, c) => c.name === selectedTab.value ? c.children : r, []);
+            }
         }
     };
 };
@@ -182,21 +194,38 @@ export const useTreeActions = () => {
     };
 };
 
-watch([selectedTab, subDirectory, items], (_, [oldSelectedTab]) => {
+watch([selectedTab, subDirectory, items], (_, [oldSelectedTab, oldSubDirectory, oldItems]) => {
     if (selectedTab.value !== oldSelectedTab) {
         initBreadcrum();
         subDirectory.value = '';
+        showedItems.value = items.value.reduce((r, c) => c.name === selectedTab.value ? c.children : r, []);
     }
 
-    if (subDirectory.value) {
+    if (JSON.stringify(items.value) !== JSON.stringify(oldItems)) {
+        if (subDirectory.value) {
+            showedItems.value = items.value.reduce((r, c) => 
+                c.name === selectedTab.value ? c.children : r, []).reduce((r, c) => 
+                    c.parent === `/${user.value.account_name}/${selectedTab.value}/${subDirectory.value}` ? [...r, c] : r, []);
+            
+            breadcrum.value = [selectedTab.value, ...subDirectory.value.split('/')];
+        } else {
+            showedItems.value = items.value.reduce((r, c) => c.name === selectedTab.value ? c.children : r, []);
+        }
+    }
+
+    /*if (subDirectory.value) {
+        //console.log(3)
         showedItems.value = items.value.reduce((r, c) => 
             c.name === selectedTab.value ? c.children : r, []).reduce((r, c) => 
                 c.parent === `/${user.value.account_name}/${selectedTab.value}/${subDirectory.value}` ? [...r, c] : r, []);
         
         breadcrum.value = [selectedTab.value, ...subDirectory.value.split('/')];
     } else {
-        showedItems.value = items.value.reduce((r, c) => c.name === selectedTab.value ? c.children : r, []);
-    }
+        if (subDirectory.value !== oldSubDirectory) {
+            //console.log(4)
+            //showedItems.value = items.value.reduce((r, c) => c.name === selectedTab.value ? c.children : r, []);
+        }
+    }*/
 });
 
 watch(tree, () => {

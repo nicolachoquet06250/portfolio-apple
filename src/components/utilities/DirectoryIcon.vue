@@ -1,6 +1,12 @@
 <template>
-    <button class="desktop-grid-cel" 
-            @focus="selectDirectory()"
+    <button :class="{
+        'finder-item': true,
+        'desktop-grid-cel': true,
+        active: isSelected
+    }" 
+            @click="selectDirectory()"
+            @focusin="selectDirectory()"
+            @focusout="unselect()"
             @dblclick="openAppFromDesktop()"
             ref="dirRef"
             @contextmenu.prevent.stop="showDirectoryContextMenu()">
@@ -11,7 +17,7 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref, onMounted } from 'vue';
+import { defineProps, defineEmits, ref, onMounted, computed } from 'vue';
 import finder from '@/hooks/finder';
 import { useContextualMenu } from '@/hooks/contextual-menu';
 import { APPLICATION, useOpenedApplications, useCurrentApp } from '@/hooks/apps';
@@ -24,7 +30,9 @@ const props = defineProps({
     id: Number,
     name: String,
     x: Number,
-    y: Number
+    y: Number,
+    color: String,
+    selectColor: String
 });
 
 const emit = defineEmits(['select', 'ready', 'unselect']);
@@ -39,10 +47,15 @@ const { x: mouseX, y: mouseY } = useMouse();
 const dirRef = ref(null);
 const isSelected = ref(false);
 
-onClickOutside(dirRef, () => {
+const color = computed(() => props.color);
+const selectColor = computed(() => props.selectColor);
+
+const unselect = () => {
     isSelected.value = false;
     emit('unselect');
-});
+}
+
+onClickOutside(dirRef, unselect);
 onKeyUp('Delete', () => {
     if (isSelected.value) {
         remove(props.id);
@@ -96,7 +109,8 @@ onMounted(() => {
     background: transparent;
     border: 0;
     border-radius: 10px;
-    color: white;
+    color: v-bind(color);
+    //color: white;
     width: 100px;
     height: 100px;
     display: flex;
@@ -119,12 +133,13 @@ onMounted(() => {
         border-radius: 4px;
     }
 
-    &:active, &:focus {
+    &:active, &:focus, &.active {
         outline: 0;
         background-color: lightskyblue;
 
         span {
-            color: black;
+            color: v-bind(selectColor);
+            //color: white;
             white-space: normal;
             overflow: visible;
             text-overflow: unset;

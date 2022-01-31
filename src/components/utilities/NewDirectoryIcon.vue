@@ -1,5 +1,7 @@
 <template>
-    <button class="desktop-grid-cel desktop-grid-cel_new-directory" :ref="el => { if (el) { newDirRef = el } }" v-if="show">
+    <button class="desktop-grid-cel desktop-grid-cel_new-directory" 
+            :ref="el => { if (el) { newDirRef = el } }" v-if="show"
+            @contextmenu.prevent.stop="$emit('contextmenu', $event)">
         <img :src="iconDirectory" />
 
         <span> 
@@ -9,10 +11,10 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref, watch, onMounted } from 'vue';
+import { defineProps, defineEmits, ref, watch, onMounted, computed } from 'vue';
 import finder from '@/hooks/finder';
 import { useAuthUser } from '@/hooks/account';
-import { onKeyUp } from '@vueuse/core';
+import { onKeyUp, onClickOutside } from '@vueuse/core';
 import iconDirectory from '@/assets/icons/icon-directory.png';
 
 const { useTreeActions } = finder();
@@ -22,12 +24,17 @@ const { user } = useAuthUser();
 
 const props = defineProps({
     modelValue: String,
-    show: Boolean
+    show: Boolean,
+    color: String,
+    selectColor: String
 });
-const emit = defineEmits(['update:modelValue', 'ready', 'hide']);
+const emit = defineEmits(['update:modelValue', 'ready', 'hide', 'contextmenu']);
 
 const model = ref(props.modelValue);
 const newDirRef = ref(null);
+
+const color = computed(() => props.color);
+const selectColor = computed(() => props.selectColor);
 
 const reset = () => {
     emit('hide');
@@ -44,6 +51,12 @@ onKeyUp('Enter', () => {
     }
 });
 onKeyUp('Escape', () => reset())
+onClickOutside(newDirRef, () => {
+    if (props.show) {
+        add(`/${user.value.account_name}/Desktop`, model.value);
+        reset();
+    }
+})
 
 onMounted(() => {
     emit('ready', newDirRef.value);
@@ -51,7 +64,8 @@ onMounted(() => {
 
 watch(newDirRef, () => {
     if (newDirRef.value) {
-        newDirRef.value.querySelector('input[type=text]').select();
+        const input = newDirRef.value.querySelector('input[type=text]');
+        input.select();
     }
 })
 </script>
@@ -61,7 +75,8 @@ watch(newDirRef, () => {
     background: transparent;
     border: 0;
     border-radius: 10px;
-    color: white;
+    color: v-bind(color);
+    //color: white;
     width: 100px;
     height: 100px;
     display: flex;
@@ -89,7 +104,8 @@ watch(newDirRef, () => {
         background-color: lightskyblue;
 
         span {
-            color: black;
+            color: v-bind(selectColor);
+            //color: white;
             white-space: normal;
             overflow: visible;
             text-overflow: unset;

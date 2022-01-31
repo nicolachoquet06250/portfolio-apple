@@ -1,6 +1,6 @@
 <template>
     <div class="finder-root" ref="finderBody"
-         @contextmenu="showFinderContextMenu()">
+         @contextmenu.prevent.stop="showFinderContextMenu()">
         <div class="finder-breadcrum" v-if="showBreadcrum">
             <div class="breadcrum-item" 
                  v-for="item of breadcrum" :key="item">
@@ -10,26 +10,25 @@
         
         <div class="finder-container">
             <div class="finder-line" 
-                 v-for="line of showedItems" :key="line">
-                <button :class="{
-                        'finder-item': true,
-                        active: activedItem === item.name
-                    }" 
-                     v-for="item of line" :key="item"
-                     :ref="el => { if (activedItem === item.name) { selectedDir = el; selectedItem = item } }"
-                     @focus="activeItem(item.name)"
-                     @click="activeItem(item.name)"
-                     @dblclick="selectItem(item)"
-                     @contextmenu.prevent.stop="showDirectoryContextMenu(item)">
-                    <img :src="item.icon" class="finder-item-icon">
+                 v-for="(line, x) of showedItems" :key="line">
+                <Directory v-for="(item, y) of line" :key="y"
+                           :name="item.name" :id="item.id" :x="x" :y="y"
+                           :color="'black'" :select-color="'black'">
+                    {{ item.name }}
+                </Directory>
 
-                    <span class="finder-item-text" v-if="item.type === 'directory' || item.type === 'unknown' || item.type === 'application'">
-                        {{ item.name }}
-                    </span>
-                    <span class="finder-item-text" v-else>
-                        {{ item.name }}.{{ item.extention }}
-                    </span>
-                </button>
+                <NewDirectory v-model="newDirectoryName" 
+                              :show="x === showedItems.length - 1 && showedItems[x].length < 5 && displayNewDirectory"
+                              :color="'black'" :select-color="'black'"
+                              @hide="displayNewDirectory = false"/>
+            </div>
+
+            <div class="finder-line" v-if="(showedItems.length === 0 || showedItems[showedItems.length - 1].length >= 5) && displayNewDirectory">
+                <NewDirectory v-model="newDirectoryName" 
+                              :show="(showedItems.length === 0 || showedItems[showedItems.length - 1].length >= 5) && displayNewDirectory"
+                              :color="'black'" :select-color="'black'"
+                              @hide="displayNewDirectory = false"
+                              @ready="$event.querySelector('input').select()" />
             </div>
         </div>
     </div>
@@ -41,6 +40,9 @@ import { useCurrentApp, useOpenedApplications } from '@/hooks/apps';
 import finder from '@/hooks/finder';
 import { useContextualMenu } from '@/hooks/contextual-menu';
 import { onClickOutside, onKeyUp, useMouse } from '@vueuse/core';
+
+import NewDirectory from '@/components/utilities/NewDirectoryIcon.vue';
+import Directory from '@/components/utilities/DirectoryIcon.vue';
 
 const { useFinder, useRootDirectory } = finder();
 
@@ -71,19 +73,30 @@ onBeforeUnmount(() => {
 const finderBody = ref(null);
 const selectedDir = ref(null);
 const selectedItem = ref(null);
+const displayNewDirectory = ref(false);
+const newDirectoryName = ref('new directory');
+
 onClickOutside(selectedDir, () => {
     selectedDir.value = null;
     selectedItem.value = null;
 });
-onKeyUp('Enter', () => {
+onKeyUp('Enter', e => {
     if (selectedDir.value) {
+        e.preventDefault();
+        e.stopPropagation();
         selectItem(selectedItem.value);
     }
 })
+
 const showBreadcrum = computed(() => breadcrum.value.length > 1);
 
 const openAlert = () => displayAlert.value = true;
 const hideAlert = () => displayAlert.value = false;
+
+const addDirectory = () => {
+    displayNewDirectory.value = true;
+    hideContextMenu();
+};
 
 /**
  * @param {String} appCode
@@ -100,7 +113,7 @@ const showFinderContextMenu = () => {
         [
             {
                 name: 'New folder',
-                //click: () => addDirectory()
+                click: () => addDirectory()
             },
             {
                 name: 'New file'
@@ -181,6 +194,7 @@ watch(finderBody, () => {
     &-root {
         display: flex;
         flex-direction: column;
+        height: 100%;
 
         > h1 {
             margin-top: 0;

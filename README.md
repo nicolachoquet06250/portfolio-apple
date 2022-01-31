@@ -106,7 +106,8 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
    - [<span style="color: red">&cross;</span>] Terminal
      - [<span style="color: red">&cross;</span>] Véritable interprétation de commandes bash
    - [<span style="color: red">&cross;</span>] Corbeille
-     - Système de mise à la corbeille des fichiers que l'on veux supprimer
+   - [<span style="color: red">&cross;</span>] TextEdit
+     - Edition de text brut
  - [<span style="color: gray"> ? </span>] Customiser le menu contextuel
      - [<span style="color: green">&check;</span>] Bureau
      - [<span style="color: gray"> ? </span>] Applications
