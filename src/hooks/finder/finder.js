@@ -94,7 +94,6 @@ export const useFinder = maxPerLine => {
                 ];
         
                 activeItem.value = '';
-                console.log(1);
                 showedItems.value = item.children;
             }
         },
@@ -193,8 +192,7 @@ watch([selectedTab, subDirectory, items], (_, [oldSelectedTab, oldSubDirectory, 
         if (subDirectory.value) {
             showedItems.value = getChildren(`/${user.value.account_name}/${selectedTab.value}`, subDirectory.value);
             
-            console.log([selectedTab.value, ...subDirectory.value.split('/')], `${selectedTab.value}${subDirectory.value}`.split('/'))
-            breadcrum.value = `${selectedTab.value}${subDirectory.value}`.split('/');
+           breadcrum.value = `${selectedTab.value}${subDirectory.value}`.split('/');
         } else {
             breadcrum.value = [selectedTab.value];
             const copy = [...breadcrum.value];

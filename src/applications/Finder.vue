@@ -163,10 +163,6 @@ const showDirectoryContextMenu = e => {
     showContextMenu();
 };
 
-watch(showedItems, () => {
-    console.log(showedItems.value);
-})
-
 watch(finderBody, () => {
     if (finderBody.value) {
         finderBody.value.parentElement.parentElement.parentElement.addEventListener('click', e => {

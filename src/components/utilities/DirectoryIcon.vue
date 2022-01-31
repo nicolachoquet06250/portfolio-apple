@@ -99,8 +99,6 @@ const showDirectoryContextMenu = e => {
     showContextMenu();
 };
 
-watch(subDirectory, () => console.log(subDirectory.value))
-
 onMounted(() => {
     emit('ready', dirRef.value);
 })
