@@ -17,7 +17,7 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref, onMounted, computed } from 'vue';
+import { defineProps, defineEmits, ref, onMounted, computed, watch } from 'vue';
 import finder from '@/hooks/finder';
 import { useContextualMenu } from '@/hooks/contextual-menu';
 import { APPLICATION, useOpenedApplications, useCurrentApp } from '@/hooks/apps';
@@ -39,7 +39,7 @@ const emit = defineEmits(['select', 'ready', 'unselect']);
 
 const { openApplication } = useOpenedApplications();
 const { setCurrentApp } = useCurrentApp();
-const { setRoot, setSubDirectory } = useRootDirectory();
+const { setRoot, setSubDirectory, subDirectory } = useRootDirectory();
 const { setContextMenu, showContextMenu, hideContextMenu, setContextMenuPosition } = useContextualMenu();
 const { remove } = useTreeActions();
 const { x: mouseX, y: mouseY } = useMouse();
@@ -70,7 +70,7 @@ const openApp = appCode => {
     setCurrentApp(appCode);
 };
 const openAppFromDesktop = () => {
-    setSubDirectory(props.name);
+    setSubDirectory([subDirectory.value, props.name].join('/'));
     setRoot(`Desktop`);
     openApp(APPLICATION.FINDER);
 };
@@ -98,6 +98,8 @@ const showDirectoryContextMenu = e => {
     setContextMenuPosition(mouseX.value, mouseY.value);
     showContextMenu();
 };
+
+watch(subDirectory, () => console.log(subDirectory.value))
 
 onMounted(() => {
     emit('ready', dirRef.value);

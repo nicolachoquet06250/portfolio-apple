@@ -17,8 +17,9 @@ import { useAuthUser } from '@/hooks/account';
 import { onKeyUp, onClickOutside } from '@vueuse/core';
 import iconDirectory from '@/assets/icons/icon-directory.png';
 
-const { useTreeActions } = finder();
+const { useTreeActions, useRootDirectory } = finder();
 
+const { root: rootDirectory, subDirectory } = useRootDirectory();
 const { add } = useTreeActions();
 const { user } = useAuthUser();
 
@@ -44,19 +45,17 @@ const reset = () => {
 watch(() => props.modelValue, () => (model.value = props.modelValue));
 watch(model, () => emit('update:modelValue', model.value));
 
-onKeyUp('Enter', () => {
+const createNewDirectory = () => {
+    const root = rootDirectory.value !== '' ? rootDirectory.value : 'Desktop';
     if (props.show) {
-        add(`/${user.value.account_name}/Desktop`, model.value);
+        add(`/${user.value.account_name}/${root}${subDirectory.value !== '' ? `/${subDirectory.value}` : ''}`.replace('//', '/'), model.value);
         reset();
     }
-});
+};
+
+onKeyUp('Enter', createNewDirectory);
 onKeyUp('Escape', () => reset())
-onClickOutside(newDirRef, () => {
-    if (props.show) {
-        add(`/${user.value.account_name}/Desktop`, model.value);
-        reset();
-    }
-})
+onClickOutside(newDirRef, createNewDirectory);
 
 onMounted(() => {
     emit('ready', newDirRef.value);

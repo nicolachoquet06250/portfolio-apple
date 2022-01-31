@@ -25,9 +25,9 @@ const breadcrum = ref([]);
 const rootDir = ref('');
 const subDirectory = ref('');
 
-const getChildren = (root, dirName) => 
-    tree.value.reduce((r, c) => 
-        c.parent === `${root}/${dirName}` 
+const getChildren = (root, dirName) => {
+    return tree.value.reduce((r, c) => {
+        return c.parent === `${root}/${dirName}`.replace('//', '/') 
             ? [
                 ...r, 
                 {
@@ -35,7 +35,9 @@ const getChildren = (root, dirName) =>
                     icon: c.type === 'directory' ? iconDirectory : iconUnknownFile,
                     children: getChildren(`${root}/${dirName}`, c.name)
                 }
-            ] : r, []);
+            ] : r;
+    }, []);
+};
 
 export const initBreadcrum = () => {
     breadcrum.value = [selectedTab.value];
@@ -105,29 +107,14 @@ export const useFinder = maxPerLine => {
         },
         
         backInPath() {
-            const currentSelectedDir = breadcrum.value[breadcrum.value.length - 1];
-            const lastSelectedDir = breadcrum.value[breadcrum.value.length - 2];
-    
             if (breadcrum.value.length > 1) {
-                const back = arr => {
-                    for(const c of arr) {
-                        if (c.type === 'directory') {
-                            if (c.name === lastSelectedDir) {
-                                return c.children ?? [];
-                            }
-                            const r = back(c.children ?? []);
-                            if (r.length > 0) {
-                                return r;
-                            }
-                        }
-                    }
-    
-                    return [];
-                };
-
-                console.log(2)
-                showedItems.value = back(items.value);
-                breadcrum.value = breadcrum.value.reduce((r, c) => c === currentSelectedDir ? r : [...r, c], []);
+                const copy = [...breadcrum.value];
+                copy.pop();
+                const last = copy.pop();
+                
+                showedItems.value = getChildren(`/${user.value.account_name}/${copy.join('/')}`, last);
+                breadcrum.value = [...copy, last];
+                subDirectory.value = breadcrum.value.join('/').replace(selectedTab.value, '');
             }
         }
     };
@@ -148,13 +135,14 @@ export const useRootDirectory = () => {
             subDirectory.value = subDir;
 
             if (subDirectory.value) {
-                showedItems.value = items.value.reduce((r, c) => 
-                    c.name === selectedTab.value ? c.children : r, []).reduce((r, c) => 
-                        c.parent === `/${user.value.account_name}/${selectedTab.value}/${subDirectory.value}` ? [...r, c] : r, []);
+                showedItems.value = getChildren(`/${user.value.account_name}/${selectedTab.value}`, subDirectory.value)
                 
-                breadcrum.value = [selectedTab.value, ...subDirectory.value.split('/')];
+                breadcrum.value = [...`${selectedTab.value}${subDirectory.value}`.replace('//', '/').split('/')];
             } else {
-                showedItems.value = items.value.reduce((r, c) => c.name === selectedTab.value ? c.children : r, []);
+                breadcrum.value = [selectedTab.value];
+                const copy = [...breadcrum.value];
+
+                showedItems.value = getChildren(`/${user.value.account_name}`, copy.join('/'));
             }
         }
     };
@@ -175,7 +163,7 @@ export const useTreeActions = () => {
                     content: null,
                     extention: null,
                     name: dirName,
-                    parent: root,
+                    parent: root.replace('//', '/'),
                     type: 'directory',
                     creation_date: new Date(),
                     updated_date: new Date(),
@@ -203,31 +191,25 @@ watch([selectedTab, subDirectory, items], (_, [oldSelectedTab, oldSubDirectory, 
 
     if (JSON.stringify(items.value) !== JSON.stringify(oldItems)) {
         if (subDirectory.value) {
-            showedItems.value = items.value.reduce((r, c) => 
-                c.name === selectedTab.value ? c.children : r, []).reduce((r, c) => 
-                    c.parent === `/${user.value.account_name}/${selectedTab.value}/${subDirectory.value}` ? [...r, c] : r, []);
+            showedItems.value = getChildren(`/${user.value.account_name}/${selectedTab.value}`, subDirectory.value);
             
-            breadcrum.value = [selectedTab.value, ...subDirectory.value.split('/')];
+            console.log([selectedTab.value, ...subDirectory.value.split('/')], `${selectedTab.value}${subDirectory.value}`.split('/'))
+            breadcrum.value = `${selectedTab.value}${subDirectory.value}`.split('/');
         } else {
-            showedItems.value = items.value.reduce((r, c) => c.name === selectedTab.value ? c.children : r, []);
+            breadcrum.value = [selectedTab.value];
+            const copy = [...breadcrum.value];
+
+            showedItems.value = getChildren(`/${user.value.account_name}`, copy.join('/'));
         }
     }
-
-    /*if (subDirectory.value) {
-        //console.log(3)
-        showedItems.value = items.value.reduce((r, c) => 
-            c.name === selectedTab.value ? c.children : r, []).reduce((r, c) => 
-                c.parent === `/${user.value.account_name}/${selectedTab.value}/${subDirectory.value}` ? [...r, c] : r, []);
-        
-        breadcrum.value = [selectedTab.value, ...subDirectory.value.split('/')];
-    } else {
-        if (subDirectory.value !== oldSubDirectory) {
-            //console.log(4)
-            //showedItems.value = items.value.reduce((r, c) => c.name === selectedTab.value ? c.children : r, []);
-        }
-    }*/
 });
 
-watch(tree, () => {
+watch(tree, (oldTree) => {
     items.value = getChildren('', user.value.account_name);
+
+    if (subDirectory.value && JSON.stringify(tree.value) !== JSON.stringify(oldTree)) {
+        showedItems.value = getChildren(`/${user.value.account_name}/${selectedTab.value}`, subDirectory.value)
+        
+        breadcrum.value = [...`${selectedTab.value}${subDirectory.value}`.replace('//', '/').split('/')];
+    }
 });
