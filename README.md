@@ -100,6 +100,9 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
    - [<span style="color: red">&cross;</span>] Paramètres
    - [<span style="color: gray"> ? </span>] Finder
      - [<span style="color: gray"> ? </span>] Système d'arboraissence virtuelle pour pouvoir stocker des fichier sous forme base64 dans la base de données localDB du navigateur de sorte que les données des utilisateurs ne sortent pas de l'application
+       - [<span style="color: green">&check;</span>] Création de répertoires imbriqués
+       - [<span style="color: red">&cross;</span>] Création de fichiers textes
+       - [<span style="color: red">&cross;</span>] Importation d'images depuis l'ordinateur hôte
    - [<span style="color: gray"> ? </span>] Photos
    - [<span style="color: red">&cross;</span>] Mails
    - [<span style="color: red">&cross;</span>] Messages
