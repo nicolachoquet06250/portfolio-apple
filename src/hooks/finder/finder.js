@@ -82,6 +82,7 @@ export const useFinder = maxPerLine => {
          */
         selectTab(tab) {
             selectedTab.value = tab;
+            rootDir.value = tab;
         },
     
         initBreadcrum,

@@ -49,7 +49,7 @@ const { useFinder, useRootDirectory } = finder();
 const { x: mouseX, y: mouseY } = useMouse();
 const { setCurrentApp } = useCurrentApp();
 const { openApplication } = useOpenedApplications();
-const { selectItem, activeItem, showedItems, activedItem, breadcrum } = useFinder(5);
+const { selectItem, activeItem, showedItems, activedItem, breadcrum, selectedTab } = useFinder(5);
 const { setRoot, setSubDirectory } = useRootDirectory();
 const {
     setContextMenu, showContextMenu, 
@@ -66,7 +66,7 @@ const TABS = {
 };
 
 onBeforeUnmount(() => {
-    setRoot(TABS.RECENT);
+    setRoot(TABS.DESKTOP);
     setSubDirectory('');
 });
 

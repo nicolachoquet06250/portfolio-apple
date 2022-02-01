@@ -256,6 +256,7 @@
                 <NewDirectory v-model="newDirectoryName" 
                               :show="x === treeToGrid.length - 1 && treeToGrid[x].length <= 5 && displayNewDirectory"
                               :color="'white'" :select-color="'white'"
+                              root-path="Desktop"
                               @hide="displayNewDirectory = false" />
             </Column>
 
@@ -263,6 +264,7 @@
                 <NewDirectory v-model="newDirectoryName"
                               :show="(treeToGrid.length === 0 || treeToGrid[treeToGrid.length - 1].length > 5) && displayNewDirectory"
                               :color="'white'" :select-color="'white'"
+                              root-path="Desktop"
                               @hide="displayNewDirectory = false" />
             </Column>
         </Grid>

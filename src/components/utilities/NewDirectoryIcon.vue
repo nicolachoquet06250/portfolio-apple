@@ -27,7 +27,10 @@ const props = defineProps({
     modelValue: String,
     show: Boolean,
     color: String,
-    selectColor: String
+    selectColor: String,
+    rootPath: {
+        default: ''
+    }
 });
 const emit = defineEmits(['update:modelValue', 'ready', 'hide', 'contextmenu']);
 
@@ -47,8 +50,12 @@ watch(model, () => emit('update:modelValue', model.value));
 
 const createNewDirectory = () => {
     const root = rootDirectory.value !== '' ? rootDirectory.value : 'Desktop';
+    const path = props.rootPath === '' 
+        ? `/${user.value.account_name}/${root}${subDirectory.value !== '' ? `/${subDirectory.value}` : ''}`.replace('//', '/') 
+            : `/${user.value.account_name}/${props.rootPath}`;
+            
     if (props.show) {
-        add(`/${user.value.account_name}/${root}${subDirectory.value !== '' ? `/${subDirectory.value}` : ''}`.replace('//', '/'), model.value);
+        add(path, model.value);
         reset();
     }
 };
