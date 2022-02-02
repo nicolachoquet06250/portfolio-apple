@@ -245,19 +245,35 @@
 
         <Grid>
             <Column v-for="(treeColumn, x) of treeToGrid" :key="x">
-                <Directory v-for="(treeCel, y) of treeColumn" :key="y"
-                           :name="treeCel.name" :id="treeCel.id" :x="x" :y="y"
-                            :color="'white'" :select-color="'white'"
-                           @select="selectDirectory({ name: treeCel.name, id: treeCel.id }, { x, y })"
-                           @unselect="selectedDirectory = ''">
-                    {{ treeCel.name }}
-                </Directory>
+                <template v-for="(treeCel, y) of treeColumn" :key="y">
+                    <Directory v-if="treeCel.type === 'directory'"
+                               :name="treeCel.name" :id="treeCel.id" :x="x" :y="y"
+                               :color="'white'" :select-color="'white'"
+                               @select="selectDirectory({ name: treeCel.name, id: treeCel.id }, { x, y })"
+                               @unselect="selectedDirectory = ''">
+                        {{ treeCel.name }}
+                    </Directory>
+
+                    <File v-else-if="treeCel.type === 'text'"
+                          :icon="treeCel.icon" :name="treeCel.name" :id="treeCel.id" :x="x" :y="y"
+                          :color="'white'" :select-color="'white'"
+                          @select="selectFile({ name: treeCel.name, id: treeCel.id }, { x, y })"
+                          @unselect="selectedFile = ''">
+                        {{ treeCel.name }}.{{ treeCel.extention }}
+                    </File>
+                </template>
 
                 <NewDirectory v-model="newDirectoryName" 
                               :show="x === treeToGrid.length - 1 && treeToGrid[x].length <= 5 && displayNewDirectory"
                               :color="'white'" :select-color="'white'"
                               root-path="Desktop"
                               @hide="displayNewDirectory = false" />
+                
+                <NewFile v-model="newFile.name"
+                         :show="x === treeToGrid.length - 1 && treeToGrid[x].length <= 5 && newFile.display"
+                         :color="'white'" :select-color="'white'"
+                         root-path="Desktop"
+                         @hide="newFile.display = false" />
             </Column>
 
             <Column>
@@ -266,6 +282,12 @@
                               :color="'white'" :select-color="'white'"
                               root-path="Desktop"
                               @hide="displayNewDirectory = false" />
+                
+                <NewFile v-model="newFile.name"
+                         :show="(treeToGrid.length === 0 || treeToGrid[treeToGrid.length - 1].length > 5) && newFile.display"
+                         :color="'white'" :select-color="'white'"
+                         root-path="Desktop"
+                         @hide="newFile.display = false" />
             </Column>
         </Grid>
 
@@ -295,18 +317,11 @@ import Grid from '@/components/utilities/Grid.vue';
 import Column from '@/components/utilities/Column.vue';
 import NewDirectory from '@/components/utilities/NewDirectoryIcon.vue';
 import Directory from '@/components/utilities/DirectoryIcon.vue';
+import NewFile from '@/components/utilities/NewFileIcon.vue';
+import File from '@/components/utilities/FileIcon.vue';
 import MacApplication from '@/components/MacApplication.vue';
 import ToogleLiteDarkMode from '@/components/ToogleLiteDarkMode.vue';
 import Spotlight from '@/components/Spotlight.vue';
-
-import siriIcon from "@/assets/icons/siri.png";
-import musicIcon from '@/assets/icons/icon-Music.png';
-import iconAppleTV from '@/assets/icons/icon-AppleTV.png';
-import iconMessages from '@/assets/icons/icon-Messages.png';
-import iconMp4 from '@/assets/icons/icon-mp4.png';
-import iconPages from '@/assets/icons/icon-Pages.png';
-import iconPng from '@/assets/icons/icon-png.png';
-import iconUnknownFile from '@/assets/icons/icon-unknownFile.png';
 
 const { useRootDirectory, useTreeActions, useFinder, initBreadcrum } = finder();
 
@@ -359,8 +374,15 @@ if (installed.value) {
 const treeToGrid = ref([]);
 const displayNewDirectory = ref(false);
 const newDirectoryName = ref('new directory');
+const newFile = reactive({
+    display: false,
+    type: 'txt',
+    name: 'file.txt'
+});
 const selectedDirectory = ref('');
 const selectedDirectoryId = ref(null);
+const selectedFile = ref('');
+const selectedFileId = ref(null);
 const refs = ref([]);
 const toggleLightDarkModeButtonTextColor = ref(isDark.value ? 'white' : 'black');
 const openSpotlight = ref(false);
@@ -468,6 +490,7 @@ onClickOutside(appleMenuRef, () => (selectedMenu.value = ''));
 onClickOutside(contextMenu, () => hideContextMenu());
 
 onKeyUp(['n', 'N'], e => (displayNewDirectory.value = e.shiftKey));
+onKeyUp(['t', 'T'], e => (newFile.display = newFile.display ?? e.shiftKey));
 
 const selectDirectory = (treeCel, { x, y }) => {
     selectedDirectory.value = treeCel.name;
@@ -482,13 +505,17 @@ const showDesktopContextMenu = () => {
         [
             {
                 name: 'New folder',
-                click: () => {
+                click() {
                     displayNewDirectory.value = true;
                     hideContextMenu();
                 }
             },
             {
-                name: 'New file'
+                name: 'New file',
+                click() {
+                    newFile.display = true;
+                    hideContextMenu();
+                }
             }
         ],
         [
@@ -539,6 +566,10 @@ const selectSubMenuItem = (item, e) => {
   const r = item?.click?.(e) ?? false;
   selectedMenu.value = '';
   return r;
+};
+const selectFile = (treeCel, { x, y }) => {
+    selectedFile.value = treeCel.name;
+    selectedFileId.value = treeCel.id;
 };
 const buildTree = () => {
     const maxPerColumn = 5;

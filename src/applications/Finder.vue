@@ -11,31 +11,53 @@
         <div class="finder-container">
             <div class="finder-line" 
                  v-for="(line, x) of showedItems" :key="line">
-                <Directory v-for="(item, y) of line" :key="y"
-                           :name="item.name" :id="item.id" :x="x" :y="y"
-                           :color="'black'" :select-color="'black'">
-                    {{ item.name }}
-                </Directory>
+                <template v-for="(item, y) of line" :key="y">
+                    <Directory v-if="item.type === 'directory'"
+                               :name="item.name" :id="item.id" :x="x" :y="y"
+                               :color="'black'" :select-color="'black'">
+                        {{ item.name }}
+                    </Directory>
+
+                    <File v-else-if="item.type === 'text'"
+                          :icon="item.icon" :name="item.name" :id="item.id" :x="x" :y="y"
+                          :color="'black'" :select-color="'black'">
+                        {{ item.name }}.{{ item.extention }}
+                    </File>
+                </template>
 
                 <NewDirectory v-model="newDirectoryName" 
                               :show="x === showedItems.length - 1 && showedItems[x].length < 5 && displayNewDirectory"
                               :color="'black'" :select-color="'black'"
                               @hide="displayNewDirectory = false"/>
+
+                <NewFile v-model="newFile.name" 
+                         :show="x === showedItems.length - 1 && showedItems[x].length < 5 && newFile.display"
+                         :color="'black'" :select-color="'black'"
+                         @hide="newFile.display = false" />
             </div>
 
-            <div class="finder-line" v-if="(showedItems.length === 0 || showedItems[showedItems.length - 1].length >= 5) && displayNewDirectory">
+            <div class="finder-line">
                 <NewDirectory v-model="newDirectoryName" 
                               :show="(showedItems.length === 0 || showedItems[showedItems.length - 1].length >= 5) && displayNewDirectory"
                               :color="'black'" :select-color="'black'"
                               @hide="displayNewDirectory = false"
-                              @ready="$event.querySelector('input').select()" />
+                              @ready="$event?.querySelector('input').select()" />
+
+                <NewFile v-model="newFile.name" 
+                        :show="(showedItems.length === 0 || showedItems[showedItems.length - 1].length >= 5) && newFile.display"
+                        :color="'black'" :select-color="'black'"
+                        @hide="newFile.display = false"
+                        @ready="
+                            $event?.querySelector('input').focus(); 
+                            $event?.querySelector('input').setSelectionRange(0, newFile.name.length - '.txt'.length)
+                        " />
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref, computed, watch, onBeforeUnmount } from 'vue';
+import { ref, computed, watch, onBeforeUnmount, reactive } from 'vue';
 import { useCurrentApp, useOpenedApplications } from '@/hooks/apps';
 import finder from '@/hooks/finder';
 import { useContextualMenu } from '@/hooks/contextual-menu';
@@ -43,6 +65,8 @@ import { onClickOutside, onKeyUp, useMouse } from '@vueuse/core';
 
 import NewDirectory from '@/components/utilities/NewDirectoryIcon.vue';
 import Directory from '@/components/utilities/DirectoryIcon.vue';
+import NewFile from '@/components/utilities/NewFileIcon.vue';
+import File from '@/components/utilities/FileIcon.vue';
 
 const { useFinder, useRootDirectory } = finder();
 
@@ -75,6 +99,10 @@ const selectedDir = ref(null);
 const selectedItem = ref(null);
 const displayNewDirectory = ref(false);
 const newDirectoryName = ref('new directory');
+const newFile = reactive({
+    display: false,
+    name: 'file.txt'
+});
 
 onClickOutside(selectedDir, () => {
     selectedDir.value = null;
@@ -97,6 +125,10 @@ const addDirectory = () => {
     displayNewDirectory.value = true;
     hideContextMenu();
 };
+const addFile = () => {
+    newFile.display = true;
+    hideContextMenu();
+};
 
 /**
  * @param {String} appCode
@@ -116,7 +148,8 @@ const showFinderContextMenu = () => {
                 click: () => addDirectory()
             },
             {
-                name: 'New file'
+                name: 'New file',
+                click: () => addFile()
             }
         ],
         [
@@ -140,23 +173,6 @@ const showFinderContextMenu = () => {
                 name: 'Show more options'
             }
         ]
-    ]);
-
-    setContextMenuPosition(mouseX.value, mouseY.value);
-    showContextMenu();
-};
-
-const showDirectoryContextMenu = e => {
-    console.log('context menu on directory');
-
-    setContextMenu([
-        {
-            name: 'Remove',
-            click() {
-                remove(e.id);
-                hideContextMenu();
-            }
-        }
     ]);
 
     setContextMenuPosition(mouseX.value, mouseY.value);

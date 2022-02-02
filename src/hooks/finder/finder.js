@@ -27,15 +27,22 @@ const subDirectory = ref('');
 
 const getChildren = (root, dirName) => {
     return tree.value.reduce((r, c) => {
-        return c.parent === `${root}/${dirName}`.replace('//', '/') 
-            ? [
+        if (c.parent === `${root}/${dirName}`.replace('//', '/')) {
+            console.log({
+                ...c,
+                icon: c.type === 'directory' ? iconDirectory : iconUnknownFile,
+                children: getChildren(`${root}/${dirName}`, c.name)
+            });
+            return [
                 ...r, 
                 {
                     ...c,
                     icon: c.type === 'directory' ? iconDirectory : iconUnknownFile,
                     children: getChildren(`${root}/${dirName}`, c.name)
                 }
-            ] : r;
+            ];
+        }
+        return r;
     }, []);
 };
 
@@ -176,6 +183,21 @@ export const useTreeActions = () => {
         remove(id) {
             onTreeSuccess(({ context: { remove, getAllValues } }) => {
                 remove(id);
+                getAllValues();
+            }).connect();
+        },
+
+        createFile(path, { name, type, extention }) {
+            onTreeSuccess(({ context: { add, getAllValues } }) => {
+                add({
+                    user_id: user.value.id,
+                    content: '',
+                    extention, name, type,
+                    parent: path.replace('//', '/'),
+                    creation_date: new Date(),
+                    updated_date: new Date(),
+                    opened_date: new Date()
+                });
                 getAllValues();
             }).connect();
         }

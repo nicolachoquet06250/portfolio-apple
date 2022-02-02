@@ -1,8 +1,8 @@
 <template>
-    <button class="desktop-grid-cel desktop-grid-cel_new-directory" 
-            :ref="el => { if (el) { newDirRef = el } }" v-if="show"
+    <button class="desktop-grid-cel desktop-grid-cel_new-file" 
+            :ref="el => { if (el) { newFileRef = el } }" v-if="show"
             @contextmenu.prevent.stop="$emit('contextmenu', $event)">
-        <img :src="iconDirectory" />
+        <img :src="iconUnknownFile" />
 
         <span> 
             <input type="text" v-model="model" />
@@ -11,16 +11,16 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref, watch, onMounted, computed } from 'vue';
+import { defineProps, defineEmits, ref, computed, watch, onMounted } from 'vue';
 import finder from '@/hooks/finder';
 import { useAuthUser } from '@/hooks/account';
 import { onKeyUp, onClickOutside } from '@vueuse/core';
-import iconDirectory from '@/assets/icons/icon-directory.png';
+import iconUnknownFile from '@/assets/icons/icon-unknownFile.png';
 
 const { useTreeActions, useRootDirectory } = finder();
 
 const { root: rootDirectory, subDirectory } = useRootDirectory();
-const { add } = useTreeActions();
+const { createFile } = useTreeActions();
 const { user } = useAuthUser();
 
 const props = defineProps({
@@ -35,43 +35,53 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'ready', 'hide', 'contextmenu']);
 
 const model = ref(props.modelValue);
-const newDirRef = ref(null);
+const newFileRef = ref(null);
 
 const color = computed(() => props.color);
 const selectColor = computed(() => props.selectColor);
 
 const reset = () => {
     emit('hide');
-    emit('update:modelValue', 'new directory');
+    emit('update:modelValue', 'file.txt');
 };
 
 watch(() => props.modelValue, () => (model.value = props.modelValue));
 watch(model, () => emit('update:modelValue', model.value));
 
-const createNewDirectory = () => {
+const createNewFile = () => {
     const root = rootDirectory.value !== '' ? rootDirectory.value : 'Desktop';
     const path = props.rootPath === '' 
         ? `/${user.value.account_name}/${root}${subDirectory.value !== '' ? `/${subDirectory.value}` : ''}`.replace('//', '/') 
             : `/${user.value.account_name}/${props.rootPath}`;
             
     if (props.show) {
-        add(path, model.value);
+        createFile(path, {
+            extention: model.value.split('.')[model.value.split('.').length - 1],
+            name: (() => {
+                let _model = model.value.split('.');
+                _model.pop();
+
+                return _model.join('.');
+            })(),
+            type: 'text'
+        });
         reset();
     }
 };
 
-onKeyUp('Enter', createNewDirectory);
-onKeyUp('Escape', () => reset())
-onClickOutside(newDirRef, createNewDirectory);
+onKeyUp('Enter', createNewFile);
+onKeyUp('Escape', () => reset());
+onClickOutside(newFileRef, createNewFile);
 
 onMounted(() => {
-    emit('ready', newDirRef.value);
+    emit('ready', newFileRef.value);
 });
 
-watch(newDirRef, () => {
-    if (newDirRef.value) {
-        const input = newDirRef.value.querySelector('input[type=text]');
-        input.select();
+watch(newFileRef, () => {
+    if (newFileRef.value) {
+        const input = newFileRef.value.querySelector('input[type=text]');
+        input.focus();
+        input.setSelectionRange(0, model.value.length - '.txt'.length);
     }
 })
 </script>
@@ -117,10 +127,10 @@ watch(newDirRef, () => {
     }
 
     img {
-        width: 80%;
+        height: 80%;
     }
 
-    &_new-directory {
+    &_new-file {
         z-index: 2;
     }
 }
