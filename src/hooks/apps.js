@@ -9,6 +9,7 @@ import SettingsApp from '@/applications/Settings.vue';
 import TerminalApp from '@/applications/Terminal.vue';
 import TrashApp from '@/applications/Trash.vue';
 import PhotosApp from '@/applications/Photos.vue';
+import TextEditApp from '@/applications/TextEdit.vue';
 
 import FinderHeader from '@/applications/header/Finder.vue';
 import StoreHeader from '@/applications/header/Store.vue';
@@ -18,6 +19,7 @@ import SettingsHeader from '@/applications/header/Settings.vue';
 import TerminalHeader from '@/applications/header/Terminal.vue';
 import TrashHeader from '@/applications/header/Trash.vue';
 import PhotosHeader from '@/applications/header/Photos.vue';
+import TextEditHeader from '@/applications/header/TextEdit.vue';
 
 import FinderMenu from '@/applications/menu/Finder.vue';
 import StoreMenu from '@/applications/menu/Store.vue';
@@ -27,6 +29,7 @@ import MailsMenu from '@/applications/menu/Mail.vue';
 //import TerminalMenu from '@/applications/menu/Terminal.vue';
 //import TrashMenu from '@/applications/menu/Trash.vue';
 import PhotosMenu from '@/applications/menu/Photos.vue';
+import TextEditMenu from '@/applications/menu/TextEdit.vue';
 
 export const APPLICATION = {
     FINDER: 'finder',
@@ -36,7 +39,8 @@ export const APPLICATION = {
     SETTINGS: 'preferences',
     TERMINAL: 'terminal',
     TRASH: 'trash',
-    PHOTOS: 'photos'
+    PHOTOS: 'photos',
+    TEXTEDIT: 'textedit'
 };
 
 export const APPLICATION_STATE = {
@@ -85,6 +89,11 @@ export const APPLICATION_COMPONENT = {
         body: TrashApp,
         header: TrashHeader,
         //menu: TrashMenu
+    },
+    [APPLICATION.TEXTEDIT]: {
+        body: TextEditApp,
+        header: TextEditHeader,
+        menu: TextEditMenu
     }
 };
 

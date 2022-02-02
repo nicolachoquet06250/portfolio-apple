@@ -27,6 +27,7 @@ import finder from '@/assets/dock/finder.png';
 import appstore from '@/assets/dock/appstore.png';
 import mail from '@/assets/dock/mail.png';
 import messages from '@/assets/dock/messages.png';
+import textedit from '@/assets/icons/icon-textedit.png';
 import preferences from '@/assets/dock/systempreferences.png';
 import terminal from '@/assets/dock/terminal.png';
 import trash from '@/assets/dock/trashbin.png';
@@ -97,6 +98,13 @@ const icons = ref([
         click: openApp(APPLICATION.MESSAGES),
         code: APPLICATION.MESSAGES,
         img: messages
+    },
+    {
+        mouseover: () => setCursor(CURSOR.POINTER),
+        mouseout: () => setCursor(CURSOR.DEFAULT),
+        click: openApp(APPLICATION.TEXTEDIT),
+        code: APPLICATION.TEXTEDIT,
+        img: textedit
     },
     {
         mouseover: () => setCursor(CURSOR.POINTER),

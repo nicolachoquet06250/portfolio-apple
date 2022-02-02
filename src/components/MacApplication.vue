@@ -415,7 +415,7 @@ const closeApplication = () => {
             flex: 1;
 
             &.void {
-                height: 25px;
+                height: 50px;
                 width: 100%;
             }
         }
@@ -423,7 +423,7 @@ const closeApplication = () => {
         .application-body {
             padding: 10px;
             overflow: auto;
-            height: v-bind(applicationBodyHeight);
+            height: calc(100% - 70px);
         }
     }
 
