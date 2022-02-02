@@ -28,11 +28,6 @@ const subDirectory = ref('');
 const getChildren = (root, dirName) => {
     return tree.value.reduce((r, c) => {
         if (c.parent === `${root}/${dirName}`.replace('//', '/')) {
-            console.log({
-                ...c,
-                icon: c.type === 'directory' ? iconDirectory : iconUnknownFile,
-                children: getChildren(`${root}/${dirName}`, c.name)
-            });
             return [
                 ...r, 
                 {
