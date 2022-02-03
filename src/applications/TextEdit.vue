@@ -4,30 +4,37 @@
         <div contenteditable="true" 
              ref="editableDiv"
              @keydown="onKeyDown($event)" 
-             @keyup="onKeyUp($event)" 
+             @keyup="onKeyUp($event)"
+             @input="fileContentUpdated = $event.target.innerText; moveCursorToEnd();" 
              v-html="fileContent"></div>
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 
 const root = ref(null);
 const editableDiv = ref(null);
 const fileContent = ref('Voici un contenu de fichier');
+const fileContentUpdated = ref(fileContent.value);
 
 onMounted(() => (root.value.parentElement.style.paddingLeft = '0'));
 
 const moveCursorToEnd = () => {
+    const textChildren = Array.from(editableDiv.value?.childNodes ?? []).reduce((r, c) => {
+        return c.nodeName && c.nodeName === '#text' ? [...r, c] : r;
+    }, []);
+    const lastChild = textChildren[textChildren.length - 1];
+
     const range = document.createRange();
     const sel = window.getSelection();
-    range.setStart(
-        editableDiv.value.childNodes[editableDiv.value.childNodes.length - 1], 
-        editableDiv.value.childNodes[editableDiv.value.childNodes.length - 1].length - 1
-    );
+    
+    range.setStart(lastChild, lastChild.length);
     range.collapse(true);
+
     sel.removeAllRanges();
     sel.addRange(range);
+
     editableDiv.value.focus();
 }
 
@@ -45,10 +52,15 @@ const onKeyUp = e => {
     if (isTab.value) {
         console.log('je fais rien pour les tabulations pour le moment')
         //fileContent.value += '&nbsp;&nbsp;&nbsp;&nbsp;';
-        //moveCursorToEnd();
+        moveCursorToEnd();
     }
     isTab.value = false;
 };
+
+onBeforeUnmount(() => {
+    fileContent.value = fileContentUpdated.value;
+    console.log(fileContent.value);
+});
 </script>
 
 <style lang="scss" scoped>
