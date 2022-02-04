@@ -7,7 +7,7 @@
             @click="selectFile()"
             @focusin="selectFile()"
             @focusout="unselect()"
-            @dblclick="openAppFromDesktop()"
+            @dblclick="openFile()"
             ref="fileRef"
             @contextmenu.prevent.stop="showFileContextMenu()">
         <img :src="icon" />
@@ -17,10 +17,11 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref, onMounted, computed, watch } from 'vue';
+import { defineProps, defineEmits, ref, onMounted, computed } from 'vue';
 import finder from '@/hooks/finder';
 import { useContextualMenu } from '@/hooks/contextual-menu';
 import { APPLICATION, useOpenedApplications, useCurrentApp } from '@/hooks/apps';
+import { useTextEdit } from '@/hooks/textedit';
 import { useMouse, onClickOutside, onKeyUp } from '@vueuse/core';
 import iconUnknownFile from '@/assets/icons/icon-unknownFile.png';
 
@@ -41,9 +42,9 @@ const props = defineProps({
 
 const emit = defineEmits(['select', 'ready', 'unselect']);
 
+const { openFileFromId } = useTextEdit();
 const { openApplication } = useOpenedApplications();
 const { setCurrentApp } = useCurrentApp();
-const { setRoot, setSubDirectory, subDirectory } = useRootDirectory();
 const { setContextMenu, showContextMenu, hideContextMenu, setContextMenuPosition } = useContextualMenu();
 const { remove } = useTreeActions();
 const { x: mouseX, y: mouseY } = useMouse();
@@ -57,26 +58,20 @@ const selectColor = computed(() => props.selectColor);
 const unselect = () => {
     isSelected.value = false;
     emit('unselect');
-}
-
-onClickOutside(fileRef, unselect);
-onKeyUp('Delete', () => {
-    if (isSelected.value) {
-        remove(props.id);
-    }
-});
-
+};
 /**
  * @param {String} appCode
  */
 const openApp = appCode => {
-    //openApplication(appCode);
-    //setCurrentApp(appCode);
+    openApplication(appCode);
+    setCurrentApp(appCode);
 };
-const openAppFromDesktop = () => {
-    //setSubDirectory([subDirectory.value, props.name].join('/'));
-    //setRoot(`Desktop`);
-    //openApp(APPLICATION.FINDER);
+const openFile = () => {
+    if (isSelected.value) {
+        console.log('open app text-edit with file ', props.id);
+        openFileFromId(props.id);
+        openApp(APPLICATION.TEXTEDIT);
+    }
 };
 const selectFile = () => {
     isSelected.value = true;
@@ -102,6 +97,14 @@ const showFileContextMenu = e => {
     setContextMenuPosition(mouseX.value, mouseY.value);
     showContextMenu();
 };
+
+onClickOutside(fileRef, unselect);
+onKeyUp('Delete', () => {
+    if (isSelected.value) {
+        remove(props.id);
+    }
+});
+onKeyUp('Enter', openFile);
 
 onMounted(() => {
     emit('ready', fileRef.value);

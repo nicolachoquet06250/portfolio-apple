@@ -1,27 +1,28 @@
 <template>
     <div class="textedit-root" ref="root">
         <textarea style="cursor: text!important" v-model="fileContent"></textarea>
-        <div contenteditable="true" 
-             ref="editableDiv"
+        <!--<div ref="editableDiv"
              @keydown="onKeyDown($event)" 
-             @keyup="onKeyUp($event)"
-             @input="fileContentUpdated = $event.target.innerText; moveCursorToEnd();" 
-             v-html="fileContent"></div>
+             @keyup="onKeyUp($event)">
+            {{ activeFile?.content }}
+        </div>-->
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
+import { useTextEdit } from '@/hooks/textedit';
+
+const { updateFile, activeFile } = useTextEdit();
 
 const root = ref(null);
 const editableDiv = ref(null);
-const fileContent = ref('Voici un contenu de fichier');
-const fileContentUpdated = ref(fileContent.value);
+const fileContent = ref('');
 
 onMounted(() => (root.value.parentElement.style.paddingLeft = '0'));
 
 const moveCursorToEnd = () => {
-    const textChildren = Array.from(editableDiv.value?.childNodes ?? []).reduce((r, c) => {
+    /*const textChildren = Array.from(editableDiv.value?.childNodes ?? []).reduce((r, c) => {
         return c.nodeName && c.nodeName === '#text' ? [...r, c] : r;
     }, []);
     const lastChild = textChildren[textChildren.length - 1];
@@ -35,7 +36,7 @@ const moveCursorToEnd = () => {
     sel.removeAllRanges();
     sel.addRange(range);
 
-    editableDiv.value.focus();
+    editableDiv.value.focus();*/
 }
 
 const isTab = ref(false);
@@ -52,14 +53,23 @@ const onKeyUp = e => {
     if (isTab.value) {
         console.log('je fais rien pour les tabulations pour le moment')
         //fileContent.value += '&nbsp;&nbsp;&nbsp;&nbsp;';
-        moveCursorToEnd();
+        //moveCursorToEnd();
+    } else {
+        //activeFile.value.content = e.target.innerText + e.key;
     }
     isTab.value = false;
 };
 
 onBeforeUnmount(() => {
-    fileContent.value = fileContentUpdated.value;
-    console.log(fileContent.value);
+    updateFile(activeFile.value, fileContent.value);
+});
+
+watch([activeFile], (_, [oldActiveFile]) => {
+    if (oldActiveFile && activeFile.value.id !== oldActiveFile.id) {
+        updateFile(oldActiveFile, fileContent.value);
+    }
+    
+    fileContent.value = activeFile.value.content;
 });
 </script>
 
@@ -68,11 +78,11 @@ onBeforeUnmount(() => {
     height: 100%;
 
     textarea {
-        display: none;
         height: calc(100% - 5px);
         width: 100%;
         resize: none;
         border: none;
+        outline: none;
 
         + div {
             padding: 5px;

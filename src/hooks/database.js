@@ -96,6 +96,9 @@ export const useDatabase = (dbName, table) => {
                         store.delete(id)
                     });
                 },
+                update(element) {
+                    store.put(element);
+                },
                 /**
                  * @param {Number} id 
                  * @returns {import('vue').ComputedGetter<Array<Record<String, any>>>}
@@ -112,16 +115,6 @@ export const useDatabase = (dbName, table) => {
                  */
                 getAllValues() {
                     store.getAll().onsuccess = e => {
-                        results.value = e.target.result;
-                    };
-
-                    return computed(() => results.value);
-                },
-                /**
-                 * @returns {import('vue').ComputedGetter<Array<Record<String, any>>>}
-                 */
-                getAllKeys() {
-                    store.getAllKeys().onsuccess = e => {
                         results.value = e.target.result;
                     };
 
