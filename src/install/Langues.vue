@@ -16,6 +16,26 @@
                         {{langue.displayed}}
                     </a>
                 </div>
+
+                <div class="install-info">
+                    <div class="alert-warning">
+                        <div>
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+
+                        <div>
+                            <p>
+                                Cette application est un WebOS.
+                            </p>
+                            <p>
+                                Aucune donnée ne sera donc envoyé sur un serveur distant ou stockée sous forme de fichier sur votre machine.
+                            </p>
+                            <p>
+                                toutes vos données saisies resteront stockés sur votre navigateur et pourront donc être supprimées à tout moment.
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="window-footer">
@@ -116,6 +136,27 @@ resetMenus();
 
                     &.active, &:active, &:focus {
                         background-color: #0059D1;
+                    }
+                }
+            }
+
+            .alert-warning {
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+
+                > div {
+                    i {
+                        color: orange;
+                        font-size: 30px;
+                        margin-right: 20px;
+                    }
+
+                    p {
+                        margin: 0;
+                        color: white;
+                        font-size: 12px;
                     }
                 }
             }
