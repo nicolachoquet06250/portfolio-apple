@@ -9,14 +9,8 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from 'vue';
-
-defineProps({
-    id: String,
-    modelValue: Boolean
-});
-
-defineEmits(['update:modelValue']);
+const modelValue = defineModel({type: Boolean})
+defineProps({id: String});
 </script>
 
 <style lang="scss" scoped>

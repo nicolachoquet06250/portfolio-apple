@@ -1,6 +1,6 @@
 <template>
   <div id="desktop" :class="{ dark: isDark }" 
-        @contextmenu.prevent.stop="showDesktopContextMenu($event)">
+        @contextmenu.prevent.stop="showDesktopContextMenu()">
         <div class="top-bar">
             <div class="menu">
                 <ul>
@@ -32,7 +32,7 @@
                     </li>
 
                     <li>
-                        {{ currentAppName.substr(0, 1).toUpperCase() }}{{ currentAppName.substr(1, currentAppName.length - 1) }}
+                        {{ currentAppName.substring(0, 1).toUpperCase() }}{{ currentAppName.substring(1, currentAppName.length - 1) }}
                     </li>
 
                     <li>
@@ -102,7 +102,7 @@
                     </li>
 
                     <li>
-                        <img :src="siriIcon" />
+                        <img :src="siriIcon" alt="siri icon" />
                     </li>
                 </ul>
             </div>
@@ -147,7 +147,7 @@
 
             <div>
                 <section class="music-container">
-                    <img :src="musicIcon" />
+                    <img :src="musicIcon" alt="music icon" />
 
                     <span>
                         The best songs of 2020
@@ -257,7 +257,7 @@
                     <File v-else-if="treeCel.type === 'text'"
                           :icon="treeCel.icon" :name="treeCel.name" :id="treeCel.id" :x="x" :y="y"
                           :color="'white'" :select-color="'white'"
-                          @select="selectFile({ name: treeCel.name, id: treeCel.id }, { x, y })"
+                          @select="selectFile({ name: treeCel.name, id: treeCel.id })"
                           @unselect="selectedFile = ''">
                         {{ treeCel.name }}.{{ treeCel.extention }}
                     </File>
@@ -304,6 +304,8 @@
 </template>
 
 <script setup>
+import siriIcon from '@/assets/icons/siri.png'
+import musicIcon from '@/assets/icons/icon-Music.png'
 import { defineProps, ref, computed, watch, reactive } from "vue";
 import { APPLICATION, APPLICATION_STATE, useOpenedApplications, useCurrentApp } from '@/hooks/apps';
 import { useAuthUser } from '@/hooks/account';
@@ -329,7 +331,7 @@ const props = defineProps({
     backgroundImage: String,
     apps: Array,
     currentAppName: String,
-    topBar: () => ({
+    topBar: {
         network: () => ({
             wifi: () => ({
                 online: Boolean,
@@ -342,7 +344,7 @@ const props = defineProps({
             level: Number,
         }),
         menu: Array
-    })
+    }
 });
 
 const { x: mouseX, y: mouseY } = useMouse();
@@ -359,7 +361,7 @@ const { installed, skipped } = useInstalled();
 const { setRoot, setSubDirectory } = useRootDirectory();
 const { tree: treeStructure, add, get } = useTreeActions();
 const { isDark } = useDark();
-const { selectTab } = useFinder(); 
+const { selectTab } = useFinder();
 
 initApplicationHistory();
 
@@ -535,7 +537,7 @@ const showDesktopContextMenu = () => {
             },
             {
                 name: 'Open in finder',
-                click(e) {
+                click() {
                     setSubDirectory('');
                     setRoot('Desktop');
                     selectTab('Desktop');
@@ -567,7 +569,7 @@ const selectSubMenuItem = (item, e) => {
   selectedMenu.value = '';
   return r;
 };
-const selectFile = (treeCel, { x, y }) => {
+const selectFile = (treeCel) => {
     selectedFile.value = treeCel.name;
     selectedFileId.value = treeCel.id;
 };
@@ -581,30 +583,28 @@ const buildTree = () => {
     let y = 0;
     for (const c of treeStructure.value) {
         const name = skipped.value ? '' : `/${user.value.account_name}`;
-        if (c.parent === `${name}/Desktop`) {
-            if (cmp === 0) {
-                tmp.push([c]);
+        if (c.parent !== `${name}/Desktop`) continue;
 
-                cmp++;
-                y++;
-            } else if (cmp < maxPerColumn) {
-                const lastElement = tmp.pop();
-                lastElement.push(c);
-                tmp.push(lastElement);
+        if (cmp === 0) {
+            tmp.push([c]);
 
-                cmp++;
-                y++;
-            } else if (cmp === maxPerColumn) {
-                const lastElement = tmp.pop();
-                lastElement.push(c);
-                tmp.push(lastElement);
+            cmp++;
+            y++;
+        } else if (cmp < maxPerColumn) {
+            const lastElement = tmp.pop();
+            lastElement.push(c);
+            tmp.push(lastElement);
 
-                cmp = 0;
-                y = 0;
-                x++;
-            }
-        } else {
-            continue;
+            cmp++;
+            y++;
+        } else if (cmp === maxPerColumn) {
+            const lastElement = tmp.pop();
+            lastElement.push(c);
+            tmp.push(lastElement);
+
+            cmp = 0;
+            y = 0;
+            x++;
         }
     }
 
@@ -921,7 +921,7 @@ watch([contextMenu, () => contextMenuPosition.value.x], () => {
         flex-direction: column;
         border-radius: 15px;
         padding: 10px;
-        box-shadow: 0px 0px 15px 5px rgba(0, 0, 0, .3);
+        box-shadow: 0 0 15px 5px rgba(0, 0, 0, .3);
 
         > div {
             display: flex;
@@ -939,8 +939,8 @@ watch([contextMenu, () => contextMenuPosition.value.x], () => {
             > section {
                 padding: 5px;
                 border-radius: 10px;
-                -webkit-box-shadow: 0px 0px 15px 5px #000000; 
-                box-shadow: 0px 0px 15px 5px rgba(0, 0, 0, .3);
+                -webkit-box-shadow: 0 0 15px 5px #000000;
+                box-shadow: 0 0 15px 5px rgba(0, 0, 0, .3);
                 flex: 1;
                 display: flex;
                 flex-direction: row;
@@ -1158,7 +1158,7 @@ watch([contextMenu, () => contextMenuPosition.value.x], () => {
         padding-bottom: 10px;
         border-radius: 15px;
         background-color: white;
-        box-shadow: 0px 0px 15px 5px rgb(0 0 0 / 30%);
+        box-shadow: 0 0 15px 5px rgb(0 0 0 / 30%);
 
         > div {
             display: flex;

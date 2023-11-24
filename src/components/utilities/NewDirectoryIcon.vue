@@ -2,7 +2,7 @@
     <button class="desktop-grid-cel desktop-grid-cel_new-directory" 
             :ref="el => { if (el) { newDirRef = el } }" v-if="show"
             @contextmenu.prevent.stop="$emit('contextmenu', $event)">
-        <img :src="iconDirectory" />
+        <img :src="iconDirectory" alt="icon directory" />
 
         <span> 
             <input type="text" v-model="model" />
@@ -23,8 +23,8 @@ const { root: rootDirectory, subDirectory } = useRootDirectory();
 const { add } = useTreeActions();
 const { user } = useAuthUser();
 
+const model = defineModel({type: String});
 const props = defineProps({
-    modelValue: String,
     show: Boolean,
     color: String,
     selectColor: String,
@@ -32,9 +32,8 @@ const props = defineProps({
         default: ''
     }
 });
-const emit = defineEmits(['update:modelValue', 'ready', 'hide', 'contextmenu']);
+const emit = defineEmits(['ready', 'hide', 'contextmenu']);
 
-const model = ref(props.modelValue);
 const newDirRef = ref(null);
 
 const color = computed(() => props.color);
@@ -45,7 +44,6 @@ const reset = () => {
     emit('update:modelValue', 'new directory');
 };
 
-watch(() => props.modelValue, () => (model.value = props.modelValue));
 watch(model, () => emit('update:modelValue', model.value));
 
 const createNewDirectory = () => {

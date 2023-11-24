@@ -2,7 +2,7 @@
     <button class="desktop-grid-cel desktop-grid-cel_new-file" 
             :ref="el => { if (el) { newFileRef = el } }" v-if="show"
             @contextmenu.prevent.stop="$emit('contextmenu', $event)">
-        <img :src="iconUnknownFile" />
+        <img :src="iconUnknownFile" alt="icon unknown file" />
 
         <span> 
             <input type="text" v-model="model" />
@@ -24,7 +24,6 @@ const { createFile } = useTreeActions();
 const { user } = useAuthUser();
 
 const props = defineProps({
-    modelValue: String,
     show: Boolean,
     color: String,
     selectColor: String,
@@ -32,9 +31,9 @@ const props = defineProps({
         default: ''
     }
 });
-const emit = defineEmits(['update:modelValue', 'ready', 'hide', 'contextmenu']);
+const emit = defineEmits(['ready', 'hide', 'contextmenu']);
 
-const model = ref(props.modelValue);
+const model = defineModel({type: String});
 const newFileRef = ref(null);
 
 const color = computed(() => props.color);
@@ -45,7 +44,6 @@ const reset = () => {
     emit('update:modelValue', 'file.txt');
 };
 
-watch(() => props.modelValue, () => (model.value = props.modelValue));
 watch(model, () => emit('update:modelValue', model.value));
 
 const createNewFile = () => {

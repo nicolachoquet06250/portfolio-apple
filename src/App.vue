@@ -11,14 +11,14 @@
     <template v-else>
       <template v-if="installSkipped">
         <MacOsSystemLoader v-if="systemLoading" @loaded="handleSystemLoaded(true)" />
-        
+
         <MacDesktop v-else
           :apps="[]"
           :current-app-name="currentApp"
           :background-image="wallpaper"
           :top-bar="desktopTopBar">
 
-          <Notification v-for="(notif, i) of notifications" :key="i"
+<!--          <Notification v-for="(notif, i) of notifications" :key="i"
                         :opened="notif.opened" :index="notif.index"
                         :image="notif.image" :latence="2000"
                         @closed="closeNotification(i)">
@@ -60,7 +60,7 @@
             </template>
           </MacOsAlert>
 
-          <MacOsDock />
+          <MacOsDock />-->
         </MacDesktop>
       </template>
 
@@ -129,7 +129,7 @@
 </template>
 
 <script setup>
-import { deviceType, isMobile, isTablet } from 'mobile-device-detect';
+import { isMobile, isTablet } from 'mobile-device-detect';
 import MacOsDock from "@/components/MacOsDock.vue";
 import MacDesktop from "@/components/MacDesktop.vue";
 import IOSDesktop from '@/components/IOSDesktop.vue';
@@ -138,7 +138,7 @@ import MacOsAlert from '@/components/MacOsAlert.vue';
 import MacOsSystemLoader from '@/components/MacOsSystemLoader.vue';
 import Installation from '@/components/Installation.vue';
 import LoginView from '@/components/LoginView.vue';
-import InstallDesktopIcon from '@/components/InstallDesktopIcon.vue';
+// import InstallDesktopIcon from '@/components/InstallDesktopIcon.vue';
 import Checkbox from '@/components/Checkbox.vue';
 import Notification from '@/components/utilities/Notification.vue';
 

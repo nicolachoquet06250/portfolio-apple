@@ -1,28 +1,27 @@
 {
   "name": "portfolio-apple",
-  "version": "0.1.0",
+  "description": "webos-macosx-bigsur",
   "private": true,
+  "version": "1.0.0",
+  "type": "module",
   "scripts": {
-    "update-prod": "git pull && npm run build",
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build"
+    "update-prod": "git pull && yarn build",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "@vueuse/core": "^7.5.3",
-    "core-js": "^3.6.5",
+    "@vueuse/core": "^10.6.1",
     "mobile-device-detect": "^0.4.3",
+    "pinia": "^2.1.7",
     "register-service-worker": "^1.7.1",
-    "vue": "^3.2.0",
-    "vuex": "^4.0.0-0"
+    "vue": "^3.3.8",
+    "vuex": "^4.1.0"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "~4.5.0",
-    "@vue/cli-plugin-pwa": "~4.5.0",
-    "@vue/cli-plugin-router": "~4.5.0",
-    "@vue/cli-plugin-vuex": "~4.5.0",
-    "@vue/cli-service": "~4.5.0",
-    "@vue/compiler-sfc": "^3.0.0",
-    "sass": "^1.26.5",
-    "sass-loader": "^8.0.2"
+    "@vitejs/plugin-vue": "^4.5.0",
+    "sass": "^1.69.5",
+    "vite": "^5.0.0",
+    "vite-plugin-pwa": "^0.17.0"
   }
 }
