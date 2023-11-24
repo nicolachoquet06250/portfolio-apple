@@ -3,7 +3,7 @@
         notification: true,
         open: open
     }" ref="notif" v-if="!closed">
-        <img :src="image" />
+        <img :src="image" alt="notification illustration" />
 
         <div class="body">
             <slot name="title"></slot>
@@ -18,7 +18,7 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref, watch, computed } from 'vue';
+import { ref, watch, computed } from 'vue';
 
 const props = defineProps({
     index: {

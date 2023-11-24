@@ -306,7 +306,7 @@
 <script setup>
 import siriIcon from '@/assets/icons/siri.png'
 import musicIcon from '@/assets/icons/icon-Music.png'
-import { defineProps, ref, computed, watch, reactive } from "vue";
+import { ref, computed, watch, reactive } from "vue";
 import { APPLICATION, APPLICATION_STATE, useOpenedApplications, useCurrentApp } from '@/hooks/apps';
 import { useAuthUser } from '@/hooks/account';
 import finder from '@/hooks/finder';

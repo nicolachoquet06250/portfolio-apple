@@ -10,14 +10,14 @@
             @dblclick="openFile()"
             ref="fileRef"
             @contextmenu.prevent.stop="showFileContextMenu()">
-        <img :src="icon" />
+        <img :src="icon" alt="file icon" />
 
         <slot></slot>
     </button>
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import finder from '@/hooks/finder';
 import { useContextualMenu } from '@/hooks/contextual-menu';
 import { APPLICATION, useOpenedApplications, useCurrentApp } from '@/hooks/apps';
@@ -81,7 +81,7 @@ const selectFile = () => {
         positon: { x: props.x, y: props.y }
     });
 };
-const showFileContextMenu = e => {
+const showFileContextMenu = () => {
     console.log('context menu on file');
 
     setContextMenu([

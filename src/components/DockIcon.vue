@@ -6,7 +6,7 @@
        @mouseover="onMouseOver($event)" 
        @mouseout="onMouseOut($event)" 
        @click="$emit('click', $event)">
-        <img :src="img" />
+        <img :src="img" alt="dock item icon" />
         
         <span class="tooltype">
             {{ code }}
@@ -15,7 +15,7 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref, computed } from 'vue';
+import { ref, computed } from 'vue';
 
 const props = defineProps({
     active: Boolean,
@@ -59,7 +59,7 @@ const onMouseOut = e => {
     padding-right: 10px;
     font-size: 12px;
     border-radius: 4px;
-    box-shadow: 0px 0px 15px 5px rgba(0, 0, 0, .3);
+    box-shadow: 0 0 15px 5px rgba(0, 0, 0, .3);
 
     &::after {
         content: '';
@@ -72,7 +72,7 @@ const onMouseOut = e => {
         bottom: -5px;
         z-index: -1;
         left: 50%;
-        box-shadow: 0px 0px 15px 5px rgba(0, 0, 0, .3);
+        box-shadow: 0 0 15px 5px rgba(0, 0, 0, .3);
     }
 }
 </style>

@@ -11,7 +11,7 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import finder from '@/hooks/finder';
 import { useAuthUser } from '@/hooks/account';
 import { onKeyUp, onClickOutside } from '@vueuse/core';

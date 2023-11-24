@@ -11,7 +11,7 @@
 </template>
 
 <script setup>
-import { ref, watch, defineProps, defineEmits } from 'vue';
+import { ref, watch } from 'vue';
 import { onClickOutside, useToggle, onKeyDown, onKeyUp } from '@vueuse/core';
 
 const props = defineProps({

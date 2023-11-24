@@ -1,11 +1,13 @@
 <template>
   <template v-if="installed || installSkipped">
-    <template v-if="isMobile || isTablet || screenWidth <= 507">
+    <template v-if="isMobile || isTablet || screenWidth <= 950">
       <IOSDesktop
             :apps="[]"
             :current-app-name="currentApp"
             background-image="/img/wallpapers/wallpaper-install-macos.jpg"
-            :top-bar="desktopTopBar"></IOSDesktop>
+            :top-bar="desktopTopBar">
+        <IOSCursor />
+      </IOSDesktop>
     </template>
 
     <template v-else>
@@ -123,12 +125,14 @@
     </template>
   </template>
 
-  <template v-if="isMobile || isTablet || screenWidth <= 507">
+  <template v-if="isMobile || isTablet || screenWidth <= 950">
     <IOSDesktop
         :apps="[]"
         :current-app-name="currentApp"
         background-image="/img/wallpapers/wallpaper-install-macos.jpg"
-        :top-bar="desktopTopBar"></IOSDesktop>
+        :top-bar="desktopTopBar">
+      <IOSCursor />
+    </IOSDesktop>
   </template>
 
   <template v-else-if="!installed && !installSkipped">
@@ -143,6 +147,7 @@ import MobileDetect from "mobile-detect";
 import MacOsDock from "@/components/MacOsDock.vue";
 import MacDesktop from "@/components/MacDesktop.vue";
 import IOSDesktop from '@/components/IOSDesktop.vue';
+import IOSCursor from "@/components/IOSCursor.vue";
 import MacOsCursor from '@/components/MacOsCursor.vue';
 import MacOsAlert from '@/components/MacOsAlert.vue';
 import MacOsSystemLoader from '@/components/MacOsSystemLoader.vue';

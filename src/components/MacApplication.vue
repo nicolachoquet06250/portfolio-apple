@@ -73,7 +73,7 @@
 </template>
 
 <script setup>
-import { defineProps, computed, ref, watch, reactive } from 'vue';
+import { computed, ref, watch, reactive } from 'vue';
 import { useCurrentApp, useOpenedApplications, useAppActions } from '@/hooks/apps';
 import { useDark } from '@/hooks/theme';
 import { useWindowSize } from '@vueuse/core';

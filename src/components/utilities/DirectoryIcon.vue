@@ -10,14 +10,14 @@
             @dblclick="openAppFromDesktop()"
             ref="dirRef"
             @contextmenu.prevent.stop="showDirectoryContextMenu()">
-        <img :src="iconDirectory" />
+        <img :src="iconDirectory" alt="icon directory" />
 
         <slot></slot>
     </button>
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import finder from '@/hooks/finder';
 import { useContextualMenu } from '@/hooks/contextual-menu';
 import { APPLICATION, useOpenedApplications, useCurrentApp } from '@/hooks/apps';
@@ -82,7 +82,7 @@ const selectDirectory = () => {
         positon: { x: props.x, y: props.y }
     });
 };
-const showDirectoryContextMenu = e => {
+const showDirectoryContextMenu = () => {
     console.log('context menu on directory');
 
     setContextMenu([

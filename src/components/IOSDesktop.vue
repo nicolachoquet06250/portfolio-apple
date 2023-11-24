@@ -1,16 +1,18 @@
 <template>
-    <div class="system-error-page">
+  <div class="system-error-page">
 
-      <div class="middle-block-container">
-        <div class="icon-container">
-          <i class="fab fa-apple" style="color: white;"></i>
-        </div>
+    <div class="middle-block-container">
+      <div class="icon-container">
+        <i class="fab fa-apple" style="color: white;"></i>
+      </div>
 
-        <div class="message-container">
-          IOS is not implemented for the moment.
-        </div>
+      <div class="message-container">
+        IOS is not implemented for the moment.
       </div>
     </div>
+  </div>
+
+  <slot></slot>
 </template>
 
 <style lang="scss" scoped>
