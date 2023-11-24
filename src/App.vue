@@ -18,7 +18,7 @@
           :background-image="wallpaper"
           :top-bar="desktopTopBar">
 
-<!--          <Notification v-for="(notif, i) of notifications" :key="i"
+          <Notification v-for="(notif, i) of notifications" :key="i"
                         :opened="notif.opened" :index="notif.index"
                         :image="notif.image" :latence="2000"
                         @closed="closeNotification(i)">
@@ -60,7 +60,7 @@
             </template>
           </MacOsAlert>
 
-          <MacOsDock />-->
+          <MacOsDock />
         </MacDesktop>
       </template>
 
