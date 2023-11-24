@@ -16,7 +16,8 @@
     "pinia": "^2.1.7",
     "register-service-worker": "^1.7.1",
     "vue": "^3.3.8",
-    "vuex": "^4.1.0"
+    "vuex": "^4.1.0",
+    "yarn": "^1.22.21"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.5.0",

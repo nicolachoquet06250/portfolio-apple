@@ -1,1 +1,1 @@
-ssh nicolas-choquet@ssh-nicolas-choquet.alwaysdata.net 'cd portfolio-apple && npm run update-prod'
+ssh nicolas-choquet@ssh-nicolas-choquet.alwaysdata.net 'cd portfolio-apple && git pull && ./bin/yarn && ./bin/yarn update-prod'
