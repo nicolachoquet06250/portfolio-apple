@@ -2315,6 +2315,11 @@ minimatch@^5.0.1:
   dependencies:
     brace-expansion "^2.0.1"
 
+mobile-detect@^1.4.5:
+  version "1.4.5"
+  resolved "https://registry.yarnpkg.com/mobile-detect/-/mobile-detect-1.4.5.tgz#da393c3c413ca1a9bcdd9ced653c38281c0fb6ad"
+  integrity sha512-yc0LhH6tItlvfLBugVUEtgawwFU2sIe+cSdmRJJCTMZ5GEJyLxNyC/NIOAOGk67Fa8GNpOttO3Xz/1bHpXFD/g==
+
 mobile-device-detect@^0.4.3:
   version "0.4.3"
   resolved "https://registry.yarnpkg.com/mobile-device-detect/-/mobile-device-detect-0.4.3.tgz#05d73b4bde7ccb5beda1c4bd0ea0986ce30b1f3f"

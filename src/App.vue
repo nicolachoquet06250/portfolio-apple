@@ -123,13 +123,23 @@
     </template>
   </template>
 
-  <Installation v-else @installed="hasInstalled($event)" />
+  <template v-if="isMobile || isTablet || screenWidth <= 507">
+    <IOSDesktop
+        :apps="[]"
+        :current-app-name="currentApp"
+        background-image="/img/wallpapers/wallpaper-install-macos.jpg"
+        :top-bar="desktopTopBar"></IOSDesktop>
+  </template>
 
-  <MacOsCursor />
+  <template v-else-if="!installed && !installSkipped">
+    <Installation @installed="hasInstalled($event)" />
+
+    <MacOsCursor />
+  </template>
 </template>
 
 <script setup>
-import { isMobile, isTablet } from 'mobile-device-detect';
+import MobileDetect from "mobile-detect";
 import MacOsDock from "@/components/MacOsDock.vue";
 import MacDesktop from "@/components/MacDesktop.vue";
 import IOSDesktop from '@/components/IOSDesktop.vue';
@@ -145,11 +155,29 @@ import Notification from '@/components/utilities/Notification.vue';
 import iconCdInstall from '@/assets/icon-cd-install-mac.png';
 import appstore from '@/assets/dock/appstore.png';
 
-import { ref, computed, reactive, watch } from "vue";
+import {ref, computed, reactive, watch, onMounted} from "vue";
 import { useNetwork, useBattery, useWindowSize } from "@vueuse/core";
 import { APPLICATION, useCurrentApp } from "@/hooks/apps";
 import { useInstalled } from '@/hooks/installed';
 import { useNotifications } from '@/hooks/notifications';
+
+const md = new MobileDetect(navigator.userAgent);
+const isMobile = ref(md.phone() !== null || md.mobile() === 'UnknownMobile');
+const isTablet = ref(md.tablet() !== null || md.mobile() === 'UnknownTablet');
+const isDesktop = computed(() => !isMobile.value && !isTablet.value);
+
+onMounted(() => {
+  const handleResize = () => {
+    isMobile.value = md.phone() !== null || md.mobile() === 'UnknownMobile';
+    isTablet.value = md.tablet() !== null || md.mobile() === 'UnknownTablet';
+  };
+
+  window.addEventListener('resize', handleResize);
+
+  return () => {
+    window.removeEventListener('resize', handleResize);
+  }
+})
 
 const { isOnline } = useNetwork();
 const { charging, chargingTime, dischargingTime, level } = useBattery();
