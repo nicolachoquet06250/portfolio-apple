@@ -66,8 +66,7 @@
     </div>
 </template>
 
-<script setup>
-import { defineEmits } from 'vue';
+<script lang="ts" setup>
 import { useLangues, useCountries } from '@/hooks/installation/langue';
 import iconLangues from '@/assets/install-icons/icon-langues.png';
 import iconDialogue from '@/assets/install-icons/icon-dialogue.png';

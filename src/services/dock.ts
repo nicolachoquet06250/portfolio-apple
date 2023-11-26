@@ -1,16 +1,11 @@
-/**
- * @param {number} val
- * @param {number} min
- * @param {number} max
- * @return {number}
- */
-export const between = (val, min, max) => Math.max(min, Math.min(val, max));
+export const between = (val: number, min: number, max: number) =>
+    Math.max(min, Math.min(val, max));
   
 /**
  * Gère le scaling a appliqué en fonction de la distance
- * @param {number} d
  */
-export const scaling = d => between(-0.2 * Math.pow(d, 2) + 1.05, 0, 1);
+export const scaling = (d: number) =>
+    between(-0.2 * Math.pow(d, 2) + 1.05, 0, 1);
   
 export const TransformOrigins = {
     "-1": "right",
@@ -24,34 +19,25 @@ export const Direction = {
     Left: 1
 }
 
-/**
- * @property {HTMLElement} root
- * @property {HTMLElement[]} icons
- * @property {number} inconSize
- * @property {number} mousePosition
- */
-export class Dock {
+export class Dock<El extends HTMLElement> {
     scale = 1;
-  
-    /**
-     * @param {HTMLElement} el
-     */
-    constructor(el) {
+
+    root: El;
+    icons: HTMLElement[];
+    iconSize: number = 0;
+    mousePosition: number = 0;
+
+    constructor(el: El) {
         this.root = el;
         this.icons = Array.from(el.querySelectorAll('.dock-icon'));
-        if (this.icons.length === 0) {
-            return;
-        }
+        if (this.icons.length === 0) return;
         this.iconSize = this.icons[0].offsetWidth;
         el.addEventListener("mousemove", this.handleMouseMove.bind(this));
         el.addEventListener("mouseleave", this.handleMouseLeave.bind(this));
         el.addEventListener("mouseenter", this.handleMouseEnter.bind(this));
     }
-  
-    /**
-     * @param {MouseEvent} e
-     */
-    handleMouseMove(e) {
+
+    handleMouseMove(e: MouseEvent) {
         this.mousePosition = between(
             (e.clientX - this.root.offsetLeft) / this.iconSize,
             0,
@@ -80,13 +66,8 @@ export class Dock {
             offset += this.scaleFromDirection(i, Direction.Right, -offset);
         }
     }
-  
-    /**
-     * @param {number} index Index de l'icône à agrandir
-     * @param {number} direction Position de l'icône (0: centre, -1: gauche, 1: droite)
-     * @param {number} offset
-     */
-    scaleFromDirection(index, direction, offset) {
+
+    scaleFromDirection(index: number, direction: number, offset: number) {
         const center = index + 0.5;
         const distanceFromPointer = this.mousePosition - center;
         const scale = scaling(distanceFromPointer) * this.scale;
@@ -97,7 +78,7 @@ export class Dock {
         );
         icon?.style.setProperty(
             "transform-origin",
-            `${TransformOrigins[direction.toString()]} bottom`
+            `${TransformOrigins[direction.toString() as keyof typeof TransformOrigins]} bottom`
         );
         return scale * this.iconSize;
     }

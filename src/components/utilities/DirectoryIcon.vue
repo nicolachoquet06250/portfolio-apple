@@ -16,9 +16,9 @@
     </button>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import { ref, onMounted, computed } from 'vue';
-import finder from '@/hooks/finder';
+import finder from '@/hooks/finder/index';
 import { useContextualMenu } from '@/hooks/contextual-menu';
 import { APPLICATION, useOpenedApplications, useCurrentApp } from '@/hooks/apps';
 import { useMouse, onClickOutside, onKeyUp } from '@vueuse/core';
@@ -26,14 +26,13 @@ import iconDirectory from '@/assets/icons/icon-directory.png';
 
 const { useRootDirectory, useTreeActions } = finder();
 
-const props = defineProps({
-    id: Number,
-    name: String,
-    x: Number,
-    y: Number,
-    color: String,
-    selectColor: String
-});
+const props = defineProps<{
+  id: number,
+  name: string,
+  x: number,
+  y: number,
+  selectColor: string
+}>();
 
 const emit = defineEmits(['select', 'ready', 'unselect']);
 

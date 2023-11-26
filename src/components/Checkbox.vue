@@ -8,9 +8,9 @@
     </div>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 const modelValue = defineModel({type: Boolean})
-defineProps({id: String});
+defineProps<{id: string}>();
 </script>
 
 <style lang="scss" scoped>

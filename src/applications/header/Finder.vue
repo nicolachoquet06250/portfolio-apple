@@ -55,8 +55,8 @@
     </div>
 </template>
 
-<script setup>
-import finder from '@/hooks/finder';
+<script lang="ts" setup>
+import finder from '@/hooks/finder/index';
 import { useDark } from '@/hooks/theme';
 
 const { useFinder } = finder();

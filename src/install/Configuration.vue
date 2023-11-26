@@ -14,7 +14,7 @@
     </div>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import { defineEmits, ref, watch } from 'vue';
 import { useDatabase, INDEX_PARAMS } from '@/hooks/database';
 import { useCountries } from '@/hooks/installation/langue';

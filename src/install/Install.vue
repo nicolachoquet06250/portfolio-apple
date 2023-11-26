@@ -47,8 +47,8 @@
     </div>
 </template>
 
-<script setup>
-import { ref, defineEmits } from 'vue';
+<script lang="ts" setup>
+import { ref } from 'vue';
 import { useMenu, useStepTitle } from '@/hooks/installation/menu';
 import { useDisque } from '@/hooks/installation/disque';
 import { useLangues } from '@/hooks/installation/langue';

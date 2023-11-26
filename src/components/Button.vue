@@ -10,14 +10,12 @@
     </button>
 </template>
 
-<script setup>
-import { defineEmits } from 'vue';
-
-defineProps({
-    customClass: Object,
-    primary: {
-        default: true
-    }
+<script lang="ts" setup>
+withDefaults(defineProps<{
+  customClass: Record<string, any>,
+  primary: boolean
+}>(), {
+  primary: true
 });
 defineEmits(['mouseover', 'mouseout', 'click'])
 </script>

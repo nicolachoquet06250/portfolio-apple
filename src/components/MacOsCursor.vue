@@ -1,7 +1,7 @@
-<script setup>
+<script lang="ts" setup>
 import { ref, computed, watch } from "vue";
 import { useMouse } from "@vueuse/core";
-import { useWait } from "@/hooks/wait";
+import { useWait } from "@/hooks/wait.js";
 
 const { x, y } = useMouse();
 const { waiting } = useWait();

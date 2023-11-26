@@ -17,23 +17,18 @@
     </div>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import { ref, watch, computed } from 'vue';
 
-const props = defineProps({
-    index: {
-        type: Number,
-        default: 0
-    },
-    image: String,
-    latence: {
-        type: Number,
-        default: 0
-    },
-    opened: {
-        type: Boolean,
-        default: true
-    }
+const props = withDefaults(defineProps<{
+  index: number,
+  image: string,
+  latence: number,
+  opened: boolean
+}>(), {
+  index: 0,
+  latence: 0,
+  opened: true
 });
 
 const emit = defineEmits(['closed']);

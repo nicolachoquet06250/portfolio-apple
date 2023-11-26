@@ -10,7 +10,7 @@
     </div>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import { useMails } from '@/hooks/mails';
 
 const { selectTab, selectedTab } = useMails();

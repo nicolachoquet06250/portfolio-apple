@@ -9,8 +9,7 @@
     </MacOsSystemLoader>
 </template>
 
-<script setup>
-import { defineEmits } from 'vue';
+<script lang="ts" setup>
 import { useMenu } from '@/hooks/installation/menu';
 import MacOsSystemLoader from '@/components/MacOsSystemLoader.vue';
 

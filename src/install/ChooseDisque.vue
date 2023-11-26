@@ -65,8 +65,8 @@
     </div>
 </template>
 
-<script setup>
-import { ref, computed, defineEmits } from 'vue';
+<script lang="ts" setup>
+import { ref, computed } from 'vue';
 import { useWindowSize } from '@vueuse/core';
 import { useMenu, useStepTitle } from '@/hooks/installation/menu';
 import { DISQUES, useDisque } from '@/hooks/installation/disque';

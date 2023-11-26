@@ -62,8 +62,8 @@
     </div>
 </template>
 
-<script setup>
-import { ref, defineEmits } from 'vue';
+<script lang="ts" setup>
+import { ref } from 'vue';
 import { LANGUES, useLangues } from '@/hooks/installation/langue';
 import { useMenu } from '@/hooks/installation/menu';
 import iconLangues from '@/assets/install-icons/icon-langues.png';

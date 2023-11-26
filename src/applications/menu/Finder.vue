@@ -10,8 +10,8 @@
     </div>
 </template>
 
-<script setup>
-import finder from '@/hooks/finder';
+<script lang="ts" setup>
+import finder from '@/hooks/finder/index';
 
 const { useFinder, useRootDirectory } = finder();
 const { selectTab, selectedTab } = useFinder(5);

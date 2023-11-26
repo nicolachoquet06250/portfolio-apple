@@ -72,7 +72,7 @@
     </div>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import { computed, ref, watch, reactive } from 'vue';
 import { useCurrentApp, useOpenedApplications, useAppActions } from '@/hooks/apps';
 import { useDark } from '@/hooks/theme';
@@ -85,15 +85,15 @@ const { isDark } = useDark();
 
 const windowWidthForCss = computed(() => `${windowWidth.value}px`);
 
-const props = defineProps({
-    appName: String,
-    opened: Boolean,
-    appCode: String
-});
+const props = defineProps<{
+  appName: string,
+  opened: boolean,
+  appCode: string
+}>();
 
-const AppComponent = ref(openedApplications.value[props.appCode].component);
-const AppHeaderComponent = ref(openedApplications.value[props.appCode].componentHeader);
-const AppMenuComponent = ref(openedApplications.value[props.appCode].componentMenu);
+const AppComponent = ref(openedApplications.value[props.appCode as keyof typeof openedApplications.value].component);
+const AppHeaderComponent = ref(openedApplications.value[props.appCode as keyof typeof openedApplications.value].componentHeader);
+const AppMenuComponent = ref(openedApplications.value[props.appCode as keyof typeof openedApplications.value].componentMenu);
 
 const hasHeader = computed(() => AppHeaderComponent.value !== null);
 const hasMenu = computed(() => AppMenuComponent.value !== null);

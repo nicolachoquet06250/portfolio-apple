@@ -29,8 +29,8 @@
     </div>
 </template>
 
-<script setup>
-import { ref, defineEmits } from 'vue';
+<script lang="ts" setup>
+import { ref } from 'vue';
 import { useMenu, useStepTitle } from '@/hooks/installation/menu';
 import iconInstallMac from '@/assets/install-icons/icon-install-macos.png';
 

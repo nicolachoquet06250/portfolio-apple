@@ -8,8 +8,7 @@
     </button>
 </template>
 
-<script setup>
-import { defineEmits } from 'vue';
+<script lang="ts" setup>
 import iconCDInstall from '@/assets/icon-cd-install-mac.png';
 
 defineEmits(['install']);

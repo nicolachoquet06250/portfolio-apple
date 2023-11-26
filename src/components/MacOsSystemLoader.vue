@@ -12,8 +12,8 @@
     </div>
 </template>
 
-<script setup>
-import { ref, computed, defineEmits } from 'vue';
+<script lang="ts" setup>
+import { ref, computed } from 'vue';
 import { useWait } from '@/hooks/wait';
 
 const { isWait, isNotWait } = useWait();

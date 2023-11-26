@@ -10,9 +10,9 @@
     </button>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import { ref, computed, watch, onMounted } from 'vue';
-import finder from '@/hooks/finder';
+import finder from '@/hooks/finder/index';
 import { useAuthUser } from '@/hooks/account';
 import { onKeyUp, onClickOutside } from '@vueuse/core';
 import iconUnknownFile from '@/assets/icons/icon-unknownFile.png';
@@ -23,13 +23,13 @@ const { root: rootDirectory, subDirectory } = useRootDirectory();
 const { createFile } = useTreeActions();
 const { user } = useAuthUser();
 
-const props = defineProps({
-    show: Boolean,
-    color: String,
-    selectColor: String,
-    rootPath: {
-        default: ''
-    }
+const props = withDefaults(defineProps<{
+  show: boolean,
+  color: string,
+  selectColor: string,
+  rootPath: string
+}>(), {
+  rootPath: ''
 });
 const emit = defineEmits(['ready', 'hide', 'contextmenu']);
 

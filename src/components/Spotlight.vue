@@ -10,14 +10,14 @@
     </div>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import { ref, watch } from 'vue';
 import { onClickOutside, useToggle, onKeyDown, onKeyUp } from '@vueuse/core';
 
-const props = defineProps({
-    open: {
-        default: false
-    }
+const props = withDefaults(defineProps<{
+  open: boolean
+}>(), {
+  open: false
 })
 
 const emit = defineEmits(['close']);

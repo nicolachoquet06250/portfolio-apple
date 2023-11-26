@@ -16,28 +16,27 @@
     </button>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import { ref, onMounted, computed } from 'vue';
-import finder from '@/hooks/finder';
+import finder from '@/hooks/finder/index';
 import { useContextualMenu } from '@/hooks/contextual-menu';
 import { APPLICATION, useOpenedApplications, useCurrentApp } from '@/hooks/apps';
 import { useTextEdit } from '@/hooks/textedit';
 import { useMouse, onClickOutside, onKeyUp } from '@vueuse/core';
 import iconUnknownFile from '@/assets/icons/icon-unknownFile.png';
 
-const { useRootDirectory, useTreeActions } = finder();
+const { useTreeActions } = finder();
 
-const props = defineProps({
-    id: Number,
-    name: String,
-    x: Number,
-    y: Number,
-    color: String,
-    selectColor: String,
-    icon: {
-        type: String,
-        default: iconUnknownFile
-    }
+const props = withDefaults(defineProps<{
+  id: number,
+  name: string,
+  x: number,
+  y: number,
+  color: string,
+  selectColor: string,
+  icon: string
+}>(), {
+  icon: iconUnknownFile
 });
 
 const emit = defineEmits(['select', 'ready', 'unselect']);

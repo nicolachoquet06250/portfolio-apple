@@ -14,7 +14,7 @@
     </div>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import DockIcon from '@/components/DockIcon.vue';
 
 import { ref, watch } from 'vue';

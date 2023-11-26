@@ -9,7 +9,7 @@ export const useMenu = () => ({
     stepTitle: computed(() => stepTitle.value),
     rebooted: computed(() => rebooted.value),
 
-    setMenu(tab, menu) {
+    setMenu<M>(tab: string, menu: M) {
         menus.value = {...menus.value, [tab]: menu};
     },
     resetMenus() {
@@ -20,7 +20,7 @@ export const useMenu = () => ({
 /**
  * @param {String} title 
  */
-export const useStepTitle = title => {
+export const useStepTitle = (title: string) => {
     stepTitle.value = title;
 };
 

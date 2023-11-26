@@ -9,14 +9,14 @@
     </button>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import { computed } from 'vue';
 import { useDark } from '@/hooks/theme';
 
-const props = defineProps({
-    color: {
-        default: 'whitesmoke'
-    }
+const props = withDefaults(defineProps<{
+  color: string
+}>(), {
+  color: 'whitesmoke'
 });
 
 const color = computed(() => props.color);

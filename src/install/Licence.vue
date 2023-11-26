@@ -48,8 +48,7 @@
     </div>
 </template>
 
-<script setup>
-import { defineEmits } from 'vue';
+<script lang="ts" setup>
 import { useMenu, useStepTitle } from '@/hooks/installation/menu';
 import iconInstallMac from '@/assets/install-icons/icon-install-macos.png';
 

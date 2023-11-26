@@ -2,8 +2,7 @@
     <div></div>
 </template>
 
-<script setup>
-import { watch } from 'vue';
+<script lang="ts" setup>
 import { useDatabase } from '@/hooks/database';
 
 const { 

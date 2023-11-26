@@ -18,17 +18,17 @@ export const TABLES = {
 /**
  * @param {String} table 
  */
-export const getParams = table => [`portfolio-apple_${table}`, table];
+export const getParams = (table: string) => [`portfolio-apple_${table}`, table] as const;
 
-export const useDatabase = (dbName, table) => {
-    const request = ref(null);
-    const error = ref(null);
-    const results = ref([]);
+export const useDatabase = <T>(dbName: string, table: string) => {
+    const request = ref<IDBOpenDBRequest|null>();
+    const error = ref<string>();
+    const results = ref<string[]|string|Record<string, any>|T>([]);
     
-    const onSuccess = ref(null);
-    const onUpgradeNeeded = ref(null);
+    const onSuccess = ref<IDBOpenDBRequest['onsuccess']|null>(null);
+    const onUpgradeNeeded = ref<IDBOpenDBRequest['onupgradeneeded']|null>(null);
 
-    const requestEventsQueue = ref([]);
+    const requestEventsQueue = ref<{name: string, event: Function}[]>([]);
 
     watch(onSuccess, () => {
         if (onSuccess.value) {
@@ -59,18 +59,14 @@ export const useDatabase = (dbName, table) => {
     watch(request, () => {
         if (request.value) {
             requestEventsQueue.value.map(e => {
-                request.value[e.name] = e.event;
+                // @ts-ignore
+                request.value && (request.value[e.name] = e.event);
             });
             requestEventsQueue.value = [];
         }
     });
 
-    /**
-     * @param {IDBDatabase} db 
-     * @param {Boolean} created 
-     * @returns {{ db: IDBDatabase, context: { add: (...els) => void, remove: (...els) => void, get(id) => import('vue').ComputedGetter<Array<any>>, getAllValues() => import('vue').ComputedGetter<Array<any>>, getAllKeys() => import('vue').ComputedGetter<Array<any>>, getFromIndex(index, value) => import('vue').ComputedGetter<Array<any>>, addIndex: (key, params) => void } }}
-     */
-    const getCbParamObject = (db, created = true) => {
+    const getCbParamObject = (db: IDBDatabase, created = true) => {
         const store = created 
             ? db.createObjectStore(table, keyOptions) 
                 : db.transaction(table, "readwrite").objectStore(table);
@@ -80,54 +76,37 @@ export const useDatabase = (dbName, table) => {
             context: {
                 store,
 
-                /**
-                 * @param {...Record<String, any>} els 
-                 */
-                add(...els) {
+                add<Els extends Record<string, any>[]>(...els: Els) {
                     els.map(e => {
                         store.add(e);
                     });
                 },
-                /**
-                 * @param  {...Number} ids 
-                 */
-                remove(...ids) {
+                remove<Ids extends number[]>(...ids: Ids) {
                     ids.map(id => {
                         store.delete(id)
                     });
                 },
-                update(element) {
+                update<El extends HTMLElement>(element: El) {
                     store.put(element);
                 },
-                /**
-                 * @param {Number} id 
-                 * @returns {import('vue').ComputedGetter<Array<Record<String, any>>>}
-                 */
-                get(id) {
+                get(id: number) {
                     store.get(id).onsuccess = e => {
-                        results.value = e.target.result ? [e.target.result] : [];
+                        results.value = (e.target as unknown as {result: string})!.result
+                            ? [(e.target as unknown as {result: string})!.result] : [];
                     };
 
                     return computed(() => results.value);
                 },
-                /**
-                 * @returns {import('vue').ComputedGetter<Array<Record<String, any>>>}
-                 */
                 getAllValues() {
                     store.getAll().onsuccess = e => {
-                        results.value = e.target.result;
+                        results.value = (e.target as unknown as {result: string})!.result;
                     };
 
                     return computed(() => results.value);
                 },
-                /**
-                 * @param {String} index 
-                 * @param {String} value
-                 * @returns {import('vue').ComputedGetter<Array<Record<String, any>>>}
-                 */
-                getFromIndex(index, value) {
+                getFromIndex(index: string, value: string) {
                     store.index(index).get(value).onsuccess = e => {
-                        results.value = e.target.result;
+                        results.value = (e.target as unknown as {result: string})!.result;
                     };
 
                     return computed(() => results.value);
@@ -136,11 +115,17 @@ export const useDatabase = (dbName, table) => {
         };
 
         if (created) {
-            /**
-             * @param {String} key 
-             * @param {{ unique?: Boolean, multiEntry?: Boolean }} params 
-             */
-            params.context.addIndex = (key, params) => {
+            type Context = typeof params.context & {
+                addIndex: (
+                    key: string,
+                    params: {
+                        unique?: boolean,
+                        multiEntry?: boolean
+                    }
+                ) => void
+            }
+
+            (params.context as Context).addIndex = (key, params) => {
                 store.createIndex(key, key, params);
             };
         }
@@ -156,14 +141,11 @@ export const useDatabase = (dbName, table) => {
         };
     };
 
-    /**
-     * @param {Function} cb 
-     * @returns {{ onSuccess: Function, connect: Function }}
-     */
-    function _onUpgradeNeeded(cb) {
-        onUpgradeNeeded.value = e => {
-            const db = e.target.result;
+    function _onUpgradeNeeded<Cb extends Function>(cb: Cb) {
+        onUpgradeNeeded.value = (e) => {
+            const db = (e.target as unknown as {result: IDBDatabase})!.result;
 
+            // @ts-ignore
             cb = cb?.bind(this);
             
             cb?.(getCbParamObject(db));
@@ -178,14 +160,11 @@ export const useDatabase = (dbName, table) => {
         }
     }
 
-    /**
-     * @param {Function} cb 
-     * @returns {{ onUpgradeNeeded: Function, connect: Function }}
-     */
-    function _onSuccess(cb) {
+    function _onSuccess<Cb extends Function>(cb: Cb) {
         onSuccess.value = e => {
-            const db = e.target.result;
+            const db = (e.target as unknown as {result: IDBDatabase})!.result;
 
+            // @ts-ignore
             cb = cb?.bind(this);
 
             cb?.(getCbParamObject(db, false));
@@ -203,7 +182,7 @@ export const useDatabase = (dbName, table) => {
     return {
         error: computed(() => error.value),
         request: computed(() => request.value),
-        results: computed(() => results.value),
+        results: computed<T>(() => results.value as T),
 
         onSuccess: _onSuccess,
         onUpgradeNeeded: _onUpgradeNeeded,

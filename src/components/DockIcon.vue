@@ -14,17 +14,17 @@
     </a>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import { ref, computed } from 'vue';
 
-const props = defineProps({
-    active: Boolean,
-    mouseover: Function,
-    mouseout: Function,
-    click: Function,
-    img: String,
-    code: String
-});
+const props = defineProps<{
+  active: boolean,
+  mouseover: Function,
+  mouseout: Function,
+  click: Function,
+  img: string,
+  code: string
+}>();
 
 const emit = defineEmits([
     'mouseover',

@@ -12,7 +12,7 @@
     </div>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import { useTextEdit } from '@/hooks/textedit';
 
 const { files, activeFile, openFile } = useTextEdit();

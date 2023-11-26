@@ -1,14 +1,14 @@
 <template>
   <template v-if="installed || installSkipped">
-    <template v-if="isMobile || isTablet || screenWidth <= 950">
-      <IOSDesktop
-            :apps="[]"
-            :current-app-name="currentApp"
-            background-image="/img/wallpapers/wallpaper-install-macos.jpg"
-            :top-bar="desktopTopBar">
-        <IOSCursor />
-      </IOSDesktop>
-    </template>
+    <IOSDesktop
+        v-if="isMobile || isTablet || screenWidth <= 950"
+        :apps="[]"
+        :current-app-name="currentApp"
+        background-image="/img/wallpapers/wallpaper-install-macos.jpg"
+        :top-bar="desktopTopBar">
+      <IOSCursor />
+<!--      <IOSCursor v-if="!isMobile && !isTablet" />-->
+    </IOSDesktop>
 
     <template v-else>
       <template v-if="installSkipped">
@@ -125,24 +125,28 @@
     </template>
   </template>
 
-  <template v-if="isMobile || isTablet || screenWidth <= 950">
-    <IOSDesktop
-        :apps="[]"
-        :current-app-name="currentApp"
-        background-image="/img/wallpapers/wallpaper-install-macos.jpg"
-        :top-bar="desktopTopBar">
-      <IOSCursor />
-    </IOSDesktop>
-  </template>
+  <IOSDesktop
+      v-if="isMobile || isTablet || screenWidth <= 950"
+      :apps="[]"
+      :current-app-name="currentApp"
+      background-image="/img/wallpapers/wallpaper-install-macos.jpg"
+      :top-bar="desktopTopBar">
+    <IOSCursor />
+<!--    <IOSCursor v-if="!isMobile && !isTablet" />-->
+  </IOSDesktop>
 
   <template v-else-if="!installed && !installSkipped">
     <Installation @installed="hasInstalled($event)" />
 
     <MacOsCursor />
   </template>
+
+  <form @submit.prevent="post('coucou')" style="position: relative; z-index: 9999;">
+    <button type="submit">tester</button>
+  </form>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import MobileDetect from "mobile-detect";
 import MacOsDock from "@/components/MacOsDock.vue";
 import MacDesktop from "@/components/MacDesktop.vue";
@@ -153,36 +157,19 @@ import MacOsAlert from '@/components/MacOsAlert.vue';
 import MacOsSystemLoader from '@/components/MacOsSystemLoader.vue';
 import Installation from '@/components/Installation.vue';
 import LoginView from '@/components/LoginView.vue';
-// import InstallDesktopIcon from '@/components/InstallDesktopIcon.vue';
 import Checkbox from '@/components/Checkbox.vue';
 import Notification from '@/components/utilities/Notification.vue';
 
 import iconCdInstall from '@/assets/icon-cd-install-mac.png';
 import appstore from '@/assets/dock/appstore.png';
 
-import {ref, computed, reactive, watch, onMounted} from "vue";
-import { useNetwork, useBattery, useWindowSize } from "@vueuse/core";
-import { APPLICATION, useCurrentApp } from "@/hooks/apps";
-import { useInstalled } from '@/hooks/installed';
-import { useNotifications } from '@/hooks/notifications';
+import {ref, computed, reactive, watch, onMounted, watchEffect} from "vue";
+import { useNetwork, useBattery, useWindowSize, useBroadcastChannel } from "@vueuse/core";
+import { APPLICATION, useCurrentApp } from "@/hooks/apps.ts";
+import { useInstalled } from '@/hooks/installed.ts';
+import { useNotifications } from '@/hooks/notifications.ts';
 
-const md = new MobileDetect(navigator.userAgent);
-const isMobile = ref(md.phone() !== null || md.mobile() === 'UnknownMobile');
-const isTablet = ref(md.tablet() !== null || md.mobile() === 'UnknownTablet');
-const isDesktop = computed(() => !isMobile.value && !isTablet.value);
-
-onMounted(() => {
-  const handleResize = () => {
-    isMobile.value = md.phone() !== null || md.mobile() === 'UnknownMobile';
-    isTablet.value = md.tablet() !== null || md.mobile() === 'UnknownTablet';
-  };
-
-  window.addEventListener('resize', handleResize);
-
-  return () => {
-    window.removeEventListener('resize', handleResize);
-  }
-})
+// import InstallDesktopIcon from '@/components/InstallDesktopIcon.vue';
 
 const { isOnline } = useNetwork();
 const { charging, chargingTime, dischargingTime, level } = useBattery();
@@ -190,6 +177,30 @@ const { width: screenWidth } = useWindowSize();
 const { currentApp, setCurrentApp } = useCurrentApp();
 const { installed, skipped: installSkipped, isInstalled, isNotInstalled, isSkipped, isNotSkipped } = useInstalled();
 const { notifications, createNotification, deleteNotification, closeNotification } = useNotifications();
+const {
+  isSupported, channel,
+  data, post,
+  close, error,
+  isClosed
+} = useBroadcastChannel({name: 'dual-screen'});
+
+// watchEffect(() => {
+//   channel.value && channel.value.addEventListener('message', (e) => {
+//     console.log(e)
+//   });
+// })
+
+watch(data, (data) => {
+  console.log(data)
+});
+
+// const channel = new BroadcastChannel('dual-screen');
+// channel.addEventListener('message', (e) => {
+//   const {data} = e
+//   console.log(data)
+// });
+//
+// channel.postMessage('coucou');
 
 const systemLoading = ref(true);
 
@@ -218,6 +229,11 @@ const alertAppInDev = reactive({
     `Merci de votre compréhantion.`
   ]
 });
+
+const md = new MobileDetect(navigator.userAgent);
+const isMobile = ref(md.phone() !== null || md.mobile() === 'UnknownMobile');
+const isTablet = ref(md.tablet() !== null || md.mobile() === 'UnknownTablet');
+const isDesktop = computed(() => !isMobile.value && !isTablet.value);
 
 const showAlert = () => {
   displayAlert.value = true;
@@ -350,6 +366,19 @@ const desktopTopBar = reactive({
   ]
 });
 
+onMounted(() => {
+  const handleResize = () => {
+    isMobile.value = md.phone() !== null || md.mobile() === 'UnknownMobile';
+    isTablet.value = md.tablet() !== null || md.mobile() === 'UnknownTablet';
+  };
+
+  window.addEventListener('resize', handleResize);
+
+  return () => {
+    window.removeEventListener('resize', handleResize);
+  }
+});
+
 watch([isOnline, charging, chargingTime, dischargingTime, level], () => {
   desktopTopBar.network.wifi.online = isOnline.value;
   desktopTopBar.battery.charging = charging.value;
@@ -364,7 +393,7 @@ watch(() => alertAppInDev.dontShowAgain, () => {
   } else {
     localStorage.removeItem('dontShowWarningAlertAgain');
   }
-})
+});
 </script>
 
 <style lang="scss">

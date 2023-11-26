@@ -303,13 +303,13 @@
   </div>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import siriIcon from '@/assets/icons/siri.png'
 import musicIcon from '@/assets/icons/icon-Music.png'
 import { ref, computed, watch, reactive } from "vue";
 import { APPLICATION, APPLICATION_STATE, useOpenedApplications, useCurrentApp } from '@/hooks/apps';
 import { useAuthUser } from '@/hooks/account';
-import finder from '@/hooks/finder';
+import finder from '@/hooks/finder/index';
 import { useInstalled } from '@/hooks/installed';
 import { useDark } from '@/hooks/theme';
 import { useContextualMenu } from '@/hooks/contextual-menu';
@@ -325,31 +325,31 @@ import MacApplication from '@/components/MacApplication.vue';
 import ToogleLiteDarkMode from '@/components/ToogleLiteDarkMode.vue';
 import Spotlight from '@/components/Spotlight.vue';
 
-const { useRootDirectory, useTreeActions, useFinder, initBreadcrum } = finder();
+const { useRootDirectory, useTreeActions, useFinder } = finder();
 
-const props = defineProps({
-    backgroundImage: String,
-    apps: Array,
-    currentAppName: String,
-    topBar: {
-        network: () => ({
-            wifi: () => ({
-                online: Boolean,
-            }),
-        }),
-        battery: () => ({
-            charging: Boolean,
-            chargingTime: Number,
-            dischargingTime: Number,
-            level: Number,
-        }),
-        menu: Array
-    }
-});
+const props = defineProps<{
+  backgroundImage: string,
+  apps: any[],
+  currentAppName: string,
+  topBar: {
+    network: {
+      wifi: {
+        online: boolean
+      }
+    },
+    battery: {
+      charging: boolean,
+      chargingTime: number,
+      dischargingTime: number,
+      level: number
+    },
+    menu: any[]
+  }
+}>();
 
 const { x: mouseX, y: mouseY } = useMouse();
 const { user } = useAuthUser();
-const { currentApp, setCurrentApp } = useCurrentApp();
+const { setCurrentApp } = useCurrentApp();
 const {
     show: displayContextMenu,
     position: contextMenuPosition,

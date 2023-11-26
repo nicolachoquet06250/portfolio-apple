@@ -30,8 +30,8 @@
     </div>
 </template>
 
-<script setup>
-import { ref, computed, defineEmits } from 'vue';
+<script lang="ts" setup>
+import { ref, computed } from 'vue';
 import { useMenu, useStepTitle } from '@/hooks/installation/menu';
 import { useWindowSize } from '@vueuse/core';
 import iconInstallMac from '@/assets/install-icons/icon-install-macos.png';

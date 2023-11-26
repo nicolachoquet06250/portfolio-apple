@@ -10,12 +10,36 @@ import iconPng from '@/assets/icons/icon-png.png';
 import iconUnknownFile from '@/assets/icons/icon-unknownFile.png';
 
 const selectedTab = ref('');
-const items = ref([]);
+const items = ref<ItemList>([]);
 const showedItems = ref(items.value.reduce((r, c) => c.name === selectedTab.value ? c.children : r, []));
 const activeItem = ref('');
 const breadcrum = ref([]);
 const rootDir = ref('');
 const subDirectory = ref('');
+
+type Item = {
+    name: string,
+    children?: ItemList,
+    content: string|null,
+    creation_date: string|Date,
+    extention: string|null,
+    id: number,
+    opened_date: string|Date,
+    parent: string,
+    type: "directory"|"file",
+    updated_date: string|Date,
+    user_id: number,
+    icon: string
+}
+type ItemList = Item[]
+
+type Tree = {
+    parent: string,
+    name: Item['name'],
+    icon: string,
+    type: 'directory'|'file',
+    children: Tree
+}[];
 
 items.value = [
     {
@@ -140,7 +164,7 @@ items.value = [
     }
 ];
 
-const getChildren = (root, dirName) => {
+const getChildren = (root: string, dirName: string) => {
     return items.value.reduce((r, c) => {
         return c.parent === `${root}/${dirName}`.replace('//', '/') 
             ? [
@@ -162,10 +186,10 @@ export const initBreadcrum = () => {
  * @param {Number} maxPerLine 
  * @returns 
  */
-export const useFinder = maxPerLine => {
+export const useFinder = (maxPerLine: number) => {
     return {
         selectedTab: computed(() => selectedTab.value),
-        showedItems: computed(() => showedItems.value?.reduce((r, c) => {
+        showedItems: computed(() => showedItems.value?.reduce<{cmp: number, result: Items}>((r, c) => {
             if (r.cmp === 0) {
                 return {
                     cmp: r.cmp + 1,
@@ -175,7 +199,7 @@ export const useFinder = maxPerLine => {
                 const lastItem = r.result.pop();
                 return {
                     cmp: r.cmp + 1,
-                    result: [...r.result, [...lastItem, c]]
+                    result: [...r.result, [lastItem, c]]
                 };
             } else if (r.cmp === maxPerLine) {
                 return {

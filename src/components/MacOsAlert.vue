@@ -26,8 +26,8 @@
     </div>
 </template>
 
-<script setup>
-import { ref, computed, watch, defineEmits } from 'vue';
+<script lang="ts" setup>
+import { ref, computed, watch } from 'vue';
 import appstore from '@/assets/dock/appstore.png';
 import { useWindowSize } from "@vueuse/core";
 

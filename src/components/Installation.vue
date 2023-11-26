@@ -30,8 +30,8 @@
         @previousStep="components[currentStep]?.onPrevious($event)" />
 </template>
 
-<script setup>
-import { computed, ref, defineEmits } from 'vue';
+<script lang="ts" setup>
+import { computed, ref } from 'vue';
 import { useMenu, isRebooted } from '@/hooks/installation/menu';
 import { useLangues } from '@/hooks/installation/langue';
 import { useWait } from '@/hooks/wait';

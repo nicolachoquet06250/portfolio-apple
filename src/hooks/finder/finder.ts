@@ -2,31 +2,44 @@ import { ref, computed, watch } from 'vue';
 import { useDatabase, getParams, TABLES } from '@/hooks/database';
 import { useAuthUser } from '@/hooks/account';
 
-import iconAppleTV from '@/assets/icons/icon-AppleTV.png';
+// import iconAppleTV from '@/assets/icons/icon-AppleTV.png';
 import iconDirectory from '@/assets/icons/icon-directory.png';
-import iconMessages from '@/assets/icons/icon-Messages.png';
-import iconMp4 from '@/assets/icons/icon-mp4.png';
-import iconMusic from '@/assets/icons/icon-Music.png';
-import iconPages from '@/assets/icons/icon-Pages.png';
-import iconPng from '@/assets/icons/icon-png.png';
+// import iconMessages from '@/assets/icons/icon-Messages.png';
+// import iconMp4 from '@/assets/icons/icon-mp4.png';
+// import iconMusic from '@/assets/icons/icon-Music.png';
+// import iconPages from '@/assets/icons/icon-Pages.png';
+// import iconPng from '@/assets/icons/icon-png.png';
 import iconUnknownFile from '@/assets/icons/icon-unknownFile.png';
 
 const { user } = useAuthUser();
 const { 
     onSuccess: onTreeSuccess, 
     results: tree 
-} = useDatabase(...getParams(TABLES.TREE_STRUCTURE));
+} = useDatabase<Tree>(...getParams(TABLES.TREE_STRUCTURE));
+
+type Item = {name: string, children: ItemList}
+type ItemList = Item[]
+
+type Tree = {
+    parent: string,
+    name: Item['name'],
+    icon: string,
+    type: 'directory'|'file',
+    children: Tree
+}[];
 
 const selectedTab = ref('');
-const items = ref([]);
-const showedItems = ref(items.value.reduce((r, c) => c.name === selectedTab.value ? c.children : r, []));
+const items = ref<ItemList>([]);
+const showedItems = ref<ItemList>(items.value
+    .reduce<ItemList>((r, c: Item) => c.name === selectedTab.value
+        ? c.children : r, []));
 const activeItem = ref('');
-const breadcrum = ref([]);
+const breadcrum = ref<string[]>([]);
 const rootDir = ref('');
 const subDirectory = ref('');
 
-const getChildren = (root, dirName) => {
-    return tree.value.reduce((r, c) => {
+const getChildren = (root: string, dirName: string): Tree =>
+    tree.value.reduce<Tree>((r, c) => {
         if (c.parent === `${root}/${dirName}`.replace('//', '/')) {
             return [
                 ...r, 
@@ -39,43 +52,42 @@ const getChildren = (root, dirName) => {
         }
         return r;
     }, []);
-};
 
-export const initBreadcrum = () => {
+export const initBreadcrumb = () => {
     breadcrum.value = [selectedTab.value];
 };
 
-/**
- * @param {Number} maxPerLine 
- * @returns 
- */
-export const useFinder = maxPerLine => {
-    onTreeSuccess(({ context: { getAllValues } }) => getAllValues()).connect();
+export const useFinder = (maxPerLine: number) => {
+    onTreeSuccess(({ context: { getAllValues } }: { context: { getAllValues: () => Tree } }) => getAllValues()).connect();
 
     return {
         selectedTab: computed(() => selectedTab.value),
-        showedItems: computed(() => showedItems.value?.reduce((r, c) => {
-            if (r.cmp === 0) {
-                return {
-                    cmp: r.cmp + 1,
-                    result: [...r.result, [c]]
+        showedItems: computed(() =>
+            showedItems.value?.reduce<
+                {cmp: number, result: Item[]}
+            >((r, c: Item) => {
+                if (r.cmp === 0) {
+                    return {
+                        cmp: r.cmp + 1,
+                        result: [...r.result, [c]]
+                    }
                 }
-            } else if (r.cmp < maxPerLine) {
-                const lastItem = r.result.pop();
-                return {
-                    cmp: r.cmp + 1,
-                    result: [...r.result, [...lastItem, c]]
-                };
-            } else if (r.cmp === maxPerLine) {
-                return {
-                    cmp: 1,
-                    result: [...r.result, [c]]
+                else if (r.cmp < maxPerLine) {
+                    const lastItem = r.result.pop()!;
+                    return {
+                        cmp: r.cmp + 1,
+                        result: [...r.result, [lastItem, c]]
+                    };
                 }
-            }
-        }, {
-            cmp: 0,
-            result: []
-        }).result ?? []),
+                else if (r.cmp === maxPerLine) {
+                    return {
+                        cmp: 1,
+                        result: [...r.result, [c]]
+                    }
+                }
+            },
+            {cmp: 0, result: []}).result ?? []
+        ),
         activedItem: computed(() => activeItem.value),
         breadcrum: computed(() => breadcrum.value),
     
@@ -87,7 +99,7 @@ export const useFinder = maxPerLine => {
             rootDir.value = tab;
         },
     
-        initBreadcrum,
+        initBreadcrum: initBreadcrumb,
     
         selectItem(item) {
             if (item.type === 'directory' && breadcrum.value.indexOf(item.name) === -1) {
@@ -201,7 +213,7 @@ export const useTreeActions = () => {
 
 watch([selectedTab, subDirectory, items], (_, [oldSelectedTab, oldSubDirectory, oldItems]) => {
     if (selectedTab.value !== oldSelectedTab) {
-        initBreadcrum();
+        initBreadcrumb();
         subDirectory.value = '';
         showedItems.value = items.value.reduce((r, c) => c.name === selectedTab.value ? c.children : r, []);
     }

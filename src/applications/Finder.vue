@@ -56,10 +56,10 @@
     </div>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import { ref, computed, watch, onBeforeUnmount, reactive } from 'vue';
 import { useCurrentApp, useOpenedApplications } from '@/hooks/apps';
-import finder from '@/hooks/finder';
+import finder from '@/hooks/finder/index';
 import { useContextualMenu } from '@/hooks/contextual-menu';
 import { onClickOutside, onKeyUp, useMouse } from '@vueuse/core';
 

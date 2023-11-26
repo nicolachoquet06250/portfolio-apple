@@ -92,7 +92,7 @@
     </div>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import { ref, defineEmits, watch } from 'vue';
 import { useNetwork, useBattery } from "@vueuse/core";
 import { useWait } from '@/hooks/wait';
