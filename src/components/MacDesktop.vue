@@ -243,7 +243,7 @@
             </template>
         </ul>
 
-        <Grid>
+        <Grid v-if="screenNumber === 0">
             <Column v-for="(treeColumn, x) of treeToGrid" :key="x">
                 <template v-for="(treeCel, y) of treeColumn" :key="y">
                     <Directory v-if="treeCel.type === 'directory'"
@@ -324,6 +324,7 @@ import File from '@/components/utilities/FileIcon.vue';
 import MacApplication from '@/components/MacApplication.vue';
 import ToogleLiteDarkMode from '@/components/ToogleLiteDarkMode.vue';
 import Spotlight from '@/components/Spotlight.vue';
+import {useScreens} from "@/hooks/screens.js";
 
 const { useRootDirectory, useTreeActions, useFinder, initBreadcrum } = finder();
 
@@ -358,10 +359,11 @@ const {
 } = useContextualMenu();
 const { openedApplications, initApplicationHistory, openApplication } = useOpenedApplications();
 const { installed, skipped } = useInstalled();
-const { setRoot, setSubDirectory } = useRootDirectory();
-const { tree: treeStructure, add, get } = useTreeActions();
+const { setRoot, setSubDirectory } = useRootDirectory?.();
+const { tree: treeStructure, add, get } = useTreeActions?.();
 const { isDark } = useDark();
-const { selectTab } = useFinder();
+const { selectTab } = useFinder?.();
+const { screenNumber } = useScreens();
 
 initApplicationHistory();
 

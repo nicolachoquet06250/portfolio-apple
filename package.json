@@ -12,12 +12,13 @@
   },
   "dependencies": {
     "@vueuse/core": "^10.6.1",
+    "device-uuid": "^1.0.4",
     "mobile-detect": "^1.4.5",
     "mobile-device-detect": "^0.4.3",
     "pinia": "^2.1.7",
     "register-service-worker": "^1.7.1",
-    "vue": "^3.3.8",
-    "vuex": "^4.1.0"
+    "uuid": "^9.0.1",
+    "vue": "^3.3.8"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.5.0",

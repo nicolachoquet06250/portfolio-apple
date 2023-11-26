@@ -27,32 +27,32 @@
             </span>
         </div>
         
-        <div class="login-view-body">
+        <div class="login-view-body" v-if="showForm">
             <div class="account-container">
                 <div v-for="account of accounts" :key="account.id" 
                     class="account" clickable
                     @click="login($event, {
                         ...account
                     })">
-                    <img :src="defaultProfilePic" />
+                    <img :src="defaultProfilePic" alt="profile picture" />
 
                     <h3> {{ account.full_name }} </h3>
 
-                    <div class="password-container">
-                        <input type="password" 
-                               disabled 
-                               title="Pas besoin" 
+                    <form class="password-container">
+                        <input type="password"
+                               disabled
+                               title="Pas besoin"
                                placeholder="mot de passe" />
 
                         <button>
                             <i class="far fa-question-circle"></i>
                         </button>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
         
-        <div class="login-view-footer">
+        <div class="login-view-footer" v-if="showButtons">
             <div>
                 <div>
                     <button>
@@ -80,12 +80,10 @@
             <div>
                 <div>
                     <button>
-                        <img :src="iconSuspend" />
+                        <img :src="iconSuspend" alt="suspend icon" />
                     </button>
                     
-                    <span>
-                        Suspendre
-                    </span>
+                    <span> Suspendre </span>
                 </div>
             </div>
         </div>
@@ -93,13 +91,24 @@
 </template>
 
 <script setup>
-import { ref, defineEmits, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { useNetwork, useBattery } from "@vueuse/core";
 import { useWait } from '@/hooks/wait';
 import { useDatabase, TABLES, getParams } from '@/hooks/database';
 import { useAuthUser } from '@/hooks/account';
 import defaultProfilePic from '@/assets/default-profile-pic.png';
 import iconSuspend from '@/assets/icon-suspend-login-view.png';
+
+defineProps({
+  'showButtons': {
+    type: Boolean,
+    default: true
+  },
+  'showForm': {
+    type: Boolean,
+    default: true
+  },
+})
 
 const emit = defineEmits(['connected']);
 
@@ -170,6 +179,7 @@ watch(settings, () => (displayedLangue.value = settings.value.value.displayed));
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
+    z-index: 1;
 
     &-header {
         display: flex;
@@ -233,8 +243,8 @@ watch(settings, () => (displayedLangue.value = settings.value.value.displayed));
                     padding-right: 5px;
                     border-radius: 50px;
                     margin-right: 5px;
-                    -webkit-box-shadow: 0px 0px 18px 6px rgba(0,0,0,0.77); 
-                    box-shadow: 0px 0px 18px 6px rgba(0,0,0,0.77);
+                    -webkit-box-shadow: 0 0 18px 6px rgba(0,0,0,0.77);
+                    box-shadow: 0 0 18px 6px rgba(0,0,0,0.77);
                 
                     &::placeholder {
                         color: #fe9db1;

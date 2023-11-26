@@ -59,6 +59,7 @@ const interval = setInterval(() => {
         border-radius: 10px;
         margin-top: 20px;
         color: white;
+        border: 1px solid white;
 
         &::before {
             content: '';
