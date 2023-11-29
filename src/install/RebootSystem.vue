@@ -12,7 +12,7 @@
 <script setup>
 import { defineEmits } from 'vue';
 import { useMenu } from '@/hooks/installation/menu';
-import MacOsSystemLoader from '@/components/MacOsSystemLoader.vue';
+import MacOsSystemLoader from '@/components/macos/MacOsSystemLoader.vue';
 
 defineEmits(['nextStep']);
 

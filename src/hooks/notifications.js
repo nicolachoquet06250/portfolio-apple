@@ -44,5 +44,8 @@ export const useNotifications = () => ({
               i: r.i + 1
             };
           }, { i: 0, t: []}).t;
+    },
+    cleanNotifications() {
+        queue.value = [];
     }
 });
