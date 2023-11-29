@@ -112,6 +112,7 @@ export const useScreens = () => {
     const _post = (channel, data = {}) => post?.(JSON.stringify({channel, data}));
 
     return {
+        supported: computed(() => screenDetailsSupported.value),
         screenNumber,
         isMultiScreen: computed(() => screens.value.length > 1),
         post: _post,

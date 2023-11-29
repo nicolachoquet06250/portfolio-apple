@@ -6,7 +6,11 @@
         :current-app-name="currentApp"
         background-image="/img/wallpapers/wallpaper-install-macos.jpg"
         :top-bar="desktopTopBar">
-      <IOSCursor />
+      <IOSLoginView
+        v-if="showIOSLoginView" 
+        @unlock-screen="showIOSLoginView = false" 
+      />
+      <IOSCursor v-if="!showIOSLoginView" />
     </IOSDesktop>
 
     <template v-else-if="installSkipped">
@@ -64,6 +68,8 @@
 
         <MacOsDock />
       </MacDesktop>
+
+      <MacOsCursor />
     </template>
 
     <template v-else>
@@ -71,7 +77,7 @@
           v-if="systemLoading"
           @loaded="handleSystemLoaded(false)" />
 
-      <LoginView
+      <MacOsLoginView
           v-if="!connected"
           :show-buttons="screenNumber === 0"
           :show-form="screenNumber === 0"
@@ -126,6 +132,8 @@
 
         <MacOsDock />
       </MacDesktop>
+
+      <MacOsCursor />
     </template>
   </template>
 
@@ -135,7 +143,11 @@
       :current-app-name="currentApp"
       background-image="/img/wallpapers/wallpaper-install-macos.jpg"
       :top-bar="desktopTopBar">
-    <IOSCursor />
+    <IOSLoginView
+      v-if="showIOSLoginView" 
+      @unlock-screen="showIOSLoginView = false" 
+    />
+    <IOSCursor v-if="!showIOSLoginView" />
   </IOSDesktop>
 
   <template v-else-if="!installed && !installSkipped">
@@ -147,17 +159,18 @@
 
 <script setup>
 import MobileDetect from "mobile-detect";
-import MacOsDock from "@/components/MacOsDock.vue";
-import MacDesktop from "@/components/MacDesktop.vue";
-import IOSDesktop from '@/components/IOSDesktop.vue';
-import IOSCursor from "@/components/IOSCursor.vue";
-import MacOsCursor from '@/components/MacOsCursor.vue';
-import MacOsAlert from '@/components/MacOsAlert.vue';
-import MacOsSystemLoader from '@/components/MacOsSystemLoader.vue';
+import MacOsDock from "@/components/macos/MacOsDock.vue";
+import MacDesktop from "@/components/macos/MacDesktop.vue";
+import IOSDesktop from '@/components/ios/IOSDesktop.vue';
+import IOSCursor from "@/components/ios/IOSCursor.vue";
+import MacOsCursor from '@/components/macos/MacOsCursor.vue';
+import MacOsAlert from '@/components/macos/MacOsAlert.vue';
+import MacOsSystemLoader from '@/components/macos/MacOsSystemLoader.vue';
 import Installation from '@/components/Installation.vue';
-import LoginView from '@/components/LoginView.vue';
-// import InstallDesktopIcon from '@/components/InstallDesktopIcon.vue';
-import Checkbox from '@/components/Checkbox.vue';
+import MacOsLoginView from '@/components/macos/LoginView.vue';
+import IOSLoginView from '@/components/ios/LoginView.vue';
+// import InstallDesktopIcon from '@/components/macos/InstallDesktopIcon.vue';
+import Checkbox from '@/components/macos/Checkbox.vue';
 import Notification from '@/components/utilities/Notification.vue';
 
 import iconCdInstall from '@/assets/icon-cd-install-mac.png';
@@ -194,6 +207,8 @@ const { systemLoading, setSystemLoading } = useSystemLoading();
 const { screenNumber, isMultiScreen, post, on } = useScreens();
 
 setCurrentApp?.(APPLICATION.FINDER);
+
+const showIOSLoginView = ref(true);
 
 const wallpaper = ref('/img/wallpapers/wallpaper-install-macos.jpg');
 const connected = ref(false);
