@@ -21,53 +21,22 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 ### Dépendances
 
-<table>
-    <thead>
-        <tr>
-            <th>Package</th>
-            <th>Lien</th>
-            <th>Version</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>@vue/cli</td>
-            <td>
-                <a href="https://cli.vuejs.org/">
-                    https://cli.vuejs.org/
-                </a>
-            </td>
-            <td>4.5.13</td>
-        </tr>
-        <tr>
-            <td>vue</td>
-            <td>
-                <a href="https://v3.vuejs.org/">
-                    https://v3.vuejs.org/
-                </a>
-            </td>
-            <td>3.2.0</td>
-        </tr>
-        <tr>
-            <td>vuex</td>
-            <td>
-                <a href="https://next.vuex.vuejs.org/">
-                    https://next.vuex.vuejs.org/
-                </a>
-            </td>
-            <td>4.0.0-0</td>
-        </tr>
-        <tr>
-            <td>@vueuse/core</td>
-            <td>
-                <a href="https://vueuse.org/">
-                    https://vueuse.org/
-                </a>
-            </td>
-            <td>7.5.3</td>
-        </tr>
-    </tbody>
-</table>
+| Packages      | Lien                                        | Version |
+|---------------|---------------------------------------------|---------|
+| vue           | https://vuejs.org/guide/introduction.html   | ^3.3.8  |
+| pinia         | https://pinia.vuejs.org/core-concepts/      | ^2.1.7  |
+| @vueuse/core  | https://vueuse.org/guide/                   | ^10.6.1 |
+| mobile-detect | https://www.npmjs.com/package/mobile-detect | ^1.4.5  |
+| uuid          | https://www.npmjs.com/package/uuid          | ^9.0.1  |
+
+### Dépendances de développement
+
+| Packages           | Lien                                             | Version |
+|--------------------|--------------------------------------------------|---------|
+| vite               | https://vitejs.dev/guide/                        | ^5.0.0  |
+| sass               | https://sass-lang.com/documentation/             | ^1.69.5 |
+| @vitejs/plugin-vue | https://www.npmjs.com/package/@vitejs/plugin-vue | ^4.5.0  |
+| vite-plugin-pwa    | https://www.npmjs.com/package/vite-plugin-pwa    | ^0.17.0 |
 
 ### Objectifs
 
@@ -129,8 +98,12 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 - [<span style="color: gray"> ? </span>] in progress
 
 ### ANNEXES
-- [FIGMA **MacOS 11**](https://www.figma.com/community/file/949158727443209284?preview=fullscreen)
+- [FIGMA **MacOS 11 (Big Sur)**](https://www.figma.com/community/file/949158727443209284?preview=fullscreen)
+- [FIGMA **MacOS 14.1.1 (Sonoma)**](https://www.figma.com/community/file/1251588934545918753/apple-design-resources-macos)
 - [FIGMA **IOS 15**](https://www.figma.com/community/file/984106517828363349?preview=fullscreen)
+- [FIGMA **IOS 16**](https://www.figma.com/community/file/1121065701252736567)
+- [FIGMA **IOS / IPADOS 17**](https://www.figma.com/community/file/1248375255495415511/apple-design-resources-ios-17-and-ipados-17)
+- [FIGMA **ICONS IOS/MacOS**](https://www.figma.com/community/file/1114229178398643445)
 - [Generateur de **clip-path**](https://www.cssportal.com/css-clip-path-generator/)
 - [Exemple de déplacement de fenêtre + redimentionnement avec VueJS](https://www.cssscript.com/material-macos-window-vtwindow/)
   - [Demo](https://www.cssscript.com/demo/material-macos-window-vtwindow/)

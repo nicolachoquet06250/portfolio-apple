@@ -63,10 +63,10 @@ import finder from '@/hooks/finder';
 import { useContextualMenu } from '@/hooks/contextual-menu';
 import { onClickOutside, onKeyUp, useMouse } from '@vueuse/core';
 
-import NewDirectory from '@/components/utilities/NewDirectoryIcon.vue';
-import Directory from '@/components/utilities/DirectoryIcon.vue';
-import NewFile from '@/components/utilities/NewFileIcon.vue';
-import File from '@/components/utilities/FileIcon.vue';
+import NewDirectory from '@/components/utilities/macos/NewDirectoryIcon.vue';
+import Directory from '@/components/utilities/macos/DirectoryIcon.vue';
+import NewFile from '@/components/utilities/macos/NewFileIcon.vue';
+import File from '@/components/utilities/macos/FileIcon.vue';
 
 const { useFinder, useRootDirectory } = finder();
 

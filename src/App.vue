@@ -1,159 +1,165 @@
 <template>
   <template v-if="installed || installSkipped">
     <IOSDesktop
-        v-if="isMobile || isTablet || screenWidth <= 950"
+        v-if="showMobileVersion"
         :apps="[]"
         :current-app-name="currentApp"
         background-image="/img/wallpapers/wallpaper-install-macos.jpg"
         :top-bar="desktopTopBar">
-      <IOSLoginView
+      <IOSUnlockView
         v-if="showIOSLoginView" 
         @unlock-screen="showIOSLoginView = false" 
+        :current-app-name="currentApp"
+        background-image="/img/wallpapers/wallpaper-install-macos.jpg"
+        :top-bar="desktopTopBar"
       />
+
       <IOSCursor v-if="!showIOSLoginView" />
     </IOSDesktop>
 
-    <template v-else-if="installSkipped">
-      <MacOsSystemLoader
-          v-if="systemLoading"
-          @loaded="handleSystemLoaded(true)" />
+    <MacOsCursor v-else>
+      <template v-if="installSkipped">
+        <MacOsSystemLoader
+            v-if="systemLoading"
+            @loaded="handleSystemLoaded(true)" />
 
-      <MacDesktop
-        v-else
-        :apps="[]"
-        :current-app-name="currentApp"
-        :background-image="wallpaper"
-        :top-bar="desktopTopBar">
+        <MacDesktop
+          v-else
+          :apps="[]"
+          :current-app-name="currentApp"
+          :background-image="wallpaper"
+          :top-bar="desktopTopBar">
 
-        <Notification
-            v-for="({ opened, index, image, title, content, buttons }, i) of notifications" :key="i"
-            :opened="opened" :index="index"
-            :image="image" :latence="2000"
-            @closed="closeNotification(i)">
-          <template v-slot:title>
-            <span> {{ title }} </span>
-          </template>
+          <Notification
+              v-for="({ opened, index, image, title, content, buttons }, i) of notifications" :key="i"
+              :opened="opened" :index="index"
+              :image="image" :latence="2000"
+              @closed="closeNotification(i)">
+            <template v-slot:title>
+              <span> {{ title }} </span>
+            </template>
 
-          <template v-slot:content>
-            <span> {{ content }} </span>
-          </template>
+            <template v-slot:content>
+              <span> {{ content }} </span>
+            </template>
 
-          <template v-slot:button>
-            <button v-for="(button, b) of buttons" :key="b"
-                    @click="button.click?.()">
-              {{ button.text }}
-            </button>
-          </template>
-        </Notification>
+            <template v-slot:button>
+              <button v-for="(button, b) of buttons" :key="b"
+                      @click="button.click?.()">
+                {{ button.text }}
+              </button>
+            </template>
+          </Notification>
 
-        <MacOsAlert v-if="displayAlert"
-                    @close="hideAlert"
-                    @validate="hideAlert">
-          <template v-slot:title>
-            <span>{{ alertContent.title }}</span>
-          </template>
+          <MacOsAlert v-if="displayAlert"
+                      @close="hideAlert"
+                      @validate="hideAlert">
+            <template v-slot:title>
+              <span>{{ alertContent.title }}</span>
+            </template>
 
-          <template v-slot:body>
-            <p v-for="(p, i) of alertContent.content" :key="i">
-              {{ p }}
-            </p>
-          </template>
+            <template v-slot:body>
+              <p v-for="(p, i) of alertContent.content" :key="i">
+                {{ p }}
+              </p>
+            </template>
 
-          <template v-slot:footer>
-            <Checkbox id="dont-ask-again">
-                Dont ask again
-            </Checkbox>
-          </template>
-        </MacOsAlert>
+            <template v-slot:footer>
+              <Checkbox id="dont-ask-again">
+                  Dont ask again
+              </Checkbox>
+            </template>
+          </MacOsAlert>
 
-        <MacOsDock />
-      </MacDesktop>
+          <MacOsDock />
+        </MacDesktop>
+      </template>
 
-      <MacOsCursor />
-    </template>
+      <template v-else>
+        <MacOsSystemLoader
+            v-if="systemLoading"
+            @loaded="handleSystemLoaded(false)" />
 
-    <template v-else>
-      <MacOsSystemLoader
-          v-if="systemLoading"
-          @loaded="handleSystemLoaded(false)" />
+        <MacOsLoginView
+            v-if="!connected"
+            :show-buttons="screenNumber === 0"
+            :show-form="screenNumber === 0"
+            @connected="connectUser()" />
 
-      <MacOsLoginView
-          v-if="!connected"
-          :show-buttons="screenNumber === 0"
-          :show-form="screenNumber === 0"
-          @connected="connectUser()" />
+        <MacDesktop
+          v-else
+          :apps="[]"
+          :current-app-name="currentApp"
+          :background-image="wallpaper"
+          :top-bar="desktopTopBar">
 
-      <MacDesktop
-        v-else
-        :apps="[]"
-        :current-app-name="currentApp"
-        :background-image="wallpaper"
-        :top-bar="desktopTopBar">
+          <Notification v-for="({opened, image, index, title, content, buttons}, i) of notifications" :key="i"
+                        :opened="opened" :index="index"
+                        :image="image" :latence="2000"
+                        @closed="closeNotification(i)">
+            <template v-slot:title>
+              <span> {{ title }} </span>
+            </template>
 
-        <Notification v-for="({opened, image, index, title, content, buttons}, i) of notifications" :key="i"
-                      :opened="opened" :index="index"
-                      :image="image" :latence="2000"
-                      @closed="closeNotification(i)">
-          <template v-slot:title>
-            <span> {{ title }} </span>
-          </template>
+            <template v-slot:content>
+              <span> {{ content }} </span>
+            </template>
 
-          <template v-slot:content>
-            <span> {{ content }} </span>
-          </template>
+            <template v-slot:button>
+              <button v-for="(button, b) of buttons" :key="b"
+                      @click="button.click?.()">
+                {{ button.text }}
+              </button>
+            </template>
+          </Notification>
 
-          <template v-slot:button>
-            <button v-for="(button, b) of buttons" :key="b"
-                    @click="button.click?.()">
-              {{ button.text }}
-            </button>
-          </template>
-        </Notification>
+          <MacOsAlert v-if="displayAlert"
+                      @close="hideAlert"
+                      @validate="hideAlert">
+            <template v-slot:title>
+              <span>{{ alertContent.title }}</span>
+            </template>
 
-        <MacOsAlert v-if="displayAlert"
-                    @close="hideAlert"
-                    @validate="hideAlert">
-          <template v-slot:title>
-            <span>{{ alertContent.title }}</span>
-          </template>
+            <template v-slot:body>
+              <p v-for="(p, i) of alertContent.content" :key="i">
+                {{ p }}
+              </p>
+            </template>
 
-          <template v-slot:body>
-            <p v-for="(p, i) of alertContent.content" :key="i">
-              {{ p }}
-            </p>
-          </template>
+            <template v-slot:footer>
+              <Checkbox id="dont-ask-again">
+                  Dont ask again
+              </Checkbox>
+            </template>
+          </MacOsAlert>
 
-          <template v-slot:footer>
-            <Checkbox id="dont-ask-again">
-                Dont ask again
-            </Checkbox>
-          </template>
-        </MacOsAlert>
-
-        <MacOsDock />
-      </MacDesktop>
-
-      <MacOsCursor />
-    </template>
+          <MacOsDock />
+        </MacDesktop>
+      </template>
+    </MacOsCursor>
   </template>
 
-  <IOSDesktop
-      v-if="isMobile || isTablet || screenWidth <= 950"
-      :apps="[]"
-      :current-app-name="currentApp"
-      background-image="/img/wallpapers/wallpaper-install-macos.jpg"
-      :top-bar="desktopTopBar">
-    <IOSLoginView
-      v-if="showIOSLoginView" 
-      @unlock-screen="showIOSLoginView = false" 
-    />
-    <IOSCursor v-if="!showIOSLoginView" />
-  </IOSDesktop>
+  <template v-else>
+    <IOSDesktop
+        v-if="showMobileVersion"
+        :apps="[]"
+        :current-app-name="currentApp"
+        background-image="/img/wallpapers/wallpaper-install-macos.jpg"
+        :top-bar="desktopTopBar">
+      <IOSUnlockView
+        v-if="showIOSLoginView" 
+        @unlock-screen="showIOSLoginView = false" 
+        :current-app-name="currentApp"
+        background-image="/img/wallpapers/wallpaper-install-macos.jpg"
+        :top-bar="desktopTopBar"
+      />
 
-  <template v-else-if="!installed && !installSkipped">
-    <Installation @installed="hasInstalled($event)" />
+      <IOSCursor v-if="!showIOSLoginView" />
+    </IOSDesktop>
 
-    <MacOsCursor />
+    <MacOsCursor v-else>
+      <Installation @installed="hasInstalled($event)" />
+    </MacOsCursor>
   </template>
 </template>
 
@@ -168,10 +174,10 @@ import MacOsAlert from '@/components/macos/MacOsAlert.vue';
 import MacOsSystemLoader from '@/components/macos/MacOsSystemLoader.vue';
 import Installation from '@/components/Installation.vue';
 import MacOsLoginView from '@/components/macos/LoginView.vue';
-import IOSLoginView from '@/components/ios/LoginView.vue';
+import IOSUnlockView from '@/components/ios/UnlockView.vue';
 // import InstallDesktopIcon from '@/components/macos/InstallDesktopIcon.vue';
 import Checkbox from '@/components/macos/Checkbox.vue';
-import Notification from '@/components/utilities/Notification.vue';
+import Notification from '@/components/utilities/macos/Notification.vue';
 
 import iconCdInstall from '@/assets/icon-cd-install-mac.png';
 import appstore from '@/assets/dock/appstore.png';
@@ -195,9 +201,10 @@ onMounted(() => {
   return () => {
     window.removeEventListener('resize', handleResize);
   }
-})
+});
 
 const { isOnline } = useNetwork();
+const { isOnline: _ } = useNetwork();
 const { charging, chargingTime, dischargingTime, level } = useBattery();
 const { width: screenWidth } = useWindowSize();
 const { currentApp, setCurrentApp } = useCurrentApp();
@@ -209,6 +216,14 @@ const { screenNumber, isMultiScreen, post, on } = useScreens();
 setCurrentApp?.(APPLICATION.FINDER);
 
 const showIOSLoginView = ref(true);
+
+watch(showIOSLoginView, (showLoginView) => {
+  if (!showLoginView) {
+    setTimeout(() => {
+      showIOSLoginView.value = true;
+    }, 5000);
+  }
+})
 
 const wallpaper = ref('/img/wallpapers/wallpaper-install-macos.jpg');
 const connected = ref(false);
@@ -238,6 +253,8 @@ const md = new MobileDetect(navigator.userAgent);
 const isMobile = ref(md.phone() !== null || md.mobile() === 'UnknownMobile');
 const isTablet = ref(md.tablet() !== null || md.mobile() === 'UnknownTablet');
 // const isDesktop = computed(() => !isMobile.value && !isTablet.value);
+
+const showMobileVersion = computed(() => isMobile.value || isTablet.value || screenWidth.value <= 950);
 
 const showAlert = () => {
   displayAlert.value = true;
@@ -389,7 +406,7 @@ watch([isOnline], (sources) => {
 });
 watch([charging, chargingTime, dischargingTime, level], (sources) => {
   Object.keys(desktopTopBar.battery)
-      .map(key => (desktopTopBar.network[key] = sources[key]));
+      .map(key => sources[key] !== undefined && (desktopTopBar.battery[key] = sources[key]));
 });
 
 watch(() => alertAppInDev.dontShowAgain, () => {
