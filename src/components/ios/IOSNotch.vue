@@ -1,7 +1,5 @@
 <template>
-    <div class="notch">
-        
-    </div>
+    <div class="notch" />
 </template>
 
 <script setup>

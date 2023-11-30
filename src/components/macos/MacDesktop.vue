@@ -32,7 +32,7 @@
                     </li>
 
                     <li>
-                        {{ currentAppName.substring(0, 1).toUpperCase() }}{{ currentAppName.substring(1, currentAppName.length - 1) }}
+                        {{ currentAppName.substring(0, 1).toUpperCase() }}{{ currentAppName.substring(1) }}
                     </li>
 
                     <li>
@@ -317,10 +317,10 @@ import { onClickOutside, useToggle, useMouse, onKeyUp } from '@vueuse/core';
 
 import Grid from '@/components/utilities/Grid.vue';
 import Column from '@/components/utilities/Column.vue';
-import NewDirectory from '@/components/utilities/NewDirectoryIcon.vue';
-import Directory from '@/components/utilities/DirectoryIcon.vue';
-import NewFile from '@/components/utilities/NewFileIcon.vue';
-import File from '@/components/utilities/FileIcon.vue';
+import NewDirectory from '@/components/utilities/macos/NewDirectoryIcon.vue';
+import Directory from '@/components/utilities/macos/DirectoryIcon.vue';
+import NewFile from '@/components/utilities/macos/NewFileIcon.vue';
+import File from '@/components/utilities/macos/FileIcon.vue';
 import MacApplication from '@/components/macos/MacApplication.vue';
 import ToogleLiteDarkMode from '@/components/macos/ToogleLiteDarkMode.vue';
 import Spotlight from '@/components/macos/Spotlight.vue';
