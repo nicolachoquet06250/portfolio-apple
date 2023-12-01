@@ -1,4 +1,3 @@
-import { computed } from 'vue';
 <template>
     <article :class="icon ? 'with-icon' : ''">
         <div v-if="icon">
