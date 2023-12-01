@@ -25,6 +25,7 @@ export default defineConfig({
         description: "Portfolio du développeur Nicolas Choquet sous forme de système d'exploitation web qui s'adapte au support.",
         theme_color: '#000000',
         orientation: 'portrait',
+        display: 'standalone',
         icons: [
           {
             src: '/img/apple-192x192.png',
