@@ -1,5 +1,4 @@
 <template>
-    <h1>coucou</h1>
     <component :is="swiperComponent" 
                 @swipe="onSwipe" 
                 @swipe-end="onSwipeEnd">
@@ -90,23 +89,23 @@
 
             <body>
                 <section>
-                    <h2>
-                        {{ formattedDate }}
-                    </h2>
-                    <h1>
-                        {{ formattedTime }}
-                    </h1>
+                    <h2> {{ formattedDate }} </h2>
+
+                    <h1> {{ formattedTime }} </h1>
                 </section>
                 
-                <section>
-                    <Notification :icon="iconMusicIos">
-                        <template v-slot:title>
-                            <span>Jam</span>
+                <UnlockScreenNotificationList>
+                    <Notification 
+                        v-for="{id, title, description, icon, date} in notifications" :key="id" 
+                        :icon="icon" :date="date"
+                    >
+                        <template #title>
+                            {{ title }}
                         </template>
 
-                        Michael Jackson
+                        {{ description }}
                     </Notification>
-                </section>
+                </UnlockScreenNotificationList>
             </body>
 
             <footer>
@@ -143,9 +142,9 @@
 <script setup>
 import IOSNotch from '@/components/ios/IOSNotch.vue';
 import Notification from '@/components/ios/UnlockScreenNotification.vue';
+import UnlockScreenNotificationList from './UnlockScreenNotificationList.vue';
 import iconMusicIos from '@/assets/icons/icon-ios.png';
-// import { usePointerSwipe } from '@vueuse/core';
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useIosSwiper } from '@/hooks/ios-swiper';
 
 const swiperComponent = useIosSwiper();
@@ -196,6 +195,16 @@ const months = [
     'Décembre'
 ];
 
+const notifications = ref([
+    {
+        id: 0,
+        icon: iconMusicIos,
+        title: 'Jam',
+        description: 'Michael Jackson',
+        date: new Date()
+    }
+]);
+
 const view = ref(null);
 const swipeHeight = computed(() => view.value?.offsetHeight);
 const blur = ref(0);
@@ -205,31 +214,6 @@ const isSwiped = computed(() => blur.value !== 0);
 const buttonZIndex = computed(() => isSwiped.value ? 0 : 2);
 
 const showNotifications = ref(false);
-
-/*const {distanceY} = usePointerSwipe(swipe, {
-    onSwipe() {
-        if (swipeHeight.value) {
-            if (distanceY.value < 0) {
-                const distance = -1 * Math.abs(distanceY.value)
-                blur.value = Math.min(100 - ((swipeHeight.value + distance) / 10), 15)
-            }
-            else {
-                blur.value = 0
-            }
-        }
-    },
-    onSwipeEnd(_, direction) {
-        if (direction === 'down') {
-            showNotifications.value = true;
-        } else if (direction === 'up') {
-            if (showNotifications.value) {
-                showNotifications.value = false;
-            } else {
-                emit('unlock-screen');
-            }
-        }
-    }
-});*/
 
 function onSwipe(distanceY) {
     if (swipeHeight.value) {
@@ -284,6 +268,7 @@ onUnmounted(() => {
         left: 0;
         z-index: 9999;
         background-image: url(/img/wallpapers/ios-wallpaper.png);
+        cursor: default !important;
 
         &::after {
             content: '';
@@ -401,6 +386,10 @@ onUnmounted(() => {
                 border: 1px solid transparent;
                 border-radius: 100px;
                 padding: 18px;
+
+                &, * {
+                    cursor: pointer !important;
+                }
 
                 &:first-of-type {
                     margin-left: 50px;
