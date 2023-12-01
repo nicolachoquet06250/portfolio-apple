@@ -1,3 +1,4 @@
+
 <template>
   <div class="system-error-page">
     <div class="middle-block-container">
@@ -13,6 +14,25 @@
 
   <slot></slot>
 </template>
+
+<script setup>
+  import { onMounted, onUnmounted } from 'vue';
+
+  onMounted(() => {
+    if (screen && screen.orientation && screen.orientation.lock) {
+      screen.orientation.lock('portrait')
+        .then(() => console.log('L\'ecran à été bloqué en portrait !'))
+        .catch((error) => console.error(error.message));
+    }
+  });
+  onUnmounted(() => {
+    if (screen && screen.orientation && screen.orientation.unlock) {
+      screen.orientation.unlock();
+      
+      console.log('L\'ecran à été débloqué !');
+    }
+  });
+</script>
 
 <style lang="scss" scoped>
   div.system-error-page {
