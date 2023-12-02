@@ -22,7 +22,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
       manifest: {
-        "id": "Nicolas Choquet",
+        "id": "/",
         "name": "Apple WebOS Portfolio Nicolas Choquet",
         "short_name": "Nicolas Choquet",
         "start_url": "/",
@@ -55,54 +55,30 @@ export default defineConfig({
             "label": "loading desktop",
             "src": "/manifest/screenshots/desktop/loading.png",
             "type": "image/png",
+            "form_factor": "wide",
             "sizes": "2191x1060"
           },
-          // {
-          //   "label": "loading desktop",
-          //   "src": "/manifest/screenshots/desktop/loading.png",
-          //   "type": "image/png",
-          //   "form_factor": "wide",
-          //   "sizes": "2191x1060"
-          // },
           {
             "label": "login desktop",
             "src": "/manifest/screenshots/desktop/login.png",
             "type": "image/png",
+            "form_factor": "wide",
             "sizes": "2191x1060"
           },
-          // {
-          //   "label": "login desktop",
-          //   "src": "/manifest/screenshots/desktop/login.png",
-          //   "type": "image/png",
-          //   "form_factor": "wide",
-          //   "sizes": "2191x1060"
-          // },
           {
             "label": "desktop",
             "src": "/manifest/screenshots/desktop/desktop.png",
             "type": "image/png",
+            "form_factor": "wide",
             "sizes": "2191x1060"
           },
-          // {
-          //   "label": "desktop",
-          //   "src": "/manifest/screenshots/desktop/desktop.png",
-          //   "type": "image/png",
-          //   "form_factor": "wide",
-          //   "sizes": "2191x1060"
-          // },
           {
             "label": "mobile unlock screen",
             "src": "/manifest/screenshots/mobile/unlock-screen.png",
             "type": "image/png",
-            "sizes": "1033x2115"
-          },
-          // {
-          //   "label": "mobile unlock screen",
-          //   "src": "/manifest/screenshots/mobile/unlock-screen.png",
-          //   "type": "image/png",
-          //   "form_factor": "narrow",
-          //   "sizes": "1033x2115"
-          // }
+            "form_factor": "narrow",
+            "sizes": "517x1058"
+          }
         ],
         launch_handler: {
           client_mode: 'focus-existing'
