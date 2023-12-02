@@ -54,46 +54,54 @@ export default defineConfig({
           {
             "label": "loading desktop",
             "src": "/manifest/screenshots/desktop/loading.png",
-            "type": "image/png"
+            "type": "image/png",
+            "sizes": "4382x2120"
           },
           {
             "label": "loading desktop",
             "src": "/manifest/screenshots/desktop/loading.png",
             "type": "image/png",
-            "form_factor": "wide"
+            "form_factor": "wide",
+            "sizes": "4382x2120"
           },
           {
             "label": "login desktop",
             "src": "/manifest/screenshots/desktop/login.png",
-            "type": "image/png"
+            "type": "image/png",
+            "sizes": "4382x2120"
           },
           {
             "label": "login desktop",
             "src": "/manifest/screenshots/desktop/login.png",
             "type": "image/png",
-            "form_factor": "wide"
-          },
-          {
-            "label": "desktop",
-            "src": "/manifest/screenshots/desktop/desktop.png",
-            "type": "image/png"
+            "form_factor": "wide",
+            "sizes": "4382x2120"
           },
           {
             "label": "desktop",
             "src": "/manifest/screenshots/desktop/desktop.png",
             "type": "image/png",
-            "form_factor": "wide"
+            "sizes": "4382x2120"
           },
           {
-            "label": "mobile unlock screen",
-            "src": "/manifest/screenshots/mobile/unlock-screen.png",
-            "type": "image/png"
+            "label": "desktop",
+            "src": "/manifest/screenshots/desktop/desktop.png",
+            "type": "image/png",
+            "form_factor": "wide",
+            "sizes": "4382x2120"
           },
           {
             "label": "mobile unlock screen",
             "src": "/manifest/screenshots/mobile/unlock-screen.png",
             "type": "image/png",
-            "form_factor": "narrow"
+            "sizes": "1033x2115"
+          },
+          {
+            "label": "mobile unlock screen",
+            "src": "/manifest/screenshots/mobile/unlock-screen.png",
+            "type": "image/png",
+            "form_factor": "narrow",
+            "sizes": "1033x2115"
           }
         ],
         launch_handler: {
@@ -122,7 +130,8 @@ export default defineConfig({
               {
                 "purpose": "maskable",
                 "src": "/manifest/shortcuts/finder.png",
-                "type": "image/png"
+                "type": "image/png",
+                "sizes": "96x96"
               }
             ]
           },
@@ -134,7 +143,8 @@ export default defineConfig({
               {
                 "purpose": "maskable",
                 "src": "/manifest/shortcuts/terminal.png",
-                "type": "image/png"
+                "type": "image/png",
+                "sizes": "96x96"
               }
             ]
           }
