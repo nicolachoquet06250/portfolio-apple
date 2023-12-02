@@ -58,9 +58,21 @@ export default defineConfig({
             "type": "image/png"
           },
           {
+            "label": "loading desktop",
+            "src": "/manifest/screenshots/desktop/loading.png",
+            "type": "image/png",
+            "form_factor": "wide"
+          },
+          {
             "label": "login desktop",
             "src": "/manifest/screenshots/desktop/login.png",
             "type": "image/png"
+          },
+          {
+            "label": "login desktop",
+            "src": "/manifest/screenshots/desktop/login.png",
+            "type": "image/png",
+            "form_factor": "wide"
           },
           {
             "label": "desktop",
@@ -68,9 +80,21 @@ export default defineConfig({
             "type": "image/png"
           },
           {
+            "label": "desktop",
+            "src": "/manifest/screenshots/desktop/desktop.png",
+            "type": "image/png",
+            "form_factor": "wide"
+          },
+          {
             "label": "mobile unlock screen",
             "src": "/manifest/screenshots/mobile/unlock-screen.png",
             "type": "image/png"
+          },
+          {
+            "label": "mobile unlock screen",
+            "src": "/manifest/screenshots/mobile/unlock-screen.png",
+            "type": "image/png",
+            "form_factor": "narrow"
           }
         ],
         launch_handler: {
