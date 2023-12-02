@@ -117,7 +117,7 @@ export default defineConfig({
         "handle_links": "preferred",
         "protocol_handlers": [
           {
-            "protocol": "web+nc+ios+app",
+            "protocol": "web+nc-ios-app",
             "url": "/?app=%s"
           }
         ],
