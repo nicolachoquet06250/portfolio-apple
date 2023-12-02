@@ -55,40 +55,40 @@ export default defineConfig({
             "label": "loading desktop",
             "src": "/manifest/screenshots/desktop/loading.png",
             "type": "image/png",
-            "sizes": "4382x2120"
+            "sizes": "2191x1060"
           },
           {
             "label": "loading desktop",
             "src": "/manifest/screenshots/desktop/loading.png",
             "type": "image/png",
             "form_factor": "wide",
-            "sizes": "4382x2120"
+            "sizes": "2191x1060"
           },
           {
             "label": "login desktop",
             "src": "/manifest/screenshots/desktop/login.png",
             "type": "image/png",
-            "sizes": "4382x2120"
+            "sizes": "2191x1060"
           },
           {
             "label": "login desktop",
             "src": "/manifest/screenshots/desktop/login.png",
             "type": "image/png",
             "form_factor": "wide",
-            "sizes": "4382x2120"
+            "sizes": "2191x1060"
           },
           {
             "label": "desktop",
             "src": "/manifest/screenshots/desktop/desktop.png",
             "type": "image/png",
-            "sizes": "4382x2120"
+            "sizes": "2191x1060"
           },
           {
             "label": "desktop",
             "src": "/manifest/screenshots/desktop/desktop.png",
             "type": "image/png",
             "form_factor": "wide",
-            "sizes": "4382x2120"
+            "sizes": "2191x1060"
           },
           {
             "label": "mobile unlock screen",
