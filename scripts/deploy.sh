@@ -4,4 +4,5 @@ ssh nicolas-choquet@ssh-nicolas-choquet.alwaysdata.net \
     rm -f package.lock && \
     git pull && \
     npm install && \
+    npn run cert && \
     npm run build'
