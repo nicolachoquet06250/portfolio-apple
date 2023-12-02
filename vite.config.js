@@ -2,6 +2,8 @@ import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import { fileURLToPath, URL } from 'node:url'
+import ssl from "@vitejs/plugin-basic-ssl";
+import fs from 'node:fs'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -11,6 +13,7 @@ export default defineConfig({
     }
   },
   plugins: [
+    ssl(),
     vue({
       script: {
         defineModel: true
@@ -25,7 +28,7 @@ export default defineConfig({
         description: "Portfolio du développeur Nicolas Choquet sous forme de système d'exploitation web qui s'adapte au support.",
         theme_color: '#000000',
         orientation: 'portrait',
-        display: 'standalone',
+        display: 'fullscreen',
         icons: [
           {
             src: '/img/apple-192x192.png',
@@ -41,4 +44,10 @@ export default defineConfig({
       }
     })
   ],
+  server: {
+    https: {
+      key: fs.readFileSync('./.certs/key.pem'),
+      cert: fs.readFileSync('./.certs/cert.pem')
+    }
+  }
 })
