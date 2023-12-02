@@ -23,22 +23,85 @@ export default defineConfig({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
       manifest: {
-        name: 'Apple WebOS Portfolio Nicolas Choquet',
-        short_name: 'Nicolas Choquet',
-        description: "Portfolio du développeur Nicolas Choquet sous forme de système d'exploitation web qui s'adapte au support.",
-        theme_color: '#000000',
-        orientation: 'portrait',
-        display: 'fullscreen',
-        icons: [
+        "id": "Nicolas Choquet",
+        "name": "Apple WebOS Portfolio Nicolas Choquet",
+        "short_name": "Nicolas Choquet",
+        "start_url": "/",
+        "scope": "/",
+        "display": "fullscreen",
+        "dir": "ltr",
+        "theme_color": "#000000",
+        "background_color": "#000000",
+        "lang": "fr",
+        "description": "Portfolio du développeur Nicolas Choquet sous forme de système d'exploitation web qui s'adapte au support.",
+        "orientation": "portrait",
+        "icons": [
           {
-            src: '/img/apple-192x192.png',
-            sizes: '192x192',
-            type: 'image/png'
+            "src": "/img/apple-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
           },
           {
-            src: '/img/apple-512x512.png',
-            sizes: '512x512',
-            type: 'image/png'
+            "src": "/img/apple-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+          }
+        ],
+        "categories": [
+          "navigation",
+          "personalization"
+        ],
+        "screenshots": [
+          {
+            "label": "loading desktop",
+            "src": "/manifest/screenshots/desktop/loading.png",
+            "type": "image/png"
+          },
+          {
+            "label": "login desktop",
+            "src": "/manifest/screenshots/desktop/login.png",
+            "type": "image/png"
+          },
+          {
+            "label": "desktop",
+            "src": "/manifest/screenshots/desktop/desktop.png",
+            "type": "image/png"
+          },
+          {
+            "label": "mobile unlock screen",
+            "src": "/manifest/screenshots/mobile/unlock-screen.png",
+            "type": "image/png"
+          }
+        ],
+        launch_handler: {
+          client_mode: 'focus-existing'
+        },
+        "prefer_related_applications": false,
+        "scope_extensions": [
+          {origin: 'www.nicolaschoquet.fr'}
+        ],
+        "edge_side_panel": {
+          "preferred_width": 400
+        },
+        "handle_links": "preferred",
+        "protocol_handlers": [
+          {
+            "protocol": "nc+ios+app",
+            "url": "/?app=%s"
+          }
+        ],
+        "shortcuts": [
+          {
+            "name": "Finder",
+            "url": "?app=finder",
+            "description": "Ouvrir le finder",
+            "icons": []
+          },
+          {
+            "name": "Terminal",
+            "url": "/?app=terminal",
+            "description": "Ouvrir le terminal",
+            "icons": []
           }
         ]
       }
