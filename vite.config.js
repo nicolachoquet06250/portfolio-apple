@@ -109,7 +109,7 @@ export default defineConfig({
         "handle_links": "preferred",
         "protocol_handlers": [
           {
-            "protocol": "nc+ios+app",
+            "protocol": "web+nc+ios+app",
             "url": "/?app=%s"
           }
         ],
@@ -118,13 +118,25 @@ export default defineConfig({
             "name": "Finder",
             "url": "?app=finder",
             "description": "Ouvrir le finder",
-            "icons": []
+            "icons": [
+              {
+                "purpose": "maskable",
+                "src": "/manifest/shortcuts/finder.png",
+                "type": "image/png"
+              }
+            ]
           },
           {
             "name": "Terminal",
             "url": "/?app=terminal",
             "description": "Ouvrir le terminal",
-            "icons": []
+            "icons": [
+              {
+                "purpose": "maskable",
+                "src": "/manifest/shortcuts/terminal.png",
+                "type": "image/png"
+              }
+            ]
           }
         ]
       }
