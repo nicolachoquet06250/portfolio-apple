@@ -132,8 +132,8 @@ export default defineConfig({
   server: {
     https: true
   },
-  https: {
-    key: fs.readFileSync('./.certs/key.pem'),
-    cert: fs.readFileSync('./.certs/cert.pem')
-  }
+  // https: {
+  //   key: fs.readFileSync('./.certs/key.pem'),
+  //   cert: fs.readFileSync('./.certs/cert.pem')
+  // }
 })
