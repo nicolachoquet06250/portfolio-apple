@@ -8,7 +8,7 @@
             </div>
 
             <div class="window-body">
-                <img :src="iconInstallMac" />
+                <img :src="iconInstallMac" alt="icon install macosx" />
 
                 <h1> macOS </h1>
 
@@ -31,7 +31,7 @@
 </template>
 
 <script setup>
-import { ref, computed, defineEmits } from 'vue';
+import { computed, defineEmits } from 'vue';
 import { useMenu, useStepTitle } from '@/hooks/installation/menu';
 import { useWindowSize } from '@vueuse/core';
 import iconInstallMac from '@/assets/install-icons/icon-install-macos.png';

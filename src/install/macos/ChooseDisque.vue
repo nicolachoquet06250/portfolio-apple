@@ -8,7 +8,7 @@
             </div>
 
             <div class="window-body">
-                <img :src="iconInstallMac" />
+                <img :src="iconInstallMac" alt="icon install macosx" />
 
                 <h1> macOS </h1>
 
@@ -23,7 +23,7 @@
                         active: choosenDisque === disque.name
                     }" clickable @click="chooseDisque(disque.name)"
                     v-for="disque of DISQUES" :key="disque.name">
-                        <img :src="disque.icon" />
+                        <img :src="disque.icon" alt="icon disque" />
 
                         <span class="disque-title">
                             {{ disque.name }}
@@ -66,7 +66,7 @@
 </template>
 
 <script setup>
-import { ref, computed, defineEmits } from 'vue';
+import { computed, defineEmits } from 'vue';
 import { useWindowSize } from '@vueuse/core';
 import { useMenu, useStepTitle } from '@/hooks/installation/menu';
 import { DISQUES, useDisque } from '@/hooks/installation/disque';

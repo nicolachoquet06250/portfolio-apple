@@ -8,7 +8,7 @@
             </div>
 
             <div class="window-body">
-                <img :src="iconInstallMac" />
+                <img :src="iconInstallMac" alt="icon install macosx" />
 
                 <h1> macOS </h1>
 
