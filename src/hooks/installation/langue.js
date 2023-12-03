@@ -3,8 +3,10 @@ import iconFrFlag from '@/assets/flags/flag-french.png';
 import iconUkFlag from '@/assets/flags/flag-uk.png';
 import iconUsFlag from '@/assets/flags/flag-usa.png';
 
-const selectedLangue = ref('');
-const selectedCountry = ref('');
+const selectedLangue = ref((localStorage.getItem('compiled-install-data') && JSON.parse(localStorage.getItem('compiled-install-data')).selectedLangue
+    ? JSON.parse(localStorage.getItem('compiled-install-data')).selectedLangue : ''));
+const selectedCountry = ref((localStorage.getItem('compiled-install-data') && JSON.parse(localStorage.getItem('compiled-install-data')).selectedCountry
+    ? JSON.parse(localStorage.getItem('compiled-install-data')).selectedCountry : ''));
 
 export const LANGUES = [
     {

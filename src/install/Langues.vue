@@ -2,7 +2,7 @@
     <div class="install-choose-language-step">
         <div class="window">
             <div class="window-body">
-                <img :src="iconLangues" />
+                <img :src="iconLangues" alt="icon languages" />
 
                 <h2>Langue</h2>
 
@@ -63,7 +63,7 @@
 </template>
 
 <script setup>
-import { ref, defineEmits } from 'vue';
+import { defineEmits } from 'vue';
 import { LANGUES, useLangues } from '@/hooks/installation/langue';
 import { useMenu } from '@/hooks/installation/menu';
 import iconLangues from '@/assets/install-icons/icon-langues.png';
@@ -79,7 +79,6 @@ resetMenus();
 
 <style lang="scss" scoped>
 .install-choose-language-step {
-    cursor: default;
     background-color: #131313;
     position: absolute;
     top: 0;
@@ -92,12 +91,16 @@ resetMenus();
         position: absolute;
         width: 920px;
         height: 750px;
+        max-height: calc(100% - 20px);
         display: flex;
         flex-direction: column;
         border-radius: 10px;
         overflow: hidden;
-        left: calc(50% - (920px / 2));
-        top: calc(50% - (750px / 2));
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -52%);
+        margin-bottom: 10px;
+        margin-top: 10px;
 
         &-body {
             display: flex;
@@ -106,6 +109,8 @@ resetMenus();
             justify-content: flex-start;
             align-items: center;
             padding-top: 70px;
+            padding-bottom: 20px;
+            overflow-y: auto;
 
             h2 {
                 color: white;
@@ -194,7 +199,6 @@ resetMenus();
                     }
                 }
             }
-            
         }
     }
 }

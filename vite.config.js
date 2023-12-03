@@ -3,13 +3,13 @@ import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import { fileURLToPath, URL } from 'node:url'
 import ssl from "@vitejs/plugin-basic-ssl"
-import fs from 'node:fs'
 
 // https://vitejs.dev/config/
 export default defineConfig({
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '$': fileURLToPath(new URL('./vite', import.meta.url))
     }
   },
   plugins: [
@@ -131,9 +131,5 @@ export default defineConfig({
   ],
   server: {
     https: true
-  },
-  // https: {
-  //   key: fs.readFileSync('./.certs/key.pem'),
-  //   cert: fs.readFileSync('./.certs/cert.pem')
-  // }
+  }
 })

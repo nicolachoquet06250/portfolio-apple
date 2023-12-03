@@ -5,6 +5,7 @@
     }">
         <div v-if="rebooted">
             <span> {{ langue.displayed }} <i class="far fa-keyboard"></i> </span>
+
             <span> {{ formattedDate }} </span>
         </div>
 
@@ -20,18 +21,19 @@
             </div>
 
             <div v-if="Object.keys(menus).length > 0">
-                <img :src="langue.flag" />
+                <img :src="langue.flag" alt="language flag" />
             </div>
         </template>
     </div>
 
     <CurrentStep 
-        @nextStep="components[currentStep]?.onNext($event)" 
-        @previousStep="components[currentStep]?.onPrevious($event)" />
+        @nextStep="components[currentStep]?.onNext"
+        @previousStep="components[currentStep]?.onPrevious"
+    />
 </template>
 
 <script setup>
-import { computed, ref, defineEmits } from 'vue';
+import { computed, ref, defineEmits, watch } from 'vue';
 import { useMenu, isRebooted } from '@/hooks/installation/menu';
 import { useLangues } from '@/hooks/installation/langue';
 import { useWait } from '@/hooks/wait';
@@ -58,15 +60,14 @@ const { langue } = useLangues();
 const { isWait, isNotWait } = useWait();
 const { isSkipped } = useInstalled()
 
-const formattedDate = ref(
-  new Date().getHours() + ':' + new Date().getMinutes()
-);
+const date = ref(new Date());
+const formattedDate = computed(() => `${date.value.getHours()}:${date.value.getMinutes()}`);
 
-setInterval(() => {
-  formattedDate.value = new Date().getHours() + ':' + new Date().getMinutes();
-}, 1000);
+setInterval(() => (date.value = new Date()), 1000);
 
-const currentStep = ref(0);
+const currentStep = ref(parseInt(localStorage.getItem('currentStep') ?? '0'));
+watch(currentStep, currentStep => localStorage.setItem('currentStep', `${currentStep}`));
+
 const components = [
     {
         component: LanguesStep,
@@ -77,14 +78,30 @@ const components = [
                     install_skipped: true
                 });
             }
+            localStorage.setItem(
+                'compiled-install-data',
+                JSON.stringify({
+                  ...(localStorage.getItem('compiled-install-data')
+                      ? JSON.parse(localStorage.getItem('compiled-install-data')) : {}),
+                  ...e.details
+                })
+            );
             console.log(e.details)
-            console.log('passer à l\'étape de démarrage de l\'installation');
+            console.log("passer à l'étape de démarrage de l'installation");
             currentStep.value++;
         }
     },
     {
         component: StartInstallStep,
         onNext(e) {
+            localStorage.setItem(
+                'compiled-install-data',
+                JSON.stringify({
+                  ...(localStorage.getItem('compiled-install-data')
+                      ? JSON.parse(localStorage.getItem('compiled-install-data')) : {}),
+                  ...e.details
+                })
+            );
             console.log(e.details)
             console.log('passer à l\'étape de récapitulation de l\'installation pour pouvoir commencer');
             currentStep.value++;
@@ -93,6 +110,14 @@ const components = [
     {
         component: InstallRecapStep,
         onNext(e) {
+            localStorage.setItem(
+                'compiled-install-data',
+                JSON.stringify({
+                  ...(localStorage.getItem('compiled-install-data')
+                      ? JSON.parse(localStorage.getItem('compiled-install-data')) : {}),
+                  ...e.details
+                })
+            );
             console.log(e.details);
             console.log('passer à l\'étape d\'accéptation de la licence');
             currentStep.value++;
@@ -101,11 +126,27 @@ const components = [
     {
         component: LicenceStep,
         onNext(e) {
+            localStorage.setItem(
+                'compiled-install-data',
+                JSON.stringify({
+                  ...(localStorage.getItem('compiled-install-data')
+                      ? JSON.parse(localStorage.getItem('compiled-install-data')) : {}),
+                  ...e.details
+                })
+            );
             console.log(e.details);
             console.log('Passer à l\'étape de choix du disque');
             currentStep.value++;
         },
         onPrevious(e) {
+            localStorage.setItem(
+                'compiled-install-data',
+                JSON.stringify({
+                  ...(localStorage.getItem('compiled-install-data')
+                      ? JSON.parse(localStorage.getItem('compiled-install-data')) : {}),
+                  ...e.details
+                })
+            );
             console.log(e.details);
             console.log('Revenir à l\'étape de récap');
             currentStep.value--;
@@ -114,12 +155,28 @@ const components = [
     {
         component: ChooseDisqueStep,
         onNext(e) {
+            localStorage.setItem(
+                'compiled-install-data',
+                JSON.stringify({
+                  ...(localStorage.getItem('compiled-install-data')
+                      ? JSON.parse(localStorage.getItem('compiled-install-data')) : {}),
+                  ...e.details
+                })
+            );
             console.log(e.details);
             console.log('Passer à l\'installation');
             isWait();
             currentStep.value++;
         },
         onPrevious(e) {
+            localStorage.setItem(
+                'compiled-install-data',
+                JSON.stringify({
+                  ...(localStorage.getItem('compiled-install-data')
+                      ? JSON.parse(localStorage.getItem('compiled-install-data')) : {}),
+                  ...e.details
+                })
+            );
             console.log(e.details);
             console.log('Revenir à l\'étape d\'acceptation de la licence');
             currentStep.value--;
@@ -127,22 +184,46 @@ const components = [
     },
     {
         component: InstallStep,
-        onPrevious(e) {
-            console.log(e.details);
-            console.log('Revenir à l\'étape de choix du disque');
-            isNotWait();
-            currentStep.value--;
-        },
         onNext(e) {
+            localStorage.setItem(
+                'compiled-install-data',
+                JSON.stringify({
+                  ...(localStorage.getItem('compiled-install-data')
+                      ? JSON.parse(localStorage.getItem('compiled-install-data')) : {}),
+                  ...e.details
+                })
+            );
             console.log(e.details);
             console.log('Passer à l\'étape de reboot');
             isNotWait();
             currentStep.value++;
+        },
+        onPrevious(e) {
+            localStorage.setItem(
+                'compiled-install-data',
+                JSON.stringify({
+                  ...(localStorage.getItem('compiled-install-data')
+                      ? JSON.parse(localStorage.getItem('compiled-install-data')) : {}),
+                  ...e.details
+                })
+            );
+          console.log(e.details);
+          console.log('Revenir à l\'étape de choix du disque');
+          isNotWait();
+          currentStep.value--;
         }
     },
     {
         component: RebootSystemStep,
         onNext(e) {
+            localStorage.setItem(
+                'compiled-install-data',
+                JSON.stringify({
+                  ...(localStorage.getItem('compiled-install-data')
+                      ? JSON.parse(localStorage.getItem('compiled-install-data')) : {}),
+                  ...e.details
+                })
+            );
             console.log(e.details);
             console.log('Passer à l\'étape de choix du pays');
             isRebooted();
@@ -152,11 +233,27 @@ const components = [
     {
         component: ChooseCountryStep,
         onNext(e) {
+            localStorage.setItem(
+                'compiled-install-data',
+                JSON.stringify({
+                  ...(localStorage.getItem('compiled-install-data')
+                      ? JSON.parse(localStorage.getItem('compiled-install-data')) : {}),
+                  ...e.details
+                })
+            );
             console.log(e.details);
             console.log('Passer à l\'étape de récap des langues');
             currentStep.value++;
         },
         onPrevious(e) {
+            localStorage.setItem(
+                'compiled-install-data',
+                JSON.stringify({
+                  ...(localStorage.getItem('compiled-install-data')
+                      ? JSON.parse(localStorage.getItem('compiled-install-data')) : {}),
+                  ...e.details
+                })
+            );
             console.log(e.details);
             console.log('Retour à l\'étape de récap de choix du disque');
             currentStep.value = 4;
@@ -165,11 +262,27 @@ const components = [
     {
         component: RecapLanguesStep,
         onNext(e) {
+            localStorage.setItem(
+                'compiled-install-data',
+                JSON.stringify({
+                  ...(localStorage.getItem('compiled-install-data')
+                      ? JSON.parse(localStorage.getItem('compiled-install-data')) : {}),
+                  ...e.details
+                })
+            );
             console.log(e.details);
             console.log('Passer à l\'étape des conditions générale d\'utilisation');
             currentStep.value++;
         },
         onPrevious(e) {
+            localStorage.setItem(
+                'compiled-install-data',
+                JSON.stringify({
+                  ...(localStorage.getItem('compiled-install-data')
+                      ? JSON.parse(localStorage.getItem('compiled-install-data')) : {}),
+                  ...e.details
+                })
+            );
             console.log(e.details);
             console.log('Retour à l\'étape de choix du pays');
             currentStep.value--;
@@ -178,11 +291,27 @@ const components = [
     {
         component: GeneralConditionsStep,
         onNext(e) {
+            localStorage.setItem(
+                'compiled-install-data',
+                JSON.stringify({
+                  ...(localStorage.getItem('compiled-install-data')
+                      ? JSON.parse(localStorage.getItem('compiled-install-data')) : {}),
+                  ...e.details
+                })
+            );
             console.log(e.details);
             console.log('Passer à l\'étape de création de compte');
             currentStep.value++;
         },
         onPrevious(e) {
+            localStorage.setItem(
+                'compiled-install-data',
+                JSON.stringify({
+                  ...(localStorage.getItem('compiled-install-data')
+                      ? JSON.parse(localStorage.getItem('compiled-install-data')) : {}),
+                  ...e.details
+                })
+            );
             console.log(e.details);
             console.log('Retour à l\'étape de récap des langues');
             currentStep.value--;
@@ -191,11 +320,27 @@ const components = [
     {
         component: CreateAccountStep,
         onNext(e) {
+            localStorage.setItem(
+                'compiled-install-data',
+                JSON.stringify({
+                  ...(localStorage.getItem('compiled-install-data')
+                      ? JSON.parse(localStorage.getItem('compiled-install-data')) : {}),
+                  ...e.details
+                })
+            );
             console.log(e.details);
             console.log('Passer à l\'étape de choix du style du mac');
             currentStep.value++;
         },
         onPrevious(e) {
+            localStorage.setItem(
+                'compiled-install-data',
+                JSON.stringify({
+                  ...(localStorage.getItem('compiled-install-data')
+                      ? JSON.parse(localStorage.getItem('compiled-install-data')) : {}),
+                  ...e.details
+                })
+            );
             console.log(e.details);
             console.log('Revenir à l\'étape des conditions générale d\'utilisation');
             currentStep.value--;
@@ -204,11 +349,27 @@ const components = [
     {
         component: ChooseStyleStep,
         onNext(e) {
+            localStorage.setItem(
+                'compiled-install-data',
+                JSON.stringify({
+                  ...(localStorage.getItem('compiled-install-data')
+                      ? JSON.parse(localStorage.getItem('compiled-install-data')) : {}),
+                  ...e.details
+                })
+            );
             console.log(e.details);
             console.log('Passer à l\'étape de configuration');
             currentStep.value++;
         },
         onPrevious(e) {
+            localStorage.setItem(
+                'compiled-install-data',
+                JSON.stringify({
+                  ...(localStorage.getItem('compiled-install-data')
+                      ? JSON.parse(localStorage.getItem('compiled-install-data')) : {}),
+                  ...e.details
+                })
+            );
             console.log(e.details);
             console.log('Revenir à l\'étape de création du compte');
             currentStep.value--;
@@ -217,6 +378,14 @@ const components = [
     {
         component: ConfigurationStep,
         onNext(e) {
+            localStorage.setItem(
+                'compiled-install-data',
+                JSON.stringify({
+                  ...(localStorage.getItem('compiled-install-data')
+                      ? JSON.parse(localStorage.getItem('compiled-install-data')) : {}),
+                  ...e.details
+                })
+            );
             console.log(e.details);
             console.log('Passer à l\'étape de reboot');
             currentStep.value++;
@@ -225,6 +394,14 @@ const components = [
     {
         component: RebootSystemStep,
         onNext(e) {
+            localStorage.setItem(
+                'compiled-install-data',
+                JSON.stringify({
+                  ...(localStorage.getItem('compiled-install-data')
+                      ? JSON.parse(localStorage.getItem('compiled-install-data')) : {}),
+                  ...e.details
+                })
+            );
             console.log(e.details);
             console.log('Finir le process et aller sur le bureau');
             localStorage.setItem('installed', '1');
