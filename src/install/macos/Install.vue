@@ -8,7 +8,7 @@
             </div>
 
             <div class="window-body">
-                <img :src="iconInstallMac" />
+                <img :src="iconInstallMac" alt="icon install macosx" />
 
                 <h1> macOS </h1>
 
@@ -18,7 +18,7 @@
                 <div v-else style="height: 40px"></div>
 
                 <div class="disque">
-                    <img :src="disque.icon" />
+                    <img :src="disque.icon" alt="icon disque" />
 
                     <span class="disque-title">
                         {{ disque.name }}

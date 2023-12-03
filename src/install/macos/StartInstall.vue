@@ -7,7 +7,7 @@
                         active: isActive(OPTIONS.INSTALL)
                      }" 
                 clickable @click="selectOption(OPTIONS.INSTALL)">
-                    <img :src="iconInstallMac" />
+                    <img :src="iconInstallMac" alt="icon install macosx" />
                     <div class="select-option-description">
                         <h4> Installer macOS </h4>
                         <p> Mettez à niveau ou installez une nouvelle copie de macOS. </p>

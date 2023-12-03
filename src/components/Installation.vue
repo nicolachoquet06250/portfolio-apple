@@ -39,19 +39,19 @@ import { useLangues } from '@/hooks/installation/langue';
 import { useWait } from '@/hooks/wait';
 import { useInstalled } from '@/hooks/installed';
 
-import LanguesStep from '@/install/Langues.vue';
-import StartInstallStep from '@/install/StartInstall.vue';
-import InstallRecapStep from '@/install/InstallRecap.vue';
-import LicenceStep from '@/install/Licence.vue';
-import ChooseDisqueStep from '@/install/ChooseDisque.vue';
-import InstallStep from '@/install/Install.vue';
-import RebootSystemStep from '@/install/RebootSystem.vue';
-import ChooseCountryStep from '@/install/ChooseCountry.vue';
-import RecapLanguesStep from '@/install/RecapLangues.vue';
-import GeneralConditionsStep from '@/install/GeneralConditions.vue';
-import CreateAccountStep from '@/install/CreateAccount.vue';
-import ChooseStyleStep from '@/install/ChooseStyle.vue';
-import ConfigurationStep from '@/install/Configuration.vue';
+import LanguesStep from '@/install/macos/Langues.vue';
+import StartInstallStep from '@/install/macos/StartInstall.vue';
+import InstallRecapStep from '@/install/macos/InstallRecap.vue';
+import LicenceStep from '@/install/macos/Licence.vue';
+import ChooseDisqueStep from '@/install/macos/ChooseDisque.vue';
+import InstallStep from '@/install/macos/Install.vue';
+import RebootSystemStep from '@/install/macos/RebootSystem.vue';
+import ChooseCountryStep from '@/install/macos/ChooseCountry.vue';
+import RecapLanguesStep from '@/install/macos/RecapLangues.vue';
+import GeneralConditionsStep from '@/install/macos/GeneralConditions.vue';
+import CreateAccountStep from '@/install/macos/CreateAccount.vue';
+import ChooseStyleStep from '@/install/macos/ChooseStyle.vue';
+import ConfigurationStep from '@/install/macos/Configuration.vue';
 
 const emit = defineEmits(['installed']);
 

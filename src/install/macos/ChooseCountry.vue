@@ -1,30 +1,22 @@
 <template>
-    <div class="choose-style-step">
+    <div class="choose-country-step">
         <div class="blur"></div>
 
         <div class="window">
             <div class="window-body">
-                <h1> Choisissez votre style </h1>
-                
-                <p>
-                    Sélectionnez une apparence et voyez comment cela affecte le Dock, 
-                    les menus, les boutons, et les fenêtres.
-                </p>
+                <img :src="iconCountry" alt="icon country" />
 
-                <p>
-                    Vous pouvez modifier votre choix ultérieurement dans les paramètres système.
-                </p>
+                <h1> Choisir un pays ou une région </h1>
 
-                <div class="btn-container">
-                    <button v-for="theme of THEMES" :key="theme.label" 
-                            :autofocus="selectedTheme === theme.value"
-                            :class="{
-                                active: selectedTheme === theme.value
-                            }" @click="selectTheme(theme.value)">
-                        <img :src="theme.icon" />
-
-                        <span> {{ theme.label }} </span>
-                    </button>
+                <div class="country-select">
+                    <a href="#" :class="{
+                        'country-option': true,
+                        active: selectedCountry === country.value
+                    }" 
+                       v-for="country of COUNTRIES" :key="country.value" 
+                       @click.prevent.stop="selectCountry(country.value)">
+                        {{ country.displayed }}
+                    </a>
                 </div>
             </div>
             
@@ -38,13 +30,14 @@
                     Retour
                 </button>
 
-                <button @click="$emit('nextStep', {
-                    event: $event,
-                    details: {
-                        continue: true,
-                        selectedTheme
-                    }
-                })">
+                <button :disabled="selectedCountry === ''" 
+                    @click="$emit('nextStep', {
+                        event: $event,
+                        details: {
+                            continue: true,
+                            selectedCountry
+                        }
+                    })">
                     Continuer
                 </button>
             </div>
@@ -53,14 +46,17 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { THEMES, useTheme } from '@/hooks/installation/system-style';
+import { defineEmits } from 'vue';
+import { COUNTRIES, useCountries } from '@/hooks/installation/langue';
+import iconCountry from '@/assets/install-icons/icon-country.png';
 
-const { selectedTheme, selectTheme } = useTheme();
+defineEmits(['nextStep', 'previousStep']);
+
+const { selectedCountry, selectCountry } = useCountries();
 </script>
 
 <style lang="scss" scoped>
-.choose-style-step {
+.choose-country-step {
     cursor: default;
     background-image: url(/img/wallpapers/wallpaper-install-macos.jpg);
     position: absolute;
@@ -99,48 +95,38 @@ const { selectedTheme, selectTheme } = useTheme();
             flex-direction: column;
             justify-content: flex-start;
             align-items: center;
-            margin-top: 30px;
             padding-top: 70px;
 
-            h1 + p, 
-            h1 + p + p {
-                margin: 0;
-                width: 550px;
-                text-align: center;
+            h2 {
+                color: black;
             }
 
-            p {
-                font-size: 15px;
-            }
-
-            .btn-container {
-                display: flex;
-                flex-direction: row;
-                justify-content: space-around;
-                align-items: center;
-
-                button {
+            .country {
+                &-select {
+                    background-color: #FFFFFF;
+                    width: 300px;
+                    height: 350px;
                     display: flex;
                     flex-direction: column;
+                    justify-content: flex-start;
+                    align-items: center;
+                    margin-bottom: 20px;
+                    border: 4px solid #287099;
+                    border-radius: 5px;
+                }
+
+                &-option {
+                    text-decoration: none;
+                    width: 100%;
+                    height: auto;
+                    color: black;
+                    display: flex;
                     justify-content: center;
                     align-items: center;
-                    background: transparent;
-                    border: none;
-                    outline: none;
 
-                    &:active, &:focus, &.active {
-                        img {
-                            outline: 5px solid #246896;
-                        }
-                    }
-
-                    img {
-                        width: 200px;
-                        border-radius: 5px;
-                    }
-
-                    span {
-                        margin-top: 10px;
+                    &.active, &:active, &:focus {
+                        color: white;
+                        background-color: #0059D1;
                     }
                 }
             }

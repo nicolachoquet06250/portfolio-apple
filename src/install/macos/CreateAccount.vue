@@ -78,7 +78,7 @@
 </template>
 
 <script setup>
-import { defineEmits, ref, computed, watch } from 'vue';
+import { defineEmits, ref } from 'vue';
 import { useAccount } from '@/hooks/installation/account';
 
 const emit = defineEmits(['nextStep', 'previousStep']);

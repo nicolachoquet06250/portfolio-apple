@@ -1,5 +1,5 @@
 <template>
-  <div :class="`cursor ${classes.join(' ')}`">
+  <div :class="`cursor ${white ? 'white' : ''} ${classes.join(' ')}`">
     <slot />
   </div>
 </template>
@@ -11,6 +11,13 @@ import { useWait } from "@/hooks/wait";
 
 const { x, y } = useMouse();
 const { waiting } = useWait();
+
+defineProps({
+  white: {
+    type: Boolean,
+    default: false
+  }
+});
 
 const cursorPositionsFor1second = ref(0);
 const bigCursor = ref(false);
@@ -78,7 +85,11 @@ setInterval(async () => {
 <style lang="scss" scoped>
 .cursor {
   display: contents;
-  cursor: url(/cursors/_normal.png), default;
+  cursor: url(/cursors/_normal.svg), default;
+
+  &.white {
+    cursor: url(/cursors/_normal-white.svg), default;
+  }
 
   :global(a),
   :global(a *),
@@ -95,7 +106,6 @@ setInterval(async () => {
   &:global(.waiting) {
     cursor: url(/cursors/_waiting.gif), wait !important;
   }
-
   &:global(.waiting.waiting-0 *) {
     cursor: url(/cursors/_waiting-frame1.png), wait !important;
   }
@@ -142,57 +152,63 @@ setInterval(async () => {
     cursor: url(/cursors/_waiting-frame15.png), wait !important;
   }
 
-  &:global(.show-big-cursor) {
-    cursor: url(/cursors/normal-50x50.png), default!important;
+  &.show-big-cursor {
+    cursor: url(/cursors/normal-50x50.svg), default!important;
+
+    &.white {
+      cursor: url(/cursors/normal-white-50x50.svg), default!important;
+    }
   }
+
   &:global(.show-big-cursor.waiting) {
     cursor: url(/cursors/waiting-50x50.gif), wait!important;
   }
   &:global(.show-big-cursor.waiting.waiting-0) {
-    cursor: url(/cursors/_waiting-frame1-50x50.png)!important;
+    cursor: url(/cursors/_waiting-frame1-50x50.png), wait!important;
   }
   &:global(.show-big-cursor.waiting.waiting-1) {
-    cursor: url(/cursors/_waiting-frame2-50x50.png)!important;
+    cursor: url(/cursors/_waiting-frame2-50x50.png), wait!important;
   }
   &:global(.show-big-cursor.waiting.waiting-2) {
-    cursor: url(/cursors/_waiting-frame3-50x50.png)!important;
+    cursor: url(/cursors/_waiting-frame3-50x50.png), wait!important;
   }
   &:global(.show-big-cursor.waiting.waiting-3) {
-    cursor: url(/cursors/_waiting-frame4-50x50.png)!important;
+    cursor: url(/cursors/_waiting-frame4-50x50.png), wait!important;
   }
   &:global(.show-big-cursor.waiting.waiting-4) {
-    cursor: url(/cursors/_waiting-frame5-50x50.png)!important;
+    cursor: url(/cursors/_waiting-frame5-50x50.png), wait!important;
   }
   &:global(.show-big-cursor.waiting.waiting-5) {
-    cursor: url(/cursors/_waiting-frame6-50x50.png)!important;
+    cursor: url(/cursors/_waiting-frame6-50x50.png), wait!important;
   }
   &:global(.show-big-cursor.waiting.waiting-6) {
-    cursor: url(/cursors/_waiting-frame7-50x50.png)!important;
+    cursor: url(/cursors/_waiting-frame7-50x50.png), wait!important;
   }
   &:global(.show-big-cursor.waiting.waiting-7) {
-    cursor: url(/cursors/_waiting-frame8-50x50.png)!important;
+    cursor: url(/cursors/_waiting-frame8-50x50.png), wait!important;
   }
   &:global(.show-big-cursor.waiting.waiting-8) {
-    cursor: url(/cursors/_waiting-frame9-50x50.png)!important;
+    cursor: url(/cursors/_waiting-frame9-50x50.png), wait!important;
   }
   &:global(.show-big-cursor.waiting.waiting-9) {
-    cursor: url(/cursors/_waiting-frame10-50x50.png)!important;
+    cursor: url(/cursors/_waiting-frame10-50x50.png), wait!important;
   }
   &:global(.show-big-cursor.waiting.waiting-10) {
-    cursor: url(/cursors/_waiting-frame11-50x50.png)!important;
+    cursor: url(/cursors/_waiting-frame11-50x50.png), wait!important;
   }
   &:global(.show-big-cursor.waiting.waiting-11) {
-    cursor: url(/cursors/_waiting-frame12-50x50.png)!important;
+    cursor: url(/cursors/_waiting-frame12-50x50.png), wait!important;
   }
   &:global(.show-big-cursor.waiting.waiting-12) {
-    cursor: url(/cursors/_waiting-frame13-50x50.png)!important;
+    cursor: url(/cursors/_waiting-frame13-50x50.png), wait!important;
   }
   &:global(.show-big-cursor.waiting.waiting-13) {
-    cursor: url(/cursors/_waiting-frame14-50x50.png)!important;
+    cursor: url(/cursors/_waiting-frame14-50x50.png), wait!important;
   }
   &:global(.show-big-cursor.waiting.waiting-14) {
-    cursor: url(/cursors/_waiting-frame15-50x50.png)!important;
+    cursor: url(/cursors/_waiting-frame15-50x50.png), wait!important;
   }
+
   &:global(.show-big-cursor a),
   &:global(.show-big-cursor a *),
   &:global(.show-big-cursor button),

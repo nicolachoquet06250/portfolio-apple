@@ -6,7 +6,7 @@
             <div class="window-body">
                 <h1> <span class="main">Configuration du Portfolio</span><span v-for="i of nbDots" :key="i" class="dot">.</span> </h1>
                 
-                <img :src="iconConfig" />
+                <img :src="iconConfig" alt="icon config" />
             </div>
             
             <div class="window-footer"></div>

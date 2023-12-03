@@ -104,6 +104,7 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 - [FIGMA **IOS 16**](https://www.figma.com/community/file/1121065701252736567)
 - [FIGMA **IOS / IPADOS 17**](https://www.figma.com/community/file/1248375255495415511/apple-design-resources-ios-17-and-ipados-17)
 - [FIGMA **ICONS IOS/MacOS**](https://www.figma.com/community/file/1114229178398643445)
+- [Process d'installation IOS](https://support.apple.com/en-us/HT202033)
 - [Generateur de **clip-path**](https://www.cssportal.com/css-clip-path-generator/)
 - [Exemple de déplacement de fenêtre + redimentionnement avec VueJS](https://www.cssscript.com/material-macos-window-vtwindow/)
   - [Demo](https://www.cssscript.com/demo/material-macos-window-vtwindow/)

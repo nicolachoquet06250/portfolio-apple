@@ -60,7 +60,7 @@
 
         <div class="alert-overlay" v-if="showValidationAlert">
             <div class="alert">
-                <img :src="iconCountry" />
+                <img :src="iconCountry" alt="icon country" />
 
                 <p>
                     J'ai lu et j'accepte le contrat de licence du portfolio

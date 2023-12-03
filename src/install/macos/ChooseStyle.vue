@@ -1,43 +1,30 @@
 <template>
-    <div class="recap-langue-step">
+    <div class="choose-style-step">
         <div class="blur"></div>
 
         <div class="window">
             <div class="window-body">
-                <img :src="iconDialogue" />
+                <h1> Choisissez votre style </h1>
+                
+                <p>
+                    Sélectionnez une apparence et voyez comment cela affecte le Dock, 
+                    les menus, les boutons, et les fenêtres.
+                </p>
 
-                <h1> Langues parlées et écrites </h1>
+                <p>
+                    Vous pouvez modifier votre choix ultérieurement dans les paramètres système.
+                </p>
 
-                <div class="recap-list">
-                    <div class="recap-item">
-                        <img :src="iconLangues" />
+                <div class="btn-container">
+                    <button v-for="theme of THEMES" :key="theme.label" 
+                            :autofocus="selectedTheme === theme.value"
+                            :class="{
+                                active: selectedTheme === theme.value
+                            }" @click="selectTheme(theme.value)">
+                        <img :src="theme.icon" alt="icon theme" />
 
-                        <div class="recap-item-description">
-                            <h5> Langues préférées </h5>
-
-                            <p> {{ langue?.displayed }} ({{ country?.displayed }}) </p>
-                        </div>
-                    </div>
-                    
-                    <div class="recap-item">
-                        <img :src="iconLangues" />
-
-                        <div class="recap-item-description">
-                            <h5> Méthodes de saisie </h5>
-
-                            <p> {{ country?.displayed }} </p>
-                        </div>
-                    </div>
-
-                    <div class="recap-item">
-                        <img :src="iconLangues" />
-
-                        <div class="recap-item-description">
-                            <h5> Dictée </h5>
-                            
-                            <p>  {{ langue?.displayed }} ({{ country?.displayed }})  </p>
-                        </div>
-                    </div>
+                        <span> {{ theme.label }} </span>
+                    </button>
                 </div>
             </div>
             
@@ -55,8 +42,7 @@
                     event: $event,
                     details: {
                         continue: true,
-                        selectedLangue: langue.value,
-                        selectedCountry: country.value
+                        selectedTheme
                     }
                 })">
                     Continuer
@@ -67,19 +53,13 @@
 </template>
 
 <script setup>
-import { defineEmits } from 'vue';
-import { useLangues, useCountries } from '@/hooks/installation/langue';
-import iconLangues from '@/assets/install-icons/icon-langues.png';
-import iconDialogue from '@/assets/install-icons/icon-dialogue.png';
+import { THEMES, useTheme } from '@/hooks/installation/system-style';
 
-defineEmits(['nextStep', 'previousStep']);
-
-const { langue } = useLangues();
-const { country } = useCountries();
+const { selectedTheme, selectTheme } = useTheme();
 </script>
 
 <style lang="scss" scoped>
-.recap-langue-step {
+.choose-style-step {
     cursor: default;
     background-image: url(/img/wallpapers/wallpaper-install-macos.jpg);
     position: absolute;
@@ -121,48 +101,45 @@ const { country } = useCountries();
             margin-top: 30px;
             padding-top: 70px;
 
-            h2 {
-                color: black;
+            h1 + p, 
+            h1 + p + p {
+                margin: 0;
+                width: 550px;
+                text-align: center;
             }
 
-            .recap {
-                &-list {
+            p {
+                font-size: 15px;
+            }
+
+            .btn-container {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-around;
+                align-items: center;
+
+                button {
                     display: flex;
                     flex-direction: column;
                     justify-content: center;
                     align-items: center;
-                }
+                    background: transparent;
+                    border: none;
+                    outline: none;
 
-                &-item {
-                    display: flex;
-                    flex-direction: row;
-                    justify-content: center;
-                    align-items: center;
-                    margin-top: 30px;
-
-                    img {
-                        width: 50px;
+                    &:active, &:focus, &.active {
+                        img {
+                            outline: 5px solid #246896;
+                        }
                     }
 
-                    &-description {
-                        display: flex;
-                        flex-direction: column;
-                        justify-content: center;
-                        align-items: flex-start;
-                        font-size: 15px;
-                        margin-left: 15px;
+                    img {
+                        width: 200px;
+                        border-radius: 5px;
+                    }
 
-                        h5, p {
-                            margin: 0;
-                        }
-
-                        h5 {
-                            margin-bottom: 5px;
-                        }
-
-                        p {
-                            font-size: 14px;
-                        }
+                    span {
+                        margin-top: 10px;
                     }
                 }
             }
