@@ -95,6 +95,11 @@
                 </section>
                 
                 <UnlockScreenNotificationList>
+                    <InstallationBanner
+                        v-if="showInstallationBanner"
+                        @close="showInstallationBanner = false"
+                    />
+
                     <Notification 
                         v-for="{id, title, description, icon, date} in notifications" :key="id" 
                         :icon="icon" :date="date"
@@ -146,6 +151,7 @@ import UnlockScreenNotificationList from './UnlockScreenNotificationList.vue';
 import iconMusicIos from '@/assets/icons/icon-ios.png';
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useIosSwiper } from '@/hooks/ios-swiper';
+import InstallationBanner from "@/components/ios/InstallationBanner.vue";
 
 const swiperComponent = useIosSwiper();
 
@@ -194,6 +200,8 @@ const months = [
     'Novembre',
     'Décembre'
 ];
+
+const showInstallationBanner = ref(true);
 
 const notifications = ref([
     {
