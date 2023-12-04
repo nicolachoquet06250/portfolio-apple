@@ -1,28 +1,5 @@
 import {computed, onBeforeUnmount, onMounted, ref, watch} from "vue";
 
-function setCookie(cname, cvalue, exdays) {
-    var d = new Date();
-    d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000);
-    var expires = "expires=" + d.toUTCString();
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-}
-
-function getCookie(cname) {
-    const name = cname + "=";
-    const decodedCookie = decodeURIComponent(document.cookie);
-    const ca = decodedCookie.split(";");
-    for (let i = 0; i < ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) === " ") {
-            c = c.substring(1);
-        }
-        if (c.indexOf(name) === 0) {
-            return c.substring(name.length, c.length);
-        }
-    }
-    return "";
-}
-
 export const usePwa = () => {
     const authorizedInstallation = ref(false);
     const deferredPrompt = ref(window.deferredPrompt ?? null);
@@ -51,7 +28,7 @@ export const usePwa = () => {
         event.preventDefault();
 
         // We check if the user has the Don't Show Cookie stored. If not, we'll show him the banner.
-        if (!localStorage.getItem('pwa-installed')) {
+        if (!localStorage.getItem('pwa-installed') && 'getInstalledRelatedApps' in navigator) {
             authorizedInstallation.value = true;
         }
 
