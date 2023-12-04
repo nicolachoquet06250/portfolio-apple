@@ -16,6 +16,10 @@
             </div>
 
             <div class="window-footer">
+                <button v-if="show" @click="handleInstall">
+                    Ajouter l'app sur le bureau
+                </button>
+
                 <button :disabled="selectedOption === ''" @click="$emit('nextStep', {
                     event: $event,
                     details: {
@@ -33,8 +37,14 @@
 import { ref, defineEmits } from 'vue';
 import { useMenu, useStepTitle } from '@/hooks/installation/menu';
 import iconInstallMac from '@/assets/install-icons/icon-install-macos.png';
+import { usePwa } from '@/hooks/pwa';
 
 defineEmits(['nextStep']);
+
+const {
+    authorizedInstallation: show,
+    onInstall: handleInstall
+} = usePwa();
 
 const selectedOption = ref('');
 

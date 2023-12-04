@@ -30,7 +30,8 @@
                         accepted: false
                     }
                 })">
-                    <i class="fas fa-arrow-left"></i>
+                    <i class="far fa-circle-left"></i>
+
                     <span> Refuser </span>
                 </button>
 
@@ -40,7 +41,8 @@
                         accepted: true
                     }
                 })">
-                    <i class="fas fa-arrow-right"></i>
+                    <i class="far fa-circle-right"></i>
+
                     <span> Accepter </span>
                 </button>
             </div>
@@ -94,7 +96,7 @@ setMenu('Fenêtre', {});
             justify-content: center;
             align-items: center;
         }
-        .window-title {
+        &-title {
             color: #BABABA;
         }
 
@@ -157,20 +159,10 @@ setMenu('Fenêtre', {});
                     outline: 2px solid #E9504E;
                 }
 
-                i.fas {
-                    transform: scale(1.5);
+                i.far {
+                    font-size: 30px;
                     color: #7F7F7F;
                     margin-bottom: 10px;
-
-                    &::after {
-                        content: '';
-                        font-family:"Font Awesome 6 Free";
-                        font-weight: 400;
-                        font-size: 20px;
-                        position: absolute;
-                        top: -3.75px;
-                        left: -4px;
-                    }
 
                     + span {
                         margin-bottom: -10px;

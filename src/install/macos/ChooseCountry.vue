@@ -21,6 +21,10 @@
             </div>
             
             <div class="window-footer">
+                <button v-if="show" @click="handleInstall">
+                    Ajouter l'app sur le bureau
+                </button>
+
                 <button @click="$emit('previousStep', {
                     event: $event,
                     details: {
@@ -30,7 +34,7 @@
                     Retour
                 </button>
 
-                <button :disabled="selectedCountry === ''" 
+                <button :disabled="selectedCountry === ''"
                     @click="$emit('nextStep', {
                         event: $event,
                         details: {
@@ -49,9 +53,14 @@
 import { defineEmits } from 'vue';
 import { COUNTRIES, useCountries } from '@/hooks/installation/langue';
 import iconCountry from '@/assets/install-icons/icon-country.png';
+import { usePwa } from '@/hooks/pwa';
 
 defineEmits(['nextStep', 'previousStep']);
 
+const {
+  authorizedInstallation: show,
+  onInstall: handleInstall
+} = usePwa();
 const { selectedCountry, selectCountry } = useCountries();
 </script>
 

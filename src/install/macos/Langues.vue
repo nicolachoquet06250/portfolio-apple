@@ -39,22 +39,33 @@
             </div>
 
             <div class="window-footer">
-                <button @click="$emit('nextStep', {
-                    event: $event,
-                    details: {
-                        skip_install: true
-                    }
-                })">
-                    <i class="far fa-times-circle"></i>
-                    <span> Passer l'installation </span>
+                <button v-if="show" @click="handleInstall">
+                    <i class="far fa-circle-down"></i>
+
+                    <span> Ajouter l'app<br>sur le bureau </span>
                 </button>
 
-                <button @click="$emit('nextStep', {
-                    event: $event,
-                    details: {
-                        selectedLangue
-                    }
-                })">
+                <button
+                        @click="$emit('nextStep', {
+                            event: $event,
+                            details: {
+                                skip_install: true
+                            }
+                        })"
+                >
+                    <i class="far fa-times-circle"></i>
+
+                    <span> Passer<br>l'installation </span>
+                </button>
+
+                <button
+                    @click="$emit('nextStep', {
+                        event: $event,
+                        details: {
+                            selectedLangue
+                        }
+                    })"
+                >
                     <i class="fas fa-arrow-right"></i>
                 </button>
             </div>
@@ -67,9 +78,14 @@ import { defineEmits } from 'vue';
 import { LANGUES, useLangues } from '@/hooks/installation/langue';
 import { useMenu } from '@/hooks/installation/menu';
 import iconLangues from '@/assets/install-icons/icon-langues.png';
+import { usePwa } from '@/hooks/pwa';
 
 const { selectLangue, selectedLangue } = useLangues();
 const { resetMenus } = useMenu();
+const {
+    authorizedInstallation: show,
+    onInstall: handleInstall
+} = usePwa();
 
 defineEmits(['nextStep']);
 
@@ -186,6 +202,7 @@ resetMenus();
                 flex-direction: column;
                 justify-content: center;
                 align-items: center;
+                height: 100%;
 
                 i {
                     &.fas, &.far {

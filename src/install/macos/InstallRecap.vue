@@ -16,13 +16,22 @@
             </div>
 
             <div class="window-footer">
-                <button @click="$emit('nextStep', {
-                    event: $event,
-                    details: {
-                        continue: true
-                    }
-                })">
-                    <i class="fas fa-arrow-right"></i>
+                <button v-if="show" @click="handleInstall">
+                    <i class="far fa-circle-down"></i>
+
+                    <span> Ajouter l'app sur le bureau </span>
+                </button>
+
+                <button
+                    @click="$emit('nextStep', {
+                        event: $event,
+                        details: {
+                            continue: true
+                        }
+                    })"
+                >
+                    <i class="far fa-circle-right"></i>
+
                     <span> Continuer </span>
                 </button>
             </div>
@@ -35,9 +44,14 @@ import { computed, defineEmits } from 'vue';
 import { useMenu, useStepTitle } from '@/hooks/installation/menu';
 import { useWindowSize } from '@vueuse/core';
 import iconInstallMac from '@/assets/install-icons/icon-install-macos.png';
+import { usePwa } from '@/hooks/pwa';
 
 defineEmits(['nextStep']);
 
+const {
+    authorizedInstallation: show,
+    onInstall: handleInstall
+} = usePwa();
 useStepTitle('Install macOS');
 const { setMenu, resetMenus } = useMenu();
 
@@ -80,7 +94,7 @@ const windowWidth = computed(() => `${width.value}px`);
             justify-content: center;
             align-items: center;
         }
-        .window-title {
+        &-title {
             color: #BABABA;
         }
 
@@ -132,20 +146,10 @@ const windowWidth = computed(() => `${width.value}px`);
                     outline: 2px solid #E9504E;
                 }
 
-                i.fas {
-                    transform: scale(1.5);
+                i.far {
+                    font-size: 30px;
                     color: #7F7F7F;
                     margin-bottom: 10px;
-
-                    &::after {
-                        content: '';
-                        font-family:"Font Awesome 6 Free";
-                        font-weight: 400;
-                        font-size: 20px;
-                        position: absolute;
-                        top: -3.75px;
-                        left: -4px;
-                    }
 
                     + span {
                         margin-bottom: -10px;
