@@ -2,7 +2,8 @@
     <div :class="{
         screen: true,
         close: Math.abs(distanceY_) < swipeHeight / 2 && close,
-        open
+        open,
+        mobile: deviceType === IS_MOBILE || deviceType === IS_TABLET
     }" ref="view">
         <h1>hello</h1>
 
@@ -15,10 +16,12 @@
 <script setup>
 import {useIosOpenInstallerSwiper} from "@/hooks/ios-swiper.js";
 import {computed, ref} from "vue";
+import {IS_MOBILE, IS_TABLET, useDeviceType} from "@/hooks/device-type.js";
 
 const emit = defineEmits(['open-install']);
 
 const SwiperComponent = useIosOpenInstallerSwiper();
+const deviceType = useDeviceType();
 
 const view = ref(null);
 const swipeHeight = computed(() => view.value?.offsetHeight);
@@ -120,7 +123,7 @@ function onSwipeEnd({direction, distanceY}) {
 }
 
 @media (display-mode: browser) {
-  .screen {
+  .screen.mobile {
     height: calc(100% - 50px);
   }
 }
