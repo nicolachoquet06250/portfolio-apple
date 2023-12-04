@@ -22,6 +22,9 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
+      devOptions: {
+        enabled: true
+      },
       manifest: {
         "id": "/",
         "name": "Apple WebOS Portfolio Nicolas Choquet",

@@ -87,7 +87,7 @@
                 </div>
             </header>
 
-            <body>
+            <main>
                 <section>
                     <h2> {{ formattedDate }} </h2>
 
@@ -111,7 +111,7 @@
                         {{ description }}
                     </Notification>
                 </UnlockScreenNotificationList>
-            </body>
+            </main>
 
             <footer>
                 <button>
@@ -341,7 +341,7 @@ onUnmounted(() => {
             }
         }
 
-        body {
+        main {
             flex: 1;
 
             justify-content: space-between;

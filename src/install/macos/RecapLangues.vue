@@ -42,6 +42,10 @@
             </div>
             
             <div class="window-footer">
+                <button v-if="show" @click="handleInstall">
+                    Ajouter l'app sur le bureau
+                </button>
+
                 <button @click="$emit('previousStep', {
                     event: $event,
                     details: {
@@ -71,9 +75,14 @@ import { defineEmits } from 'vue';
 import { useLangues, useCountries } from '@/hooks/installation/langue';
 import iconLangues from '@/assets/install-icons/icon-langues.png';
 import iconDialogue from '@/assets/install-icons/icon-dialogue.png';
+import { usePwa } from '@/hooks/pwa';
 
 defineEmits(['nextStep', 'previousStep']);
 
+const {
+  authorizedInstallation: show,
+  onInstall: handleInstall
+} = usePwa();
 const { langue } = useLangues();
 const { country } = useCountries();
 </script>

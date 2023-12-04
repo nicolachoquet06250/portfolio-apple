@@ -60,6 +60,12 @@ function onSwipeEnd({direction, distanceY}) {
   src: url(/fonts/GrapeNuts-Regular.ttf);
 }
 
+@media (display-mode: browser) {
+    .screen footer {
+        bottom: calc(80px);
+    }
+}
+
 .screen {
     * {
       user-select: none;

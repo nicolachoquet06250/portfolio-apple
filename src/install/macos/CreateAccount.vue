@@ -59,7 +59,11 @@
             </div>
             
             <div class="window-footer">
-                <button @click="$emit('previousStep', {
+              <button v-if="show" @click="handleInstall">
+                Ajouter l'app sur le bureau
+              </button>
+
+              <button @click="$emit('previousStep', {
                     event: $event,
                     details: {
                         continue: false
@@ -80,9 +84,14 @@
 <script setup>
 import { defineEmits, ref } from 'vue';
 import { useAccount } from '@/hooks/installation/account';
+import {usePwa} from '@/hooks/pwa';
 
 const emit = defineEmits(['nextStep', 'previousStep']);
 
+const {
+  authorizedInstallation: show,
+  onInstall: handleInstall
+} = usePwa();
 const { createAccount } = useAccount();
 
 const fullName = ref('');
