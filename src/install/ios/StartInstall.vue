@@ -1,5 +1,9 @@
 <template>
-    <div :class="{screen: true, close: Math.abs(distanceY_) < swipeHeight / 2 && close, open}" ref="view">
+    <div :class="{
+        screen: true,
+        close: Math.abs(distanceY_) < swipeHeight / 2 && close,
+        open
+    }" ref="view">
         <h1>hello</h1>
 
         <SwiperComponent @swipe="onSwipe" @swipe-end="onSwipeEnd">
@@ -60,12 +64,6 @@ function onSwipeEnd({direction, distanceY}) {
   src: url(/fonts/GrapeNuts-Regular.ttf);
 }
 
-@media (display-mode: browser) {
-    .screen footer {
-        bottom: calc(80px);
-    }
-}
-
 .screen {
     * {
       user-select: none;
@@ -79,7 +77,7 @@ function onSwipeEnd({direction, distanceY}) {
     }
 
     footer {
-        position: absolute;
+        position: fixed;
         bottom: 0;
         width: 100%;
         height: 80px;
@@ -119,5 +117,11 @@ function onSwipeEnd({direction, distanceY}) {
         transition: transform .5s ease-in-out;
     }
     transform: translateY(v-bind(translateY));
+}
+
+@media (display-mode: browser) {
+  .screen {
+    height: calc(100% - 50px);
+  }
 }
 </style>
