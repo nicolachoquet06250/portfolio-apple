@@ -1,26 +1,26 @@
 <template>
-  <Notification
-      v-if="show"
-      :icon="installIcon"
-      :date="formattedDate"
-  >
-    <template #title>
-      Mise à jour système
-    </template>
+    <Notification
+        v-if="show"
+        :icon="installIcon"
+        :date="formattedDate"
+    >
+      <template #title>
+          Mise à jour système
+      </template>
 
-    <p> Une mise à jour du portefolio est disponible ! </p>
-    <p> Veuillez rafraichir </p>
+      <p> Une mise à jour du portefolio est disponible ! </p>
 
-    <template #actions>
-      <button v-if="deferredPrompt"
-              @click="handleInstall"
-      >
-          Installer
-      </button>
-      <button @click="handleCancel">
-          Annuler
-      </button>
-    </template>
+      <template #actions>
+          <button v-if="deferredPrompt"
+                  @click="handleInstall"
+          >
+              Installer
+          </button>
+
+          <button @click="handleCancel">
+              Annuler
+          </button>
+      </template>
   </Notification>
 </template>
 

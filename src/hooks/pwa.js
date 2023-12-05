@@ -70,3 +70,5 @@ export const usePwa = () => {
         onCancel: handleCancel
     }
 };
+
+export const showRefreshPageNotification = ref(false);
