@@ -12,16 +12,14 @@ export const usePwa = () => {
 
     const handleInstall = async () => {
         deferredPrompt.value.prompt();
-        // const { outcome } = await deferredPrompt.value.userChoice;
+        const { outcome } = await deferredPrompt.value.userChoice;
 
-        // if (outcome === 'accepted') {
-        //     localStorage.setItem('pwa-installed', '1');
-        // } else {
-        //     localStorage.removeItem('pwa-installed');
-        // }
+        if (outcome === 'accepted') {
+            deferredPrompt.value = null;
+            window.deferredPrompt = null;
+        }
     }
     const handleCancel = () => {
-        // localStorage.removeItem('pwa-installed');
         authorizedInstallation.value = false;
     }
 
@@ -30,20 +28,18 @@ export const usePwa = () => {
         event.preventDefault();
 
         // We check if the user has the Don't Show Cookie stored. If not, we'll show him the banner.
-        authorizedInstallation.value =
-            /*!localStorage.getItem('pwa-installed') && */
-            'getInstalledRelatedApps' in navigator;
+        authorizedInstallation.value = 'getInstalledRelatedApps' in navigator;
 
         // Save the event to use it later
         deferredPrompt.value = event;
     };
 
     const handleAppInstalled = () => {
-        // localStorage.setItem('pwa-installed', '1');
         // Hide the app-provided install promotion
         authorizedInstallation.value = false;
         // Clear the deferredPrompt so it can be garbage collected
         deferredPrompt.value = null;
+        window.deferredPrompt = null;
         // Optionally, send analytics event to indicate successful install
         console.log('PWA was installed');
     }
@@ -52,17 +48,6 @@ export const usePwa = () => {
         if (window.deferredPrompt) {
             deferredPrompt.value = window.deferredPrompt;
         }
-        // if (firstMount.value) {
-        //     localStorage.setItem('pwa-installed', '1');
-        //     authorizedInstallation.value = false;
-        // }
-        //
-        // // if (!firstMount.value && 'getInstalledRelatedApps' in navigator && !localStorage.getItem('pwa-installed'))
-        // if ('getInstalledRelatedApps' in navigator) {
-        //     authorizedInstallation.value = true;
-        // }
-
-        console.log('mounted');
 
         window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
         window.addEventListener('appinstalled', handleAppInstalled);
@@ -77,12 +62,8 @@ export const usePwa = () => {
         window.removeEventListener('appinstalled', handleAppInstalled);
     });
 
-    const show = computed(() => authorizedInstallation.value || deferredPrompt.value);
-
-    watch(show, s => console.log(s))
-
     return {
-        authorizedInstallation: show,
+        authorizedInstallation: computed(() => authorizedInstallation.value || deferredPrompt.value),
         deferredPrompt: computed(() => deferredPrompt.value),
 
         onInstall: handleInstall,
