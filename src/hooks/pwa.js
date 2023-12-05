@@ -3,6 +3,7 @@ import {computed, onBeforeUnmount, onMounted, ref, watch} from "vue";
 export const usePwa = () => {
     const authorizedInstallation = ref(false);
     const deferredPrompt = ref(window.deferredPrompt ?? null);
+    const firstMount = ref(true);
 
     watch(deferredPrompt, (prompt) => {
         window.deferredPrompt = prompt;
@@ -10,16 +11,16 @@ export const usePwa = () => {
 
     const handleInstall = async () => {
         deferredPrompt.value.prompt();
-        const { outcome } = await deferredPrompt.value.userChoice;
+        // const { outcome } = await deferredPrompt.value.userChoice;
 
-        if (outcome === 'accepted') {
-            localStorage.setItem('pwa-installed', '1');
-        } else {
-            localStorage.removeItem('pwa-installed');
-        }
+        // if (outcome === 'accepted') {
+        //     localStorage.setItem('pwa-installed', '1');
+        // } else {
+        //     localStorage.removeItem('pwa-installed');
+        // }
     }
     const handleCancel = () => {
-        localStorage.removeItem('pwa-installed');
+        // localStorage.removeItem('pwa-installed');
         authorizedInstallation.value = false;
     }
 
@@ -28,16 +29,16 @@ export const usePwa = () => {
         event.preventDefault();
 
         // We check if the user has the Don't Show Cookie stored. If not, we'll show him the banner.
-        if (!localStorage.getItem('pwa-installed') && 'getInstalledRelatedApps' in navigator) {
-            authorizedInstallation.value = true;
-        }
+        authorizedInstallation.value =
+            /*!localStorage.getItem('pwa-installed') && */
+            'getInstalledRelatedApps' in navigator;
 
         // Save the event to use it later
         deferredPrompt.value = event;
     };
 
     const handleAppInstalled = () => {
-        localStorage.setItem('pwa-installed', '1');
+        // localStorage.setItem('pwa-installed', '1');
         // Hide the app-provided install promotion
         authorizedInstallation.value = false;
         // Clear the deferredPrompt so it can be garbage collected
@@ -47,12 +48,24 @@ export const usePwa = () => {
     }
 
     onMounted(() => {
-        if (!localStorage.getItem('pwa-installed') && 'getInstalledRelatedApps' in navigator) {
-            authorizedInstallation.value = true;
-        }
+        // if (firstMount.value) {
+        //     localStorage.setItem('pwa-installed', '1');
+        //     authorizedInstallation.value = false;
+        // }
+        //
+        // // if (!firstMount.value && 'getInstalledRelatedApps' in navigator && !localStorage.getItem('pwa-installed'))
+        // if ('getInstalledRelatedApps' in navigator) {
+        //     authorizedInstallation.value = true;
+        // }
+
+        console.log('mounted');
 
         window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
         window.addEventListener('appinstalled', handleAppInstalled);
+
+        if (firstMount.value) {
+            firstMount.value = false;
+        }
     });
 
     onBeforeUnmount(() => {
