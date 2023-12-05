@@ -1,8 +1,9 @@
 import {computed, onBeforeUnmount, onMounted, ref, watch} from "vue";
 
+const authorizedInstallation = ref(false);
+const deferredPrompt = ref(window.deferredPrompt ?? null);
+
 export const usePwa = () => {
-    const authorizedInstallation = ref(false);
-    const deferredPrompt = ref(window.deferredPrompt ?? null);
     const firstMount = ref(true);
 
     watch(deferredPrompt, (prompt) => {
@@ -48,6 +49,9 @@ export const usePwa = () => {
     }
 
     onMounted(() => {
+        if (window.deferredPrompt) {
+            deferredPrompt.value = window.deferredPrompt;
+        }
         // if (firstMount.value) {
         //     localStorage.setItem('pwa-installed', '1');
         //     authorizedInstallation.value = false;
@@ -73,8 +77,12 @@ export const usePwa = () => {
         window.removeEventListener('appinstalled', handleAppInstalled);
     });
 
+    const show = computed(() => authorizedInstallation.value || deferredPrompt.value);
+
+    watch(show, s => console.log(s))
+
     return {
-        authorizedInstallation: computed(() => authorizedInstallation.value),
+        authorizedInstallation: show,
         deferredPrompt: computed(() => deferredPrompt.value),
 
         onInstall: handleInstall,
