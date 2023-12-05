@@ -13,7 +13,7 @@
         background-image="/img/wallpapers/wallpaper-install-macos.jpg"
         :top-bar="desktopTopBar"
       />
-      <StartInstall />
+<!--      <StartInstall />-->
 
       <IOSCursor v-if="!showIOSLoginView" />
     </IOSDesktop>
@@ -154,7 +154,7 @@
         background-image="/img/wallpapers/wallpaper-install-macos.jpg"
         :top-bar="desktopTopBar"
       />
-      <StartInstall />
+<!--      <StartInstall />-->
 
       <IOSCursor v-if="!showIOSLoginView" />
     </IOSDesktop>
@@ -191,7 +191,7 @@ import { useInstalled } from '@/hooks/installed';
 import { useNotifications } from '@/hooks/notifications';
 import { useSystemLoading } from "@/hooks/system-loading.js";
 import { useScreens } from "@/hooks/screens.js";
-import StartInstall from "@/install/ios/StartInstall.vue";
+// import StartInstall from "@/install/ios/StartInstall.vue";
 
 onMounted(() => {
   const handleResize = () => {

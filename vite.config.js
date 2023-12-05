@@ -87,7 +87,6 @@ export default defineConfig({
         "launch_handler": {
           client_mode: 'focus-existing'
         },
-        "prefer_related_applications": false,
         "scope_extensions": [
           {"origin": 'www.nicolaschoquet.fr'}
         ],
@@ -129,12 +128,11 @@ export default defineConfig({
             ]
           }
         ],
-        "related_applications": [
-          {
+        "related_applications": [{
             "platform": "webapp",
             "url": "https://www.nicolaschoquet.fr/manifest.webmanifest"
-          }
-        ]
+        }],
+        "prefer_related_applications": true,
       }
     })
   ],
