@@ -84,12 +84,12 @@ export default defineConfig({
             "sizes": "517x1058"
           }
         ],
-        launch_handler: {
+        "launch_handler": {
           client_mode: 'focus-existing'
         },
         "prefer_related_applications": false,
         "scope_extensions": [
-          {origin: 'www.nicolaschoquet.fr'}
+          {"origin": 'www.nicolaschoquet.fr'}
         ],
         "edge_side_panel": {
           "preferred_width": 400

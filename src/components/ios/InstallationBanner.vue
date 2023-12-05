@@ -1,6 +1,6 @@
 <template>
   <Notification
-      v-if="show"
+      v-if="show && deferredPrompt"
       :icon="installIcon"
       :date="formattedDate"
   >
@@ -38,6 +38,8 @@ const {
     onInstall: handleInstall,
     onCancel: handleCancel
 } = usePwa();
+
+watch(deferredPrompt, d => console.log(d))
 
 const date = new Date();
 const formattedDate = `${date.getHours() < 10 ? '0' : ''}${date.getHours()}:${date.getMinutes() < 10 ? '0' : ''}${date.getMinutes()}`
