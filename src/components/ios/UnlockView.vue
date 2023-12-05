@@ -95,6 +95,8 @@
                 </section>
                 
                 <UnlockScreenNotificationList>
+                    <RefreshPwaBanner />
+
                     <InstallationBanner
                         v-if="showInstallationBanner"
                         @close="showInstallationBanner = false"
@@ -152,6 +154,7 @@ import iconMusicIos from '@/assets/icons/icon-ios.png';
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useIosSwiper } from '@/hooks/ios-swiper';
 import InstallationBanner from "@/components/ios/InstallationBanner.vue";
+import RefreshPwaBanner from "@/components/ios/RefreshPwaBanner.vue";
 
 const swiperComponent = useIosSwiper();
 
