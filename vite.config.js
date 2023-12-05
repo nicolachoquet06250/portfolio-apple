@@ -128,6 +128,12 @@ export default defineConfig({
               }
             ]
           }
+        ],
+        "related_applications": [
+          {
+            "platform": "webapp",
+            "url": "https://www.nicolaschoquet.fr/manifest.webmanifest"
+          }
         ]
       }
     })
