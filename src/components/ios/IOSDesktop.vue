@@ -2,7 +2,10 @@
 <!--  Ne plus afficher le curseur -->
   <slot></slot>
 
-  <div class="desktop">
+  <div :class="{
+    desktop: true,
+    mobile: deviceType === IS_MOBILE || deviceType === IS_TABLET
+  }">
     <top-bar :top-bar="topBar" show-hour />
 
     <main class="grid">
@@ -44,6 +47,7 @@ import Store from "@/components/ios/icons/Store.vue";
 import Health from "@/components/ios/icons/Health.vue";
 import Maps from "@/components/ios/icons/Maps.vue";
 import Settings from "@/components/ios/icons/Settings.vue";
+import {IS_MOBILE, IS_TABLET, useDeviceType} from "@/hooks/device-type.js";
 
 const props = defineProps({
   backgroundImage: String,
@@ -70,6 +74,7 @@ const { height, width } = useWindowSize({
   listenOrientation: true
 });
 const isVisible = useDocumentVisibility();
+const deviceType = useDeviceType();
 
 watch(isVisible, isVisible => {
   if (isVisible === 'hidden') {
@@ -250,6 +255,12 @@ onMounted(() => {
           padding-top: 5px;
         }
       }
+    }
+  }
+
+  @media (display-mode: browser) {
+    .desktop.mobile {
+      height: calc(100% - 50px);
     }
   }
 
