@@ -4,18 +4,20 @@
         v-if="showMobileVersion"
         :apps="[]"
         :current-app-name="currentApp"
-        background-image="/img/wallpapers/wallpaper-install-macos.jpg"
-        :top-bar="desktopTopBar">
+        background-image="/img/wallpapers/ios-wallpaper.png"
+        :top-bar="desktopTopBar"
+        @lock-screen="showIOSLoginView = true"
+    >
       <IOSUnlockView
         v-if="showIOSLoginView" 
         @unlock-screen="showIOSLoginView = false" 
         :current-app-name="currentApp"
-        background-image="/img/wallpapers/wallpaper-install-macos.jpg"
+        background-image="/img/wallpapers/ios-wallpaper.png"
         :top-bar="desktopTopBar"
       />
-      <StartInstall />
+<!--      <StartInstall />-->
 
-      <IOSCursor v-if="!showIOSLoginView" />
+<!--      <IOSCursor v-if="!showIOSLoginView" />-->
     </IOSDesktop>
 
     <MacOsCursor v-else>
@@ -145,18 +147,20 @@
         v-if="showMobileVersion"
         :apps="[]"
         :current-app-name="currentApp"
-        background-image="/img/wallpapers/wallpaper-install-macos.jpg"
-        :top-bar="desktopTopBar">
+        background-image="/img/wallpapers/ios-wallpaper.png"
+        :top-bar="desktopTopBar"
+        @lock-screen="showIOSLoginView = true"
+    >
       <IOSUnlockView
         v-if="showIOSLoginView" 
         @unlock-screen="showIOSLoginView = false" 
         :current-app-name="currentApp"
-        background-image="/img/wallpapers/wallpaper-install-macos.jpg"
+        background-image="/img/wallpapers/ios-wallpaper.png"
         :top-bar="desktopTopBar"
       />
-      <StartInstall />
+<!--      <StartInstall />-->
 
-      <IOSCursor v-if="!showIOSLoginView" />
+<!--      <IOSCursor v-if="!showIOSLoginView" />-->
     </IOSDesktop>
 
     <MacOsCursor white v-else>
@@ -170,7 +174,6 @@ import MobileDetect from "mobile-detect";
 import MacOsDock from "@/components/macos/MacOsDock.vue";
 import MacDesktop from "@/components/macos/MacDesktop.vue";
 import IOSDesktop from '@/components/ios/IOSDesktop.vue';
-import IOSCursor from "@/components/ios/IOSCursor.vue";
 import MacOsCursor from '@/components/macos/MacOsCursor.vue';
 import MacOsAlert from '@/components/macos/MacOsAlert.vue';
 import MacOsSystemLoader from '@/components/macos/MacOsSystemLoader.vue';
@@ -184,14 +187,14 @@ import Notification from '@/components/utilities/macos/Notification.vue';
 import iconCdInstall from '@/assets/icon-cd-install-mac.png';
 import appstore from '@/assets/dock/appstore.png';
 
-import {ref, computed, reactive, watch, onMounted} from "vue";
+import { ref, computed, reactive, watch, onMounted } from "vue";
 import { useNetwork, useBattery, useWindowSize } from "@vueuse/core";
 import { APPLICATION, useCurrentApp } from "@/hooks/apps";
 import { useInstalled } from '@/hooks/installed';
 import { useNotifications } from '@/hooks/notifications';
 import { useSystemLoading } from "@/hooks/system-loading.js";
 import { useScreens } from "@/hooks/screens.js";
-import StartInstall from "@/install/ios/StartInstall.vue";
+// import StartInstall from "@/install/ios/StartInstall.vue";
 
 onMounted(() => {
   const handleResize = () => {
@@ -222,9 +225,9 @@ const showIOSLoginView = ref(true);
 
 watch(showIOSLoginView, (showLoginView) => {
   if (!showLoginView) {
-    setTimeout(() => {
-      showIOSLoginView.value = true;
-    }, 5000);
+    // setTimeout(() => {
+    //   showIOSLoginView.value = true;
+    // }, 5000);
   }
 })
 
