@@ -2,18 +2,15 @@
 <!--  Ne plus afficher le curseur -->
   <slot></slot>
 
-  <div :class="{
-    desktop: true,
-    mobile: deviceType === IS_MOBILE || deviceType === IS_TABLET
-  }">
+  <div :class="{desktop: true, mobile}">
     <top-bar :top-bar="topBar" show-hour />
 
     <main class="grid">
       <div role="row" v-for="(row, i) in gridDesktopApps" :key="i">
         <div role="cell" v-for="(cel, j) in row" :key="j">
           <template v-if="cel !== null">
-            <img :src="cel.icon" alt="icon" v-if="typeof cel.icon === 'string'">
-            <component :is="cel.icon" :width="70" :height="70" v-else />
+            <component :is="cel.icon" :width="70" :height="70" v-if="typeof cel.icon === 'object'" />
+            <img :src="cel.icon" alt="icon" v-else-if="typeof cel.icon === 'string'">
 
             <span> {{ cel.label }} </span>
           </template>
@@ -47,7 +44,7 @@ import Store from "@/components/ios/icons/Store.vue";
 import Health from "@/components/ios/icons/Health.vue";
 import Maps from "@/components/ios/icons/Maps.vue";
 import Settings from "@/components/ios/icons/Settings.vue";
-import {IS_MOBILE, IS_TABLET, useDeviceType} from "@/hooks/device-type";
+import {useDesktop,/*IS_MOBILE, IS_TABLET, useDeviceType, useMobile, useTablet*/} from "@/hooks/device-type";
 
 type TopBar = {
   network: {
@@ -76,7 +73,13 @@ const { height, width } = useWindowSize({
   listenOrientation: true
 });
 const isVisible = useDocumentVisibility();
-const deviceType = useDeviceType();
+// const deviceType = useDeviceType();
+const isDesktop = useDesktop();
+const mobile = computed(() => !isDesktop.value);
+
+watch(isDesktop, () => {
+  console.log(isDesktop.value)
+})
 
 watch(isVisible, isVisible => {
   if (isVisible === 'hidden') {

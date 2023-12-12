@@ -3,18 +3,18 @@ import MobileSwiper from '@/components/ios/Swiper/MobileSwiper.vue';
 import DesktopSwiper from '@/components/ios/Swiper/DesktopSwiper.vue';
 import MobileInstallSwiper from '@/install/ios/swiper/MobileSwiper.vue';
 import DesktopInstallSwiper from '@/install/ios/swiper/DesktopSwiper.vue';
-import { DEVICE_TYPE, useDeviceType } from "@/hooks/device-type";
+import {useMobile, useTablet} from "@/hooks/device-type";
 
 export const useIosSwiper = () => {
-    const deviceType = useDeviceType();
+    const isMobile = useMobile();
+    const isTablet = useTablet();
     
-    return computed(() => deviceType.value === DEVICE_TYPE.MOBILE || deviceType.value === DEVICE_TYPE.TABLET
-        ? MobileSwiper : DesktopSwiper);
+    return computed(() => isMobile.value || isTablet.value ? MobileSwiper : DesktopSwiper);
 };
 
 export const useIosOpenInstallerSwiper = () => {
-    const deviceType = useDeviceType();
+    const isMobile = useMobile();
+    const isTablet = useTablet();
 
-    return computed(() => deviceType.value === DEVICE_TYPE.MOBILE || deviceType.value === DEVICE_TYPE.TABLET
-        ? MobileInstallSwiper : DesktopInstallSwiper);
+    return computed(() => isMobile.value || isTablet.value ? MobileInstallSwiper : DesktopInstallSwiper);
 };

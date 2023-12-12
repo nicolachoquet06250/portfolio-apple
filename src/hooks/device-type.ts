@@ -12,13 +12,14 @@ export const IS_DESKTOP = 'desktop'
 
 export const useDeviceType = () => {
     const md = new MobileDetect(navigator.userAgent);
-    const isMobile = ref(md.phone() !== null || md.mobile() === 'UnknownMobile');
-    const isTablet = ref(md.tablet() !== null || md.mobile() === 'UnknownTablet');
+    const isMobile = ref((md.phone() !== null || md.mobile() === 'UnknownMobile') && navigator.maxTouchPoints !== 1);
+    const isTablet = ref((md.tablet() !== null || md.mobile() === 'UnknownTablet') && navigator.maxTouchPoints !== 1);
 
     onMounted(() => {
+        console.log(isMobile.value, isTablet.value)
         const handleResize = () => {
-            isMobile.value = md.phone() !== null || md.mobile() === 'UnknownMobile';
-            isTablet.value = md.tablet() !== null || md.mobile() === 'UnknownTablet';
+            isMobile.value = (md.phone() !== null || md.mobile() === 'UnknownMobile') && navigator.maxTouchPoints !== 1;
+            isTablet.value = (md.tablet() !== null || md.mobile() === 'UnknownTablet') && navigator.maxTouchPoints !== 1;
         };
 
         window.addEventListener('resize', handleResize);
