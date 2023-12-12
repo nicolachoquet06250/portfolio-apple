@@ -4,7 +4,7 @@ import { useDatabase, getParams, TABLES } from '@/hooks/database';
 export type File = {
     content: string,
     creation_date: Date,
-    extention: string,
+    extension: string,
     id: number,
     user_id: number,
     name: string,
@@ -34,7 +34,7 @@ type FileEvent = {
 
 export const useTextEdit = () => {
     const openFile = (file: File) => {
-        if (!files.value.reduce((r, c) => c.name === file.name && c.extention === file.extention && c.parent === file.parent ? true : r, false)) {
+        if (!files.value.reduce((r, c) => c.name === file.name && c.extension === file.extension && c.parent === file.parent ? true : r, false)) {
             files.value = [...files.value, file];
         }
         activeFile.value = file;
@@ -82,7 +82,7 @@ watch(results, () => {
             const _file = results.value.reduce<File|null>((r, c) =>
                 c.parent === data.value.file!.parent
                     && c.name === data.value.file!.name
-                    && c.extention === data.value.file!.extention ? c : r, null);
+                    && c.extension === data.value.file!.extension ? c : r, null);
 
             console.log(_file);
 

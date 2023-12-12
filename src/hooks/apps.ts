@@ -130,7 +130,6 @@ const lastApplicationOpened = computed(() => applicationsHistory.value.length ==
 const DISABLED_MOVABLE_HEADER_TAGS = ['a', 'i', 'button', 'input', 'label'];
 
 const setCurrentAppSize = (width: number, height: number) => {
-    console.log('ts version')
     openedApplications[currentApp.value!]!.size = { width, height };
 };
 
@@ -268,7 +267,6 @@ export const useAppActions = (
 
     watch([mouseX, mouseY], (_, [oldMouseX, oldMouseY]) => {
         if (mousePressed.move) {
-            //console.log('move 1');
             move({
                 x: currentPosition.x + (mouseX.value - oldMouseX), 
                 y: (mouseY.value - (applicationHeader.value!.offsetHeight / 2) > 0
@@ -300,7 +298,6 @@ export const useAppActions = (
                     width: currentSize.width + (oldMouseX - mouseX.value), 
                     height: currentSize.height
                 });
-                //console.log('move 2');
                 move({
                     x: onClickMousePosition.x - (onClickMousePosition.x - mouseX.value), 
                     y: currentPosition.y
@@ -328,7 +325,6 @@ export const useAppActions = (
                     height: currentSize.height + (oldMouseY - mouseY.value),
                     width: currentSize.width
                 });
-                //console.log('move 3');
                 move({
                     y: onClickMousePosition.y - (onClickMousePosition.y - mouseY.value) - 25, 
                     x: currentPosition.x
@@ -362,7 +358,6 @@ export const useAppActions = (
     });
 
     watch([() => openedApplications[code]?.position!.x, () => openedApplications[code]?.position!.y], () => {
-        //console.log('move 4');
         move({
             x: openedApplications[code]?.position!.x ?? 0,
             y: openedApplications[code]?.position!.y ?? 0
@@ -403,7 +398,6 @@ export const useAppActions = (
                     setTimeout(() => setCurrentApp(lastApplicationOpened.value as APPLICATION), 1000);
                     close.value = false;
 
-                    //console.log('move 5');
                     move({
                         x: 0, 
                         y: 0

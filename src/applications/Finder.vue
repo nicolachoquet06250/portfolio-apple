@@ -1,47 +1,58 @@
 <template>
-    <div class="finder-root" ref="finderBody"
-         @contextmenu.prevent.stop="showFinderContextMenu()">
-        <div class="finder-breadcrum" v-if="showBreadcrum">
-            <div class="breadcrum-item" 
-                 v-for="item of breadcrum" :key="item">
+    <div class="finder-root"
+         ref="finderBody"
+         @contextmenu.prevent.stop="showFinderContextMenu()"
+    >
+        <div class="finder-breadcrumb" v-if="showBreadcrum">
+          <template v-for="item of breadcrumb" :key="item">
+              <div class="breadcrumb-item">
                 {{ item }}
-            </div>
+              </div>
+          </template>
         </div>
         
         <div class="finder-container">
             <div class="finder-line" 
-                 v-for="(line, x) of showedItems" :key="JSON.stringify(line)">
+                 v-for="(line, x) of showedItems" :key="JSON.stringify(line)"
+            >
                 <template v-for="(item, y) of line" :key="y">
                     <Directory v-if="item.type === 'directory'"
                                :name="item.name" :id="item.id!" :x="x" :y="y"
-                               :color="'black'" :select-color="'black'">
+                               :color="'black'" :select-color="'black'"
+                    >
                         {{ item.name }}
                     </Directory>
 
                     <File v-else-if="item.type === 'text'"
-                          :icon="item.icon" :name="item.name" :id="item.id!" :x="x" :y="y"
-                          :color="'black'" :select-color="'black'">
-                        {{ item.name }}.{{ item.extention }}
+                          :icon="item.icon" :name="item.name"
+                          :id="item.id!" :x="x" :y="y"
+                          :color="'black'" :select-color="'black'"
+                    >
+                        {{ item.name }}.{{ item.extension }}
                     </File>
                 </template>
 
                 <NewDirectory v-model="newDirectoryName" 
                               :show="x === showedItems.length - 1 && showedItems[x].length < 5 && displayNewDirectory"
                               :color="'black'" :select-color="'black'"
-                              @hide="displayNewDirectory = false"/>
+                              @hide="displayNewDirectory = false"
+                />
 
                 <NewFile v-model="newFile.name" 
                          :show="x === showedItems.length - 1 && showedItems[x].length < 5 && newFile.display"
                          :color="'black'" :select-color="'black'"
-                         @hide="newFile.display = false" />
+                         @hide="newFile.display = false"
+                />
             </div>
 
             <div class="finder-line">
                 <NewDirectory v-model="newDirectoryName" 
-                              :show="(showedItems.length === 0 || showedItems[showedItems.length - 1].length >= 5) && displayNewDirectory"
+                              :show="(showedItems.length === 0 || showedItems[showedItems.length - 1].length >= 5) &&
+                              displayNewDirectory"
                               :color="'black'" :select-color="'black'"
                               @hide="displayNewDirectory = false"
-                              @ready="$event?.querySelector('input').select()" />
+                              @ready="$event?.querySelector('input').select()"
+                />
 
                 <NewFile v-model="newFile.name" 
                         :show="(showedItems.length === 0 || showedItems[showedItems.length - 1].length >= 5) && newFile.display"
@@ -49,8 +60,9 @@
                         @hide="newFile.display = false"
                         @ready="
                             $event?.querySelector('input').focus(); 
-                            $event?.querySelector('input').setSelectionRange(0, newFile.name.length - '.txt'.length)
-                        " />
+                            $event?.querySelector('input').setSelectionRange(0, newFile.name.length - '.txt'.length);
+                        "
+                />
             </div>
         </div>
     </div>
@@ -74,7 +86,7 @@ const { useFinder, useRootDirectory } = finder();
 const { x: mouseX, y: mouseY } = useMouse();
 // const { setCurrentApp } = useCurrentApp();
 // const { openApplication } = useOpenedApplications();
-const { selectItem, activeItem, showedItems, breadcrum } = useFinder(5);
+const { selectItem, activeItem, showedItems, breadcrumb } = useFinder(5);
 const { setRoot, setSubDirectory } = useRootDirectory();
 const {
     setContextMenu, showContextMenu, 
@@ -117,7 +129,7 @@ onKeyUp('Enter', e => {
     }
 })
 
-const showBreadcrum = computed(() => breadcrum.value.length > 1);
+const showBreadcrum = computed(() => breadcrumb.value.length > 1);
 
 const addDirectory = () => {
     displayNewDirectory.value = true;
@@ -195,7 +207,7 @@ watch(finderBody, () => {
 
 <style>
 .dark .finder .finder-item,
-.dark .finder .finder-breadcrum {
+.dark .finder .finder-breadcrumb {
     color: white;
 }
 </style>
@@ -219,14 +231,14 @@ watch(finderBody, () => {
         }
     }
 
-    &-breadcrum {
+    &-breadcrumb {
         display: flex;
         flex-direction: row;
         justify-content: flex-start;
         align-items: center;
         color: black;
 
-        .breadcrum-item:not(:last-child) {
+        .breadcrumb-item:not(:last-child) {
             &::after {
                 content: '>';
                 padding-left: 5px;

@@ -22,7 +22,7 @@ enum TABS {
     DEVELOP = 'Develop',
     CATEGORIES = 'Categories',
     UPDATES = 'Updates'
-};
+}
 
 selectTab(TABS.DISCOVER);
 

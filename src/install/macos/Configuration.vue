@@ -84,7 +84,7 @@ const dbQueue = ref([
                 {
                     user_id: 1,
                     name: 'Applications',
-                    extention: null,
+                    extension: null,
                     parent,
                     content: null,
                     type: 'directory',
@@ -95,7 +95,7 @@ const dbQueue = ref([
                 {
                     user_id: 1,
                     name: 'AirDrop',
-                    extention: null,
+                    extension: null,
                     parent,
                     content: null,
                     type: 'directory',
@@ -106,7 +106,7 @@ const dbQueue = ref([
                 {
                     user_id: 1,
                     name: 'Desktop',
-                    extention: null,
+                    extension: null,
                     parent,
                     content: null,
                     type: 'directory',
@@ -117,7 +117,7 @@ const dbQueue = ref([
                 {
                     user_id: 1,
                     name: 'Images',
-                    extention: null,
+                    extension: null,
                     parent,
                     content: null,
                     type: 'directory',
@@ -128,7 +128,7 @@ const dbQueue = ref([
                 {
                     user_id: 1,
                     name: 'Videos',
-                    extention: null,
+                    extension: null,
                     parent,
                     content: null,
                     type: 'directory',
@@ -139,7 +139,7 @@ const dbQueue = ref([
                 {
                     user_id: 1,
                     name: 'Documents',
-                    extention: null,
+                    extension: null,
                     parent,
                     content: null,
                     type: 'directory',
@@ -150,7 +150,7 @@ const dbQueue = ref([
                 {
                     user_id: 1,
                     name: 'Downloads',
-                    extention: null,
+                    extension: null,
                     parent,
                     content: null,
                     type: 'directory',

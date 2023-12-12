@@ -1,29 +1,27 @@
 import { ref, computed, watch } from 'vue';
-import iconDirectory from '@/assets/icons/icon-directory.png';
-import iconUnknownFile from '@/assets/icons/icon-unknownFile.png';
-import {Item} from '@/hooks/finder/types.ts';
-
-// import iconAppleTV from '@/assets/icons/icon-AppleTV.png';
-// import iconMessages from '@/assets/icons/icon-Messages.png';
-// import iconMp4 from '@/assets/icons/icon-mp4.png';
-// import iconMusic from '@/assets/icons/icon-Music.png';
-// import iconPages from '@/assets/icons/icon-Pages.png';
-// import iconPng from '@/assets/icons/icon-png.png';
+import type { Item } from '@/hooks/finder/types.ts';
+import {
+    createBreadcrumbInitializer,
+    createItemActivator,
+    createItemSelector,
+    createTabSelector, getChildren,
+    getComputedShowedItems
+} from '@/hooks/finder/index.ts';
 
 const selectedTab = ref('');
-const items = ref<Item[]>([]);
-const showedItems = ref(items.value.reduce<Item[]>((r, c) =>
+const tree = ref<Item[]>([]);
+const showedItems = ref(tree.value.reduce<Item[]>((r, c) =>
     c.name === selectedTab.value ? (c.children ?? []) : r, []));
 const activeItem = ref('');
 const breadcrumb = ref<string[]>([]);
 const rootDir = ref('');
 const subDirectory = ref('');
 
-items.value = [
+tree.value = [
     {
         content: null,
         creation_date: 'Tue Jan 25 2022 12:19:10 GMT+0100 (heure normale d’Europe centrale) {}',
-        extention: null,
+        extension: null,
         id: 1,
         name: "Applications",
         opened_date: 'Tue Jan 25 2022 12:19:10 GMT+0100 (heure normale d’Europe centrale) {}',
@@ -35,7 +33,7 @@ items.value = [
     {
         content: null,
         creation_date: 'Tue Jan 25 2022 12:19:10 GMT+0100 (heure normale d’Europe centrale) {}',
-        extention: null,
+        extension: null,
         id: 2,
         name: "AirDrop",
         opened_date: 'Tue Jan 25 2022 12:19:10 GMT+0100 (heure normale d’Europe centrale) {}',
@@ -47,7 +45,7 @@ items.value = [
     {
         content: null,
         creation_date: 'Tue Jan 25 2022 12:19:10 GMT+0100 (heure normale d’Europe centrale) {}',
-        extention: null,
+        extension: null,
         id: 3,
         name: "Desktop",
         opened_date: 'Tue Jan 25 2022 12:19:10 GMT+0100 (heure normale d’Europe centrale) {}',
@@ -59,7 +57,7 @@ items.value = [
     {
         content: null,
         creation_date: 'Tue Jan 25 2022 12:19:10 GMT+0100 (heure normale d’Europe centrale) {}',
-        extention: null,
+        extension: null,
         id: 4,
         name: "Images",
         opened_date: 'Tue Jan 25 2022 12:19:10 GMT+0100 (heure normale d’Europe centrale) {}',
@@ -71,7 +69,7 @@ items.value = [
     {
         content: null,
         creation_date: 'Tue Jan 25 2022 12:19:10 GMT+0100 (heure normale d’Europe centrale) {}',
-        extention: null,
+        extension: null,
         id: 5,
         name: "Videos",
         opened_date: 'Tue Jan 25 2022 12:19:10 GMT+0100 (heure normale d’Europe centrale) {}',
@@ -83,7 +81,7 @@ items.value = [
     {
         content: null,
         creation_date: 'Tue Jan 25 2022 12:19:10 GMT+0100 (heure normale d’Europe centrale) {}',
-        extention: null,
+        extension: null,
         id: 6,
         name: "Documents",
         opened_date: 'Tue Jan 25 2022 12:19:10 GMT+0100 (heure normale d’Europe centrale) {}',
@@ -95,7 +93,7 @@ items.value = [
     {
         content: null,
         creation_date: 'Tue Jan 25 2022 12:19:10 GMT+0100 (heure normale d’Europe centrale) {}',
-        extention: null,
+        extension: null,
         id: 7,
         name: "Downloads",
         opened_date: 'Tue Jan 25 2022 12:19:10 GMT+0100 (heure normale d’Europe centrale) {}',
@@ -107,7 +105,7 @@ items.value = [
     {
         content: null,
         creation_date: 'Tue Jan 25 2022 12:20:03 GMT+0100 (heure normale d’Europe centrale) {}',
-        extention: null,
+        extension: null,
         id: 9,
         name: "prod",
         opened_date: 'Tue Jan 25 2022 12:20:03 GMT+0100 (heure normale d’Europe centrale) {}',
@@ -119,7 +117,7 @@ items.value = [
     {
         content: null,
         creation_date: 'Tue Jan 25 2022 12:20:03 GMT+0100 (heure normale d’Europe centrale) {}',
-        extention: null,
+        extension: null,
         id: 10,
         name: "portfolio-apple",
         opened_date: 'Tue Jan 25 2022 12:20:03 GMT+0100 (heure normale d’Europe centrale) {}',
@@ -131,7 +129,7 @@ items.value = [
     {
         content: null,
         creation_date: 'Tue Jan 25 2022 12:20:03 GMT+0100 (heure normale d’Europe centrale) {}',
-        extention: null,
+        extension: null,
         id: 10,
         name: "répertoire dans documents",
         opened_date: 'Tue Jan 25 2022 12:20:03 GMT+0100 (heure normale d’Europe centrale) {}',
@@ -142,84 +140,29 @@ items.value = [
     }
 ];
 
-const getChildren = (root: string, dirName: string): Item[] => {
-    return items.value.reduce<Item[]>((r, c) => {
-        return c.parent === `${root}/${dirName}`.replace('//', '/') 
-            ? [
-                ...r, 
-                {
-                    ...c,
-                    icon: c.type === 'directory' ? iconDirectory : iconUnknownFile,
-                    children: getChildren(`${root}/${dirName}`, c.name)
-                }
-            ] : r
-    }, []);
-};
-
-export const initBreadcrum = () => {
-    breadcrumb.value = [selectedTab.value];
-};
+export const initBreadcrumb = createBreadcrumbInitializer(breadcrumb, selectedTab);
 
 export const useFinder = (maxPerLine: number) => {
     return {
         selectedTab: computed(() => selectedTab.value),
-        showedItems: computed(() => showedItems.value?.reduce<{cmp: number, result: Item[][]}>((r, c) => {
-            if (r.cmp === 0) {
-                return {
-                    cmp: r.cmp + 1,
-                    result: [...r.result, [c]]
-                }
-            } else if (r.cmp < maxPerLine) {
-                const lastItem = r.result.pop()!;
-                return {
-                    cmp: r.cmp + 1,
-                    result: [...r.result, [...lastItem, c]]
-                };
-            } else if (r.cmp === maxPerLine) {
-                return {
-                    cmp: 1,
-                    result: [...r.result, [c]]
-                }
-            }
+        showedItems: getComputedShowedItems(showedItems, maxPerLine),
+        activatedItem: computed(() => activeItem.value),
+        breadcrumb: computed(() => breadcrumb.value),
 
-            return r;
-        }, {
-            cmp: 0,
-            result: []
-        }).result ?? []),
-        activedItem: computed(() => activeItem.value),
-        breadcrum: computed(() => breadcrumb.value),
-
-        selectTab(tab: string) {
-            selectedTab.value = tab;
-        },
-    
-        initBreadcrum,
-    
-        selectItem(item: Item) {
-            if (item.type === 'directory' && breadcrumb.value.indexOf(item.name) === -1) {
-                breadcrumb.value = [
-                    ...breadcrumb.value,
-                    item.name
-                ];
-        
-                activeItem.value = '';
-                showedItems.value = item.children!;
-            }
-        },
-
-        activeItem(item: string) {
-            activeItem.value = item;
-        },
+        selectTab: createTabSelector(rootDir, selectedTab),
+        initBreadcrumb,
+        selectItem: createItemSelector(breadcrumb, showedItems, activeItem),
+        activeItem: createItemActivator(activeItem),
         
         backInPath() {
             const currentSelectedDir = breadcrumb.value[breadcrumb.value.length - 1];
-            
+
             if (breadcrumb.value.length > 1) {
                 const copy = [...breadcrumb.value];
                 copy.pop();
 
-                showedItems.value = getChildren('/', copy.join('/'));
+                subDirectory.value = copy.join('/').replace('Desktop', '');
+                showedItems.value = getChildren(tree)('/', copy.join('/'));
                 breadcrumb.value = breadcrumb.value.reduce<string[]>((r, c) =>
                     c === currentSelectedDir ? r : [...r, c], []);
             }
@@ -244,21 +187,20 @@ export const useRootDirectory = () => {
 
 export const useTreeActions = () => {
     return {
-        tree: computed(() => items.value),
+        tree: computed(() => tree.value),
 
         get() {},
 
-        // @ts-expect-error
-        createFile(path: string, { name, type, extention }: Pick<Item, 'name' | 'type' | 'extention'>) {},
+        createFile() {},
 
         add(root: string, dirName: string) {
-            items.value = [
-                ...items.value,
+            tree.value = [
+                ...tree.value,
                 {
-                    id: (items.value[items.value.length - 1].id ?? 0) + 1,
+                    id: (tree.value[tree.value.length - 1].id ?? 0) + 1,
                     user_id: 0,
                     content: null,
-                    extention: null,
+                    extension: null,
                     name: dirName,
                     parent: root.replace('//', '/'),
                     type: 'directory',
@@ -270,7 +212,7 @@ export const useTreeActions = () => {
         },
         
         remove(id: number) {
-            items.value = items.value.reduce<Item[]>((r, c) => {
+            tree.value = tree.value.reduce<Item[]>((r, c) => {
                 if (c.id === id) {
                     return r;
                 }
@@ -280,24 +222,29 @@ export const useTreeActions = () => {
     };
 };
 
-watch([selectedTab, subDirectory, items], (_, [oldSelectedTab]) => {
+watch([selectedTab, subDirectory, tree], (_, [oldSelectedTab]) => {
     if (selectedTab.value !== oldSelectedTab) {
         breadcrumb.value = [selectedTab.value];
         subDirectory.value = '';
         
         const copy = [...breadcrumb.value];
 
-        showedItems.value = getChildren('', copy.join('/'));
+        showedItems.value = getChildren(tree)('', copy.join('/'));
     }
 
     if (subDirectory.value) {
-        showedItems.value = getChildren('/' + selectedTab.value, subDirectory.value);
-        
-        breadcrumb.value = [selectedTab.value, ...subDirectory.value.split('/')];
+        showedItems.value = getChildren(tree)('/' + selectedTab.value, subDirectory.value);
+
+        const splitSubDirectory = subDirectory.value.split('/');
+        if (splitSubDirectory[0] === '') {
+            splitSubDirectory.shift();
+        }
+
+        breadcrumb.value = [selectedTab.value, ...splitSubDirectory];
     } else {
         breadcrumb.value = [selectedTab.value];
         const copy = [...breadcrumb.value];
 
-        showedItems.value = getChildren('', copy.join('/'));
+        showedItems.value = getChildren(tree)('', copy.join('/'));
     }
 });

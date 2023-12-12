@@ -24,7 +24,7 @@ enum TABS {
     DESKTOP = 'Desktop',
     DOCUMENTS = 'Documents',
     DOWNLOADS = 'Downloads'
-};
+}
 
 selectTab(root.value === '' ? TABS.RECENT : root.value);
 

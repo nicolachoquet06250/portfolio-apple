@@ -20,7 +20,7 @@ type TestEvent = {
 onUpgradeNeeded(({ context: { add } }: TestEvent) => {
     add({
         name: 'nchoquet',
-        extention: null,
+        extension: null,
         parent: '/',
         content: null,
         type: 'directory',
@@ -30,7 +30,7 @@ onUpgradeNeeded(({ context: { add } }: TestEvent) => {
     },
     {
         name: 'Applications',
-        extention: null,
+        extension: null,
         parent: '/nchoquet',
         content: null,
         type: 'directory',
@@ -40,7 +40,7 @@ onUpgradeNeeded(({ context: { add } }: TestEvent) => {
     },
     {
         name: 'AirDrop',
-        extention: null,
+        extension: null,
         parent: '/nchoquet',
         content: null,
         type: 'directory',
@@ -50,7 +50,7 @@ onUpgradeNeeded(({ context: { add } }: TestEvent) => {
     },
     {
         name: 'Desktop',
-        extention: null,
+        extension: null,
         parent: '/nchoquet',
         content: null,
         type: 'directory',
@@ -60,7 +60,7 @@ onUpgradeNeeded(({ context: { add } }: TestEvent) => {
     },
     {
         name: 'Images',
-        extention: null,
+        extension: null,
         parent: '/nchoquet',
         content: null,
         type: 'directory',
@@ -70,7 +70,7 @@ onUpgradeNeeded(({ context: { add } }: TestEvent) => {
     },
     {
         name: 'Videos',
-        extention: null,
+        extension: null,
         parent: '/nchoquet',
         content: null,
         type: 'directory',
@@ -80,7 +80,7 @@ onUpgradeNeeded(({ context: { add } }: TestEvent) => {
     },
     {
         name: 'Documents',
-        extention: null,
+        extension: null,
         parent: '/nchoquet',
         content: null,
         type: 'directory',
@@ -90,7 +90,7 @@ onUpgradeNeeded(({ context: { add } }: TestEvent) => {
     },
     {
         name: 'Downloads',
-        extention: null,
+        extension: null,
         parent: '/nchoquet',
         content: null,
         type: 'directory',
@@ -103,7 +103,7 @@ onUpgradeNeeded(({ context: { add } }: TestEvent) => {
 onSuccess((/*{ context: { add, remove, get, getAllValues, getAllKeys } }*/) => {
     /*add({
         name: 'Projects-2020',
-        extention: null,
+        extension: null,
         parent: '/Documents',
         content: null,
         type: 'directory',
@@ -113,7 +113,7 @@ onSuccess((/*{ context: { add, remove, get, getAllValues, getAllKeys } }*/) => {
     },
     {
         name: 'portfolio-apple',
-        extention: null,
+        extension: null,
         parent: '/Documents/Projects-2020',
         content: null,
         type: 'directory',

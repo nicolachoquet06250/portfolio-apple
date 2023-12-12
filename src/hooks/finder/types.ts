@@ -7,7 +7,7 @@ export type Item = {
     icon?: string,
     children?: Item[],
     content: string|null,
-    extention: string|null,
+    extension: string|null,
     creation_date: Date|string,
     updated_date: Date|string,
     opened_date: Date|string,

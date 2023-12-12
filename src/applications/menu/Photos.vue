@@ -24,7 +24,7 @@ enum TABS {
     RECENTS = 'Recents',
     IMPORTS = 'Imports',
     RECENTLY_DELETED = 'Recently Deleted'
-};
+}
 
 selectTab(TABS.LIBRARY);
 

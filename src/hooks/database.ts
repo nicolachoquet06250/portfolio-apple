@@ -19,7 +19,7 @@ export enum TABLES {
     ACCOUNT = 'account',
     SETTINGS = 'settings',
     TREE_STRUCTURE = 'tree_structure'
-};
+}
 
 export const getParams = <T extends TABLES>(table: T): [dbName: `portfolio-apple_${T}`, table: T] =>
     [`portfolio-apple_${table}`, table];
@@ -168,6 +168,7 @@ export const useDatabase = <
     };
 
     const connect = () => {
+        // @ts-expect-error
         request.value = indexedDB.open(dbName, 1) as IDBOpenDBRequest;
 
         request.value.onerror = function() {

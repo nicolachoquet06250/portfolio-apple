@@ -21,7 +21,7 @@ enum TABS {
     DRAFTS = 'Drafts',
     VIPS = 'VIPs',
     FLAGGES = 'Flagges'
-};
+}
 
 selectTab(TABS.INBOX);
 

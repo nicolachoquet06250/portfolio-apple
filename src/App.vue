@@ -3,7 +3,7 @@
     <IOSDesktop
         v-if="showMobileVersion"
         :apps="[]"
-        :current-app-name="currentApp"
+        :current-app-name="currentApp!"
         background-image="/img/wallpapers/ios-wallpaper.png"
         :top-bar="desktopTopBar"
         @lock-screen="showIOSLoginView = true"
@@ -11,9 +11,10 @@
       <IOSUnlockView
         v-if="showIOSLoginView" 
         @unlock-screen="showIOSLoginView = false" 
-        :current-app-name="currentApp"
+        :current-app-name="currentApp!"
         background-image="/img/wallpapers/ios-wallpaper.png"
         :top-bar="desktopTopBar"
+        :apps="[]"
       />
 <!--      <StartInstall />-->
 
@@ -29,7 +30,7 @@
         <MacDesktop
           v-else
           :apps="[]"
-          :current-app-name="currentApp"
+          :current-app-name="currentApp!"
           :background-image="wallpaper"
           :top-bar="desktopTopBar">
 
@@ -92,7 +93,7 @@
         <MacDesktop
           v-else
           :apps="[]"
-          :current-app-name="currentApp"
+          :current-app-name="currentApp!"
           :background-image="wallpaper"
           :top-bar="desktopTopBar">
 
@@ -146,7 +147,7 @@
     <IOSDesktop
         v-if="showMobileVersion"
         :apps="[]"
-        :current-app-name="currentApp"
+        :current-app-name="currentApp!"
         background-image="/img/wallpapers/ios-wallpaper.png"
         :top-bar="desktopTopBar"
         @lock-screen="showIOSLoginView = true"
@@ -154,9 +155,10 @@
       <IOSUnlockView
         v-if="showIOSLoginView" 
         @unlock-screen="showIOSLoginView = false" 
-        :current-app-name="currentApp"
+        :current-app-name="currentApp!"
         background-image="/img/wallpapers/ios-wallpaper.png"
         :top-bar="desktopTopBar"
+        :apps="[]"
       />
 <!--      <StartInstall />-->
 
@@ -432,9 +434,11 @@ watch(() => alertAppInDev.dontShowAgain, () => {
 
 <script lang="ts">
   export type Menu = {
-    name: string,
-    click?: Function,
-    children?: Menu[]
+    name?: string,
+    click?: (e?: MouseEvent) => void,
+    children?: Menu[],
+    type?: string,
+    shortcut?: string
   };
 </script>
 

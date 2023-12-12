@@ -9,7 +9,10 @@
       <div role="row" v-for="(row, i) in gridDesktopApps" :key="i">
         <div role="cell" v-for="(cel, j) in row" :key="j">
           <template v-if="cel !== null">
-            <component :is="cel.icon" :width="70" :height="70" v-if="typeof cel.icon === 'object'" />
+            <component :is="cel.icon as Component<{width: number, height: number}>"
+                       :width="70" :height="70"
+                       v-if="typeof cel.icon === 'object'"
+            />
             <img :src="cel.icon" alt="icon" v-else-if="typeof cel.icon === 'string'">
 
             <span> {{ cel.label }} </span>
@@ -26,6 +29,7 @@
 
 <script setup lang="ts">
 import {computed, onMounted, defineProps, watch, ref} from 'vue';
+import type {Component} from 'vue';
 import {useScreenLocker} from "@/hooks/screen-locker";
 import {useDocumentVisibility, useWindowSize} from "@vueuse/core";
 import TopBar from "@/components/ios/TopBar.vue";

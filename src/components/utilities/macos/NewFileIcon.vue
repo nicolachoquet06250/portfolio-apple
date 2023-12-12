@@ -52,7 +52,7 @@ const createNewFile = () => {
             
     if (props.show) {
         createFile(path, {
-            extention: model.value.split('.')[model.value.split('.').length - 1],
+            extension: model.value.split('.')[model.value.split('.').length - 1],
             name: (() => {
                 let _model = model.value.split('.');
                 _model.pop();

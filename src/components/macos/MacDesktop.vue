@@ -38,19 +38,22 @@
                     <li>
                         <ul>
                             <li v-for="(item, i) of topBar.menu" :key="item.name"
-                                :ref="el => { if (el) { refs[i] = el } }"
+                                :ref="el => { if (el) { refs[i] = el as HTMLElement } }"
                                 :class="{
                                     'menu-item': true,
                                     [`menu-item-${i}`]: true
                                 }">
-                                <button @click="selectedMenu = item.name; item.click?.($event)"
+                                <button @click="
+                                  selectedMenu = item.name!;
+                                  item.click?.($event)
+                                "
                                         :class="{
                                             active: selectedMenu === item.name
                                         }">
                                     {{ item.name }}
                                 </button>
                                 
-                                <ul class="sub-menu" v-if="item.children.length > 0">
+                                <ul class="sub-menu" v-if="item.children!.length > 0">
                                     <li v-for="(_item, _i) of (item?.children ?? [])" :key="_i">
                                         <button @click="selectSubMenuItem(_item, $event)">
                                             {{ _item.name }}
@@ -74,13 +77,13 @@
                                     'fa-battery-half': !topBar.battery.charging && topBar.battery.level * 100 === 50,
                                     'fa-battery-full': !topBar.battery.charging && topBar.battery.level * 100 > 50 || topBar.battery.charging && topBar.battery.chargingTime === 0,
                                     'fa-car-battery': topBar.battery.charging && topBar.battery.chargingTime > 0
-                                }" :title="topBar.battery.dischargingTime"></i>
+                                }" :title="topBar.battery.dischargingTime.toString()"></i>
                         </button>
                     </li>
                     
                     <li>
                         <button class="double-icon" 
-                                @click="toggleSettingsHub">
+                                @click="toggleSettingsHub!">
                             <i class="fas fa-toggle-off"></i>
 
                             <i class="fas fa-toggle-on"></i>
@@ -138,7 +141,7 @@
 
                     <input type="range" class="light-range" 
                             :value="lightValue" 
-                            @input="lightValue = $event.target.value" 
+                            @input="lightValue = ($event.target as HTMLInputElement).value as unknown as number"
                             max="100" style="width: 100%;" />
 
                     <i class="far fa-sun" style="z-index: -1;"></i>
@@ -174,7 +177,7 @@
                     <div style="width: 100%;">
                         <input type="range" class="sound-range"
                                 :value="soundValue" 
-                                @input="soundValue = $event.target.value" 
+                                @input="soundValue = ($event.target as HTMLInputElement).value as unknown as number"
                                 max="100" style="width: 100%;" />
 
                         <i class="fas fa-volume-mute"></i>
@@ -247,7 +250,7 @@
             <Column v-for="(treeColumn, x) of treeToGrid" :key="x">
                 <template v-for="(treeCel, y) of treeColumn" :key="y">
                     <Directory v-if="treeCel.type === 'directory'"
-                               :name="treeCel.name" :id="treeCel.id" :x="x" :y="y"
+                               :name="treeCel.name" :id="treeCel.id!" :x="x" :y="y"
                                :color="'white'" :select-color="'white'"
                                @select="selectDirectory({ name: treeCel.name, id: treeCel.id }, { x, y })"
                                @unselect="selectedDirectory = ''">
@@ -255,11 +258,11 @@
                     </Directory>
 
                     <File v-else-if="treeCel.type === 'text'"
-                          :icon="treeCel.icon" :name="treeCel.name" :id="treeCel.id" :x="x" :y="y"
+                          :icon="treeCel.icon" :name="treeCel.name" :id="treeCel.id!" :x="x" :y="y"
                           :color="'white'" :select-color="'white'"
                           @select="selectFile({ name: treeCel.name, id: treeCel.id })"
                           @unselect="selectedFile = ''">
-                        {{ treeCel.name }}.{{ treeCel.extention }}
+                        {{ treeCel.name }}.{{ treeCel.extension }}
                     </File>
                 </template>
 
@@ -294,10 +297,11 @@
         <slot></slot>
 
         <MacApplication v-for="app of Object.keys(openedApplications)" 
-                        :key="openedApplications[app].name"
-                        :opened="openedApplications[app].state === APPLICATION_STATE.OPENED"
-                        :app-name="openedApplications[app].name"
-                        :app-code="app" />
+                        :key="openedApplications[app as APPLICATION]!.name"
+                        :opened="openedApplications[app as APPLICATION]!.state === APPLICATION_STATE.OPENED"
+                        :app-name="(openedApplications[app as APPLICATION]!.name as APPLICATION)"
+                        :app-code="(app as APPLICATION)"
+        />
 
         <Spotlight :open="openSpotlight" @close="openSpotlight = false" />
   </div>
@@ -326,20 +330,21 @@ import ToogleLiteDarkMode from '@/components/macos/ToogleLiteDarkMode.vue';
 import Spotlight from '@/components/macos/Spotlight.vue';
 import {useScreens} from "@/hooks/screens";
 import {Menu} from '@/App.vue';
+import {Item} from '@/hooks/finder/types.ts';
 
-const { useRootDirectory, useTreeActions, useFinder, initBreadcrum } = finder();
+const { useRootDirectory, useTreeActions, useFinder, initBreadcrumb } = finder();
 
 type TopBarProps = {
   network: {
     wifi: {
-      online: Boolean,
+      online: boolean,
     },
   },
   battery: {
-    charging: Boolean,
-    chargingTime: Number,
-    dischargingTime: Number,
-    level: Number,
+    charging: boolean,
+    chargingTime: number,
+    dischargingTime: number,
+    level: number,
   },
   menu: Menu[]
 }
@@ -365,7 +370,7 @@ const { installed, skipped } = useInstalled();
 const { setRoot, setSubDirectory } = useRootDirectory?.();
 const { tree: treeStructure, add, get } = useTreeActions?.();
 const { isDark } = useDark();
-const { selectTab } = useFinder?.();
+const { selectTab } = useFinder(5);
 const { screenId } = useScreens();
 
 initApplicationHistory();
@@ -378,7 +383,7 @@ if (installed.value) {
     get();
 }
 
-const treeToGrid = ref([]);
+const treeToGrid = ref<Item[][]>([]);
 const displayNewDirectory = ref(false);
 const newDirectoryName = ref('new directory');
 const newFile = reactive({
@@ -387,21 +392,21 @@ const newFile = reactive({
     name: 'file.txt'
 });
 const selectedDirectory = ref('');
-const selectedDirectoryId = ref(null);
+const selectedDirectoryId = ref<number|null>(null);
 const selectedFile = ref('');
-const selectedFileId = ref(null);
-const refs = ref([]);
+const selectedFileId = ref<number|null>(null);
+const refs = ref<HTMLElement[]>([]);
 const toggleLightDarkModeButtonTextColor = ref(isDark.value ? 'white' : 'black');
 const openSpotlight = ref(false);
 const lightValue = ref(50);
 const soundValue = ref(50);
 const showSettingsHub = ref(false);
 const toggleSettingsHub = useToggle(showSettingsHub);
-const settingsHub = ref(null);
+const settingsHub = ref<HTMLElement|null>(null);
 const showBatteryData = ref(false);
 const toggleBatteryData = useToggle(showBatteryData);
-const batteryData = ref(null);
-const appleMenu = ref([
+const batteryData = ref<HTMLElement|null>(null);
+const appleMenu = ref<Menu[]>([
     {
       name: 'About this Mac',
       click() {
@@ -455,7 +460,7 @@ const appleMenu = ref([
       shortcut: 'ctrl+maj+Q'
     }
 ]);
-const appleMenuRef = ref(null);
+const appleMenuRef = ref<HTMLElement|null>(null);
 const selectedMenu = ref('');
 const formattedDate = ref(
   new Date().toLocaleDateString("fr-FR", {
@@ -465,7 +470,7 @@ const formattedDate = ref(
     minute: "2-digit",
   })
 );
-const contextMenu = ref(null);
+const contextMenu = ref<HTMLElement|null>(null);
 
 setInterval(() => {
   formattedDate.value = new Date(Date.now()).toLocaleDateString("fr-FR", {
@@ -499,9 +504,9 @@ onClickOutside(contextMenu, () => hideContextMenu());
 onKeyUp(['n', 'N'], e => (displayNewDirectory.value = e.shiftKey));
 onKeyUp(['t', 'T'], e => (newFile.display = newFile.display ?? e.shiftKey));
 
-const selectDirectory = (treeCel, { x, y }) => {
+const selectDirectory = (treeCel: Pick<Item, 'name'|'id'>, { x, y }: { x: number, y: number }) => {
     selectedDirectory.value = treeCel.name;
-    selectedDirectoryId.value = treeCel.id;
+    selectedDirectoryId.value = treeCel.id!;
     selectedDirectoryPosition.x = x;
     selectedDirectoryPosition.y = y;
 };
@@ -546,7 +551,7 @@ const showDesktopContextMenu = () => {
                     setSubDirectory('');
                     setRoot('Desktop');
                     selectTab('Desktop');
-                    initBreadcrum();
+                    initBreadcrumb();
                     openApplication(APPLICATION.FINDER);
                     setCurrentApp(APPLICATION.FINDER);
                     hideContextMenu();
@@ -569,19 +574,19 @@ const showDesktopContextMenu = () => {
         newDirectoryName.value = 'new directory';
     });
 };
-const selectSubMenuItem = (item, e) => {
+const selectSubMenuItem = (item: Menu, e: MouseEvent) => {
   const r = item?.click?.(e) ?? false;
   selectedMenu.value = '';
   return r;
 };
-const selectFile = (treeCel) => {
+const selectFile = (treeCel: Pick<Item, 'name'|'id'>) => {
     selectedFile.value = treeCel.name;
-    selectedFileId.value = treeCel.id;
-};
+    selectedFileId.value = treeCel.id!;
+}
 const buildTree = () => {
     const maxPerColumn = 5;
 
-    const tmp = [];
+    const tmp: Item[][] = [];
     let cmp = 0;
 
     let x = 0;
@@ -596,14 +601,14 @@ const buildTree = () => {
             cmp++;
             y++;
         } else if (cmp < maxPerColumn) {
-            const lastElement = tmp.pop();
+            const lastElement: Item[] = tmp.pop()!;
             lastElement.push(c);
             tmp.push(lastElement);
 
             cmp++;
             y++;
         } else if (cmp === maxPerColumn) {
-            const lastElement = tmp.pop();
+            const lastElement: Item[] = tmp.pop()!;
             lastElement.push(c);
             tmp.push(lastElement);
 
