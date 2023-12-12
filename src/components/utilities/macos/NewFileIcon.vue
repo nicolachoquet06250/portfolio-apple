@@ -1,6 +1,6 @@
 <template>
     <button class="desktop-grid-cel desktop-grid-cel_new-file" 
-            :ref="el => { if (el) { newFileRef = el } }" v-if="show"
+            :ref="el => { if (el) { newFileRef = el as HTMLButtonElement } }" v-if="show"
             @contextmenu.prevent.stop="$emit('contextmenu', $event)">
         <img :src="iconUnknownFile" alt="icon unknown file" />
 
@@ -10,7 +10,7 @@
     </button>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue';
 import finder from '@/hooks/finder';
 import { useAuthUser } from '@/hooks/account';
@@ -23,28 +23,26 @@ const { root: rootDirectory, subDirectory } = useRootDirectory();
 const { createFile } = useTreeActions();
 const { user } = useAuthUser();
 
-const props = defineProps({
-    show: Boolean,
-    color: String,
-    selectColor: String,
-    rootPath: {
-        default: ''
-    }
+const props = withDefaults(defineProps<{
+  show: boolean,
+  color: string,
+  selectColor: string,
+  rootPath: string
+}>(), {
+  rootPath: ''
 });
 const emit = defineEmits(['ready', 'hide', 'contextmenu']);
 
-const model = defineModel({type: String});
-const newFileRef = ref(null);
+const model = defineModel<string>({default: ''});
+const newFileRef = ref<HTMLButtonElement|null>(null);
 
 const color = computed(() => props.color);
 const selectColor = computed(() => props.selectColor);
 
 const reset = () => {
     emit('hide');
-    emit('update:modelValue', 'file.txt');
+    model.value = 'file.txt';
 };
-
-watch(model, () => emit('update:modelValue', model.value));
 
 const createNewFile = () => {
     const root = rootDirectory.value !== '' ? rootDirectory.value : 'Desktop';
@@ -77,7 +75,7 @@ onMounted(() => {
 
 watch(newFileRef, () => {
     if (newFileRef.value) {
-        const input = newFileRef.value.querySelector('input[type=text]');
+        const input = newFileRef.value.querySelector<HTMLInputElement>('input[type=text]')!;
         input.focus();
         input.setSelectionRange(0, model.value.length - '.txt'.length);
     }

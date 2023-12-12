@@ -243,7 +243,7 @@
             </template>
         </ul>
 
-        <Grid v-if="screenNumber === 0">
+        <Grid v-if="screenId === 0">
             <Column v-for="(treeColumn, x) of treeToGrid" :key="x">
                 <template v-for="(treeCel, y) of treeColumn" :key="y">
                     <Directory v-if="treeCel.type === 'directory'"
@@ -303,7 +303,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import siriIcon from '@/assets/icons/siri.png'
 import musicIcon from '@/assets/icons/icon-Music.png'
 import { ref, computed, watch, reactive } from "vue";
@@ -325,32 +325,35 @@ import MacApplication from '@/components/macos/MacApplication.vue';
 import ToogleLiteDarkMode from '@/components/macos/ToogleLiteDarkMode.vue';
 import Spotlight from '@/components/macos/Spotlight.vue';
 import {useScreens} from "@/hooks/screens";
+import {Menu} from '@/App.vue';
 
 const { useRootDirectory, useTreeActions, useFinder, initBreadcrum } = finder();
 
-const props = defineProps({
-    backgroundImage: String,
-    apps: Array,
-    currentAppName: String,
-    topBar: {
-        network: () => ({
-            wifi: () => ({
-                online: Boolean,
-            }),
-        }),
-        battery: () => ({
-            charging: Boolean,
-            chargingTime: Number,
-            dischargingTime: Number,
-            level: Number,
-        }),
-        menu: Array
-    }
-});
+type TopBarProps = {
+  network: {
+    wifi: {
+      online: Boolean,
+    },
+  },
+  battery: {
+    charging: Boolean,
+    chargingTime: Number,
+    dischargingTime: Number,
+    level: Number,
+  },
+  menu: Menu[]
+}
+
+const props = defineProps<{
+  backgroundImage: string,
+  apps: any[],
+  currentAppName: string,
+  topBar: TopBarProps
+}>();
 
 const { x: mouseX, y: mouseY } = useMouse();
 const { user } = useAuthUser();
-const { currentApp, setCurrentApp } = useCurrentApp();
+const { setCurrentApp } = useCurrentApp();
 const {
     show: displayContextMenu,
     position: contextMenuPosition,
@@ -363,7 +366,7 @@ const { setRoot, setSubDirectory } = useRootDirectory?.();
 const { tree: treeStructure, add, get } = useTreeActions?.();
 const { isDark } = useDark();
 const { selectTab } = useFinder?.();
-const { screenNumber } = useScreens();
+const { screenId } = useScreens();
 
 initApplicationHistory();
 

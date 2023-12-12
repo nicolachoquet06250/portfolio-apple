@@ -59,8 +59,8 @@
                     event: $event,
                     details: {
                         continue: true,
-                        selectedLangue: langue.value,
-                        selectedCountry: country.value
+                        selectedLangue: langue!.value,
+                        selectedCountry: country!.value
                     }
                 })">
                     Continuer
@@ -70,7 +70,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { defineEmits } from 'vue';
 import { useLangues, useCountries } from '@/hooks/installation/langue';
 import iconLangues from '@/assets/install-icons/icon-langues.png';

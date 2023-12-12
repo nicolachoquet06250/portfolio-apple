@@ -12,16 +12,16 @@
 
                 <h1> macOS </h1>
 
-                <p v-if="disqueChoosen !== ''">
-                    macOS sera installé sur le disque <i class="fas fa-angle-double-left"></i> {{ disque.name }} <i class="fas fa-angle-double-right"></i>.
+                <p v-if="choosenDisque !== ''">
+                    macOS sera installé sur le disque <i class="fas fa-angle-double-left"></i> {{ disque!.name }} <i class="fas fa-angle-double-right"></i>.
                 </p>
                 <div v-else style="height: 40px"></div>
 
                 <div class="disque">
-                    <img :src="disque.icon" alt="icon disque" />
+                    <img :src="disque!.icon" alt="icon disque" />
 
                     <span class="disque-title">
-                        {{ disque.name }}
+                        {{ disque!.name }}
                     </span>
                 </div>
 
@@ -47,7 +47,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, defineEmits } from 'vue';
 import { useMenu, useStepTitle } from '@/hooks/installation/menu';
 import { useDisque } from '@/hooks/installation/disque';
@@ -57,7 +57,7 @@ import { useDatabase, INDEX_PARAMS } from '@/hooks/database';
 
 const emit = defineEmits(['previousStep', 'nextStep']);
 
-const { disque } = useDisque();
+const { disque, choosenDisque } = useDisque();
 
 useStepTitle('Install macOS');
 const { setMenu, resetMenus } = useMenu();
@@ -74,7 +74,14 @@ setMenu('Fenêtre', {});
 
 const progressCmp = ref(0);
 
-onSettingsUpgradeNeeded(({ context: { addIndex, add } }) => {
+type InstallEvent = {
+  context: {
+    add(...config: { field: string, value: any }[]): void,
+    addIndex(key: string, value: any): void
+  }
+}
+
+onSettingsUpgradeNeeded(({ context: { addIndex, add } }: InstallEvent) => {
     addIndex('field', INDEX_PARAMS.UNIQUE);
     add(
         {

@@ -12,12 +12,13 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useTextEdit } from '@/hooks/textedit';
+import type { File } from '@/hooks/textedit';
 
 const { files, activeFile, openFile } = useTextEdit();
 
-const isActive = file => activeFile.value?.name === file.name 
+const isActive = (file: File) => activeFile.value?.name === file.name
     && activeFile.value?.extention === file.extention 
     && activeFile.value?.parent === file.parent;
 </script>

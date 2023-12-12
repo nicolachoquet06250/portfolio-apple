@@ -14,11 +14,11 @@
   </svg>
 </template>
 
-<script setup>
-defineProps({
-  width: Number,
-  height: Number
-})
+<script setup lang="ts">
+defineProps<{
+  width: number,
+  height: number
+}>();
 </script>
 
 <style scoped lang="scss">

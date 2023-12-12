@@ -26,7 +26,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, watch, defineEmits } from 'vue';
 import appstore from '@/assets/dock/appstore.png';
 import { useWindowSize } from "@vueuse/core";
@@ -37,7 +37,7 @@ defineEmits(['close', 'validate']);
 
 const { width } = useWindowSize();
 
-const alert = ref(null);
+const alert = ref<HTMLElement|null>(null);
 const alertHeight = ref('0px');
 const screenWidth = computed(() => width.value + 'px');
 

@@ -12,7 +12,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, defineEmits } from 'vue';
 import { useWait } from '@/hooks/wait';
 

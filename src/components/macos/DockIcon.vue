@@ -14,17 +14,17 @@
     </a>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from 'vue';
 
-const props = defineProps({
-    active: Boolean,
-    mouseover: Function,
-    mouseout: Function,
-    click: Function,
-    img: String,
-    code: String
-});
+const props = defineProps<{
+  active?: boolean,
+  // mouseover: Function,
+  // mouseout: Function,
+  // click: Function,
+  img: string,
+  code: string
+}>();
 
 const emit = defineEmits([
     'mouseover',
@@ -34,14 +34,14 @@ const emit = defineEmits([
 
 const showTooltype = ref(false);
 const displayTooltype = computed(() => showTooltype.value ? 'block' : 'none');
-const code = computed(() => props.code.substr(0, 1).toUpperCase() + props.code.substr(1, props.code.length - 1).toLowerCase());
+const code = computed(() => props.code.substring(0, 1).toUpperCase() + props.code.substring(1).toLowerCase());
 
-const onMouseOver = e => {
+const onMouseOver = (e: MouseEvent) => {
     emit('mouseover', e);
     showTooltype.value = true;
 };
 
-const onMouseOut = e => {
+const onMouseOut = (e: MouseEvent) => {
     emit('mouseout', e);
     showTooltype.value = false;
 }

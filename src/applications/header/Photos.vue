@@ -24,14 +24,14 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, watch } from 'vue';
 import { CURSOR, useCursor } from '@/hooks/cursor';
 
 const { setCursor } = useCursor();
 
 const searchFocused = ref(false);
-const search = ref(null);
+const search = ref<HTMLInputElement|null>(null);
 
 watch(searchFocused, () => {
     if (search.value) {
@@ -42,14 +42,14 @@ watch(searchFocused, () => {
 });
 
 watch(search, () => {
-    search.value.addEventListener('focusout', () => {
+    search.value!.addEventListener('focusout', () => {
         searchFocused.value = false;
     })
 });
 
 const clear = () => {
-    search.value.value = '';
-    search.value.focus();
+    search.value!.value = '';
+    search.value!.focus();
 }
 
 const setPointerCursor = () => setCursor(CURSOR.POINTER);

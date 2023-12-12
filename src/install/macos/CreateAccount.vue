@@ -81,7 +81,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { defineEmits, ref } from 'vue';
 import { useAccount } from '@/hooks/installation/account';
 import {usePwa} from '@/hooks/pwa';
@@ -97,7 +97,7 @@ const { createAccount } = useAccount();
 const fullName = ref('');
 const accountName = ref('');
 
-const _createAccount = e => {
+const _createAccount = (e: Event) => {
     createAccount(fullName.value, accountName.value);
 
     emit('nextStep', {

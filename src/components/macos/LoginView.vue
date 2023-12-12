@@ -14,7 +14,7 @@
                     'fa-battery-half': !charging && level * 100 === 50,
                     'fa-battery-full': !charging && level * 100 > 50,
                     'fa-car-battery': charging
-                }" :title="dischargingTime"></i>
+                }" :title="dischargingTime.toString()"></i>
             </span>
         
             <span> 
@@ -29,11 +29,9 @@
         
         <div class="login-view-body" v-if="showForm">
             <div class="account-container">
-                <div v-for="account of accounts" :key="account.id" 
+                <div v-for="account of accounts" :key="account.id"
                     class="account" clickable
-                    @click="login($event, {
-                        ...account
-                    })">
+                    @click="login($event, {...account})">
                     <img :src="defaultProfilePic" alt="profile picture" />
 
                     <h3> {{ account.full_name }} </h3>
@@ -90,7 +88,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, watch } from 'vue';
 import { useNetwork, useBattery } from "@vueuse/core";
 import { useWait } from '@/hooks/wait';
@@ -98,32 +96,34 @@ import { useDatabase, TABLES, getParams } from '@/hooks/database';
 import { useAuthUser } from '@/hooks/account';
 import defaultProfilePic from '@/assets/default-profile-pic.png';
 import iconSuspend from '@/assets/icon-suspend-login-view.png';
+import type { User } from '@/hooks/account';
 
-defineProps({
-  'showButtons': {
-    type: Boolean,
-    default: true
-  },
-  'showForm': {
-    type: Boolean,
-    default: true
-  },
+withDefaults(defineProps<{
+  showButtons: boolean,
+  showForm: boolean
+}>(), {
+  showButtons: true,
+  showForm: true
 })
 
 const emit = defineEmits(['connected']);
 
 const { authUser } = useAuthUser();
 const { isWait, isNotWait } = useWait();
-const { onSuccess: onAccountSuccess, results: accounts } = useDatabase(...getParams(TABLES.ACCOUNT));
-const { onSuccess: onSettingsSuccess, results: settings } = useDatabase(...getParams(TABLES.SETTINGS));
+const { onSuccess: onAccountSuccess, results: accounts } = useDatabase<User[]>(...getParams(TABLES.ACCOUNT));
+const { onSuccess: onSettingsSuccess, results: settings } = useDatabase<{value: { displayed: string }}>(...getParams(TABLES.SETTINGS));
 const { isOnline } = useNetwork();
-const { 
-    charging, chargingTime, 
-    dischargingTime, level
-} = useBattery();
+const { charging, dischargingTime, level } = useBattery();
 
-onAccountSuccess(({ context: { getAllValues } }) => getAllValues()).connect();
-onSettingsSuccess(({ context: { getFromIndex } }) => getFromIndex('field', 'langue')).connect();
+type DbEvent = {
+  context: {
+    getAllValues(): void,
+    getFromIndex(key: string, value: any): void
+  }
+};
+
+onAccountSuccess(({ context: { getAllValues } }: DbEvent) => getAllValues()).connect();
+onSettingsSuccess(({ context: { getFromIndex } }: DbEvent) => getFromIndex('field', 'langue')).connect();
 
 const displayedLangue = ref('');
 
@@ -145,7 +145,7 @@ setInterval(() => {
   });
 }, 1000);
 
-const login = (event, user) => {
+const login = (event: Event, user: User) => {
     isWait();
 
     console.log(user);
@@ -164,7 +164,7 @@ const login = (event, user) => {
     }, 1500);
 };
 
-watch(settings, () => (displayedLangue.value = settings.value.value.displayed));
+watch(settings, (settings) => (displayedLangue.value = settings.value.displayed));
 </script>
 
 <style lang="scss" scoped>

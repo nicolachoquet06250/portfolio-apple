@@ -14,8 +14,8 @@
     </div>
 </template>
 
-<script setup>
-import { defineEmits, ref, watch } from 'vue';
+<script setup lang="ts">
+import {defineEmits, ref, watch} from 'vue';
 import { useDatabase, INDEX_PARAMS } from '@/hooks/database';
 import { useCountries } from '@/hooks/installation/langue';
 import { useAccount } from '@/hooks/installation/account';
@@ -25,7 +25,7 @@ import iconConfig from '@/assets/install-icons/icon-config-mac.png';
 const emit = defineEmits(['nextStep']);
 
 const { country } = useCountries();
-const { fullName, accountName, user } = useAccount();
+const { fullName, accountName/*, user*/ } = useAccount();
 const { selectedTheme } = useTheme();
 const [
     { onSuccess: onSettingsSuccess },
@@ -37,11 +37,20 @@ const [
     useDatabase('portfolio-apple_tree_structure', 'tree_structure')
 ];
 
-const nbFiniched = ref(0);
+const nbFinished = ref(0);
+
+type ConfigEvent = {
+  context: {
+    add(...config: { field: string, value: any }[]): void
+    add(config: Record<string, any>): void,
+    add(...config: Record<string, any>[]): void,
+    addIndex(key: string, value: any): void
+  }
+}
 
 const dbQueue = ref([
     () => {
-        onSettingsSuccess(({ context: { add } }) => {
+        onSettingsSuccess(({ context: { add } }: ConfigEvent) => {
             add(
                 {
                     field: 'country',
@@ -53,11 +62,11 @@ const dbQueue = ref([
                 }
             );
 
-            nbFiniched.value++;
+            nbFinished.value++;
         }).connect();
     },
     () => {
-        onAccountUpgradeNeeded(({ context: { addIndex, add } }) => {
+        onAccountUpgradeNeeded(({ context: { addIndex, add } }: ConfigEvent) => {
             addIndex('account_name', INDEX_PARAMS.UNIQUE);
             
             add({
@@ -65,11 +74,11 @@ const dbQueue = ref([
                 account_name: accountName.value
             });
 
-            nbFiniched.value++;
+            nbFinished.value++;
         }).connect();
     },
     () => {
-        onTreeStructureUpgradeNeeded(({ context: { add } }) => {
+        onTreeStructureUpgradeNeeded(({ context: { add } }: ConfigEvent) => {
             const parent = `/${accountName.value}`;
             add(
                 {
@@ -151,7 +160,7 @@ const dbQueue = ref([
                 }
             );
 
-            nbFiniched.value++;
+            nbFinished.value++;
         }).connect();
     }
 ]);
@@ -167,7 +176,7 @@ setInterval(() => {
     nbDots.value++;
 }, 500);
 
-watch(nbFiniched, () => {
+watch(nbFinished, () => {
     // gestion des différentes requêtes dans une queue 
     // pour ne pas que les connections se fassent en même temps.
     const tmp = [...dbQueue.value];
@@ -176,7 +185,7 @@ watch(nbFiniched, () => {
     if (dbQueue.value[0]) dbQueue.value[0]();
     // FIN DE LA GESTION DE LA QUEUE
 
-    if (nbFiniched.value === 3) {
+    if (nbFinished.value === 3) {
         setTimeout(() => {
             emit('nextStep', {
                 event: null,

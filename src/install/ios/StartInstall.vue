@@ -1,7 +1,7 @@
 <template>
     <div :class="{
         screen: true,
-        close: Math.abs(distanceY_) < swipeHeight / 2 && close,
+        close: Math.abs(distanceY_) < swipeHeight! / 2 && close,
         open,
         mobile: deviceType === IS_MOBILE || deviceType === IS_TABLET
     }" ref="view">
@@ -13,23 +13,23 @@
     </div>
 </template>
 
-<script setup>
-import {useIosOpenInstallerSwiper} from "@/hooks/ios-swiper.js";
-import {computed, ref} from "vue";
-import {IS_MOBILE, IS_TABLET, useDeviceType} from "@/hooks/device-type.js";
+<script setup lang="ts">
+import {useIosOpenInstallerSwiper} from "@/hooks/ios-swiper";
+import {computed, ComputedRef, Ref, ref} from "vue";
+import {IS_MOBILE, IS_TABLET, useDeviceType} from "@/hooks/device-type";
 
 const emit = defineEmits(['open-install']);
 
 const SwiperComponent = useIosOpenInstallerSwiper();
 const deviceType = useDeviceType();
 
-const view = ref(null);
+const view = ref<HTMLElement|null>(null);
 const swipeHeight = computed(() => view.value?.offsetHeight);
 const translateY = ref('0');
 const distanceY_ = ref(0);
 const close = ref(false)
 const open = ref(false)
-function onSwipe(distanceY) {
+function onSwipe(distanceY: Ref<number>|ComputedRef<number>) {
   distanceY_.value = distanceY.value;
   if (swipeHeight.value) {
     if (distanceY.value > 0) {
@@ -39,9 +39,9 @@ function onSwipe(distanceY) {
   }
 }
 
-function onSwipeEnd({direction, distanceY}) {
+function onSwipeEnd({direction, distanceY}: {direction: string, distanceY: Ref<number>|ComputedRef<number>}) {
   if (direction === 'up') {
-    if (Math.abs(distanceY.value) < swipeHeight.value / 2) {
+    if (Math.abs(distanceY.value) < swipeHeight.value! / 2) {
       translateY.value = '0';
       close.value = true;
 

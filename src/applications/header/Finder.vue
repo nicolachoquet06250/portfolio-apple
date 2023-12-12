@@ -55,7 +55,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import finder from '@/hooks/finder';
 import { useDark } from '@/hooks/theme';
 

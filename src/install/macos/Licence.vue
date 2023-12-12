@@ -50,7 +50,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { defineEmits } from 'vue';
 import { useMenu, useStepTitle } from '@/hooks/installation/menu';
 import iconInstallMac from '@/assets/install-icons/icon-install-macos.png';

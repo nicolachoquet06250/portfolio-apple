@@ -49,7 +49,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { defineEmits } from 'vue';
 import { COUNTRIES, useCountries } from '@/hooks/installation/langue';
 import iconCountry from '@/assets/install-icons/icon-country.png';

@@ -9,20 +9,20 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import { useTextEdit } from '@/hooks/textedit';
 
 const { updateFile, activeFile } = useTextEdit();
 
-const root = ref(null);
-const editableDiv = ref(null);
+const root = ref<HTMLDivElement|null>(null);
+// const editableDiv = ref<HTMLDivElement|null>(null);
 const fileContent = ref('');
 
-onMounted(() => (root.value.parentElement.style.paddingLeft = '0'));
+onMounted(() => (root.value!.parentElement!.style.paddingLeft = '0'));
 
-const moveCursorToEnd = () => {
-    /*const textChildren = Array.from(editableDiv.value?.childNodes ?? []).reduce((r, c) => {
+/*const moveCursorToEnd = () => {
+    const textChildren = Array.from(editableDiv.value?.childNodes ?? []).reduce((r, c) => {
         return c.nodeName && c.nodeName === '#text' ? [...r, c] : r;
     }, []);
     const lastChild = textChildren[textChildren.length - 1];
@@ -36,19 +36,19 @@ const moveCursorToEnd = () => {
     sel.removeAllRanges();
     sel.addRange(range);
 
-    editableDiv.value.focus();*/
-}
+    editableDiv.value.focus();
+}*/
 
-const isTab = ref(false);
-const onKeyDown = e => {
+// const isTab = ref(false);
+/*const onKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Tab') {
         isTab.value = true;
         e.preventDefault();
         e.stopPropagation();
     }
-};
+};*/
 
-const onKeyUp = e => {
+/*const onKeyUp = (e: KeyboardEvent) => {
     console.log(isTab.value, e.key);
     if (isTab.value) {
         console.log('je fais rien pour les tabulations pour le moment')
@@ -58,18 +58,18 @@ const onKeyUp = e => {
         //activeFile.value.content = e.target.innerText + e.key;
     }
     isTab.value = false;
-};
+};*/
 
 onBeforeUnmount(() => {
-    updateFile(activeFile.value, fileContent.value);
+    updateFile(activeFile.value!, fileContent.value);
 });
 
 watch([activeFile], (_, [oldActiveFile]) => {
-    if (oldActiveFile && activeFile.value.id !== oldActiveFile.id) {
+    if (oldActiveFile && activeFile.value!.id !== oldActiveFile.id) {
         updateFile(oldActiveFile, fileContent.value);
     }
     
-    fileContent.value = activeFile.value.content;
+    fileContent.value = activeFile.value!.content;
 });
 </script>
 

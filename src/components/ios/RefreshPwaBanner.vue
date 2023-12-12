@@ -19,7 +19,7 @@
   </Notification>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import Notification from "@/components/ios/UnlockScreenNotification.vue";
 import installIcon from "@/assets/icon-cd-install-mac.png";
 import {showRefreshPageNotification} from '@/hooks/pwa';

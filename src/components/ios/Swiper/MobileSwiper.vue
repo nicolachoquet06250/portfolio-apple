@@ -4,9 +4,9 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useSwipe } from '@vueuse/core';
-import { ref, defineModel, watch } from 'vue';
+import { ref } from 'vue';
 
 const swipe = ref(null)
 

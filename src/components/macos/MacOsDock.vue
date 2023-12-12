@@ -4,17 +4,19 @@
             dock: true,
             dark: isDark
         }" ref="dock">
-            <DockIcon v-for="icon of icons" :key="icon" 
-                      @click="icon.click($event)" @mouseover="icon.mouseover" 
+            <DockIcon v-for="icon of icons" :key="JSON.stringify(icon)"
+                      @click="icon.click($event)"
+                      @mouseover="icon.mouseover"
                       @mouseout="icon.mouseout" 
                       :code="icon.code"
                       :img="icon.img" 
-                      :active="openedApplications[icon.code] && openedApplications[icon.code]?.state !== APPLICATION_STATE.CLOSED" />
+                      :active="openedApplications[icon.code]! && openedApplications[icon.code]?.state !== APPLICATION_STATE.CLOSED"
+            />
         </div>
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import DockIcon from '@/components/macos/DockIcon.vue';
 
 import { ref, watch } from 'vue';
@@ -42,25 +44,19 @@ const iconSize = ref('50px');
 
 const dock = ref(null);
 
-/**
- * @param {String} appCode
- */
-const openApp = appCode => 
-    /**
-     * @param {Event} event
-     */
-    event => {
-        event.target.classList.add('rebond');
+const openApp = (appCode: APPLICATION) =>
+    (event: Event) => {
+        (event.target as HTMLElement).classList.add('rebond');
 
         const handleAnimationEnd = () => {
             console.log(`go to ${appCode}`);
             openApplication(appCode);
             setCurrentApp(appCode);
-            event.target.classList.remove('rebond');
-            event.target.removeEventListener('animationend', handleAnimationEnd);
+            (event.target as HTMLElement).classList.remove('rebond');
+            (event.target as HTMLElement).removeEventListener('animationend', handleAnimationEnd);
         }
 
-        event.target.addEventListener('animationend', handleAnimationEnd);
+        (event.target as HTMLElement).addEventListener('animationend', handleAnimationEnd);
     };
 
 const icons = ref([

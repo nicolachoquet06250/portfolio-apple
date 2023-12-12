@@ -39,10 +39,10 @@
     </div>
 </template>
 
-<script setup>
-import { computed, defineEmits } from 'vue';
+<script setup lang="ts">
+import { /*computed, */defineEmits } from 'vue';
 import { useMenu, useStepTitle } from '@/hooks/installation/menu';
-import { useWindowSize } from '@vueuse/core';
+// import { useWindowSize } from '@vueuse/core';
 import iconInstallMac from '@/assets/install-icons/icon-install-macos.png';
 import { usePwa } from '@/hooks/pwa';
 
@@ -59,8 +59,8 @@ resetMenus();
 setMenu('Edition', {});
 setMenu('Fenêtre', {});
 
-const { width } = useWindowSize();
-const windowWidth = computed(() => `${width.value}px`);
+// const { width } = useWindowSize();
+// const windowWidth = computed(() => `${width.value}px`);
 </script>
 
 <style lang="scss" scoped>

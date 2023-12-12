@@ -2,8 +2,7 @@
     <div></div>
 </template>
 
-<script setup>
-import { watch } from 'vue';
+<script setup lang="ts">
 import { useDatabase } from '@/hooks/database';
 
 const { 
@@ -12,7 +11,13 @@ const {
     connect
 } = useDatabase('portfolio-apple', 'tree-structure');
 
-onUpgradeNeeded(({ context: { add } }) => {
+type TestEvent = {
+  context: {
+    add(...item: any[]): void
+  }
+}
+
+onUpgradeNeeded(({ context: { add } }: TestEvent) => {
     add({
         name: 'nchoquet',
         extention: null,
@@ -95,7 +100,7 @@ onUpgradeNeeded(({ context: { add } }) => {
     });
 });
 
-onSuccess(({ context: { add, remove, get, getAllValues, getAllKeys } }) => {
+onSuccess((/*{ context: { add, remove, get, getAllValues, getAllKeys } }*/) => {
     /*add({
         name: 'Projects-2020',
         extention: null,

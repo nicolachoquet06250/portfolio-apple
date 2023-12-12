@@ -85,7 +85,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue';
 import iconCountry from '@/assets/install-icons/icon-country.png';
 

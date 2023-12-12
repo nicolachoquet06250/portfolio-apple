@@ -10,16 +10,16 @@
         
         <div class="finder-container">
             <div class="finder-line" 
-                 v-for="(line, x) of showedItems" :key="line">
+                 v-for="(line, x) of showedItems" :key="JSON.stringify(line)">
                 <template v-for="(item, y) of line" :key="y">
                     <Directory v-if="item.type === 'directory'"
-                               :name="item.name" :id="item.id" :x="x" :y="y"
+                               :name="item.name" :id="item.id!" :x="x" :y="y"
                                :color="'black'" :select-color="'black'">
                         {{ item.name }}
                     </Directory>
 
                     <File v-else-if="item.type === 'text'"
-                          :icon="item.icon" :name="item.name" :id="item.id" :x="x" :y="y"
+                          :icon="item.icon" :name="item.name" :id="item.id!" :x="x" :y="y"
                           :color="'black'" :select-color="'black'">
                         {{ item.name }}.{{ item.extention }}
                     </File>
@@ -56,9 +56,9 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, watch, onBeforeUnmount, reactive } from 'vue';
-import { useCurrentApp, useOpenedApplications } from '@/hooks/apps';
+// import {APPLICATION, useCurrentApp, useOpenedApplications} from '@/hooks/apps';
 import finder from '@/hooks/finder';
 import { useContextualMenu } from '@/hooks/contextual-menu';
 import { onClickOutside, onKeyUp, useMouse } from '@vueuse/core';
@@ -67,13 +67,14 @@ import NewDirectory from '@/components/utilities/macos/NewDirectoryIcon.vue';
 import Directory from '@/components/utilities/macos/DirectoryIcon.vue';
 import NewFile from '@/components/utilities/macos/NewFileIcon.vue';
 import File from '@/components/utilities/macos/FileIcon.vue';
+import {Item} from '@/hooks/finder/types.ts';
 
 const { useFinder, useRootDirectory } = finder();
 
 const { x: mouseX, y: mouseY } = useMouse();
-const { setCurrentApp } = useCurrentApp();
-const { openApplication } = useOpenedApplications();
-const { selectItem, activeItem, showedItems, activedItem, breadcrum, selectedTab } = useFinder(5);
+// const { setCurrentApp } = useCurrentApp();
+// const { openApplication } = useOpenedApplications();
+const { selectItem, activeItem, showedItems, breadcrum } = useFinder(5);
 const { setRoot, setSubDirectory } = useRootDirectory();
 const {
     setContextMenu, showContextMenu, 
@@ -94,9 +95,9 @@ onBeforeUnmount(() => {
     setSubDirectory('');
 });
 
-const finderBody = ref(null);
+const finderBody = ref<HTMLElement|null>(null);
 const selectedDir = ref(null);
-const selectedItem = ref(null);
+const selectedItem = ref<Item|null>(null);
 const displayNewDirectory = ref(false);
 const newDirectoryName = ref('new directory');
 const newFile = reactive({
@@ -112,14 +113,11 @@ onKeyUp('Enter', e => {
     if (selectedDir.value) {
         e.preventDefault();
         e.stopPropagation();
-        selectItem(selectedItem.value);
+        selectItem(selectedItem.value!);
     }
 })
 
 const showBreadcrum = computed(() => breadcrum.value.length > 1);
-
-const openAlert = () => displayAlert.value = true;
-const hideAlert = () => displayAlert.value = false;
 
 const addDirectory = () => {
     displayNewDirectory.value = true;
@@ -130,13 +128,10 @@ const addFile = () => {
     hideContextMenu();
 };
 
-/**
- * @param {String} appCode
- */
-const openApp = appCode => {
+/*const openApp = (appCode: APPLICATION) => {
     openApplication(appCode);
     setCurrentApp(appCode);
-};
+};*/
 
 const showFinderContextMenu = () => {
     console.log('context menu on finder');
@@ -181,15 +176,15 @@ const showFinderContextMenu = () => {
 
 watch(finderBody, () => {
     if (finderBody.value) {
-        finderBody.value.parentElement.parentElement.parentElement.addEventListener('click', e => {
+        finderBody.value.parentElement!.parentElement!.parentElement!.addEventListener('click', e => {
             e.preventDefault();
             e.stopPropagation();
 
-            if (e.target.classList.length === 0 || 
+            if ((e.target as HTMLElement).classList.length === 0 ||
             !(
-                e.target.classList.contains('finder-item') ||
-                e.target.classList.contains('finder-item-icon') ||
-                e.target.classList.contains('finder-item-text')
+                (e.target as HTMLElement).classList.contains('finder-item') ||
+                (e.target as HTMLElement).classList.contains('finder-item-icon') ||
+                (e.target as HTMLElement).classList.contains('finder-item-text')
             )) {
                 activeItem('');
             }

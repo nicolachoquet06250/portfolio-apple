@@ -8,13 +8,13 @@
   </svg>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {computed, ref} from "vue";
 
-defineProps({
-  width: Number,
-  height: Number
-});
+defineProps<{
+  width: number,
+  height: number
+}>();
 
 const days = [
     'Dim.',
