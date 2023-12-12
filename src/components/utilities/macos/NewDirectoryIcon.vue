@@ -1,6 +1,6 @@
 <template>
     <button class="desktop-grid-cel desktop-grid-cel_new-directory" 
-            :ref="el => { if (el) { newDirRef = el } }" v-if="show"
+            :ref="el => { if (el) { newDirRef = el as HTMLButtonElement } }" v-if="show"
             @contextmenu.prevent.stop="$emit('contextmenu', $event)">
         <img :src="iconDirectory" alt="icon directory" />
 
@@ -10,7 +10,7 @@
     </button>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, watch, onMounted, computed } from 'vue';
 import finder from '@/hooks/finder';
 import { useAuthUser } from '@/hooks/account';
@@ -23,28 +23,28 @@ const { root: rootDirectory, subDirectory } = useRootDirectory();
 const { add } = useTreeActions();
 const { user } = useAuthUser();
 
-const model = defineModel({type: String});
-const props = defineProps({
-    show: Boolean,
-    color: String,
-    selectColor: String,
-    rootPath: {
-        default: ''
-    }
+const model = defineModel<string>({
+  default: ''
+});
+const props = withDefaults(defineProps<{
+  show: boolean,
+  color: string,
+  selectColor: string,
+  rootPath: string
+}>(), {
+  rootPath: ''
 });
 const emit = defineEmits(['ready', 'hide', 'contextmenu']);
 
-const newDirRef = ref(null);
+const newDirRef = ref<HTMLButtonElement|null>(null);
 
 const color = computed(() => props.color);
 const selectColor = computed(() => props.selectColor);
 
 const reset = () => {
     emit('hide');
-    emit('update:modelValue', 'new directory');
+    model.value = 'new directory';
 };
-
-watch(model, () => emit('update:modelValue', model.value));
 
 const createNewDirectory = () => {
     const root = rootDirectory.value !== '' ? rootDirectory.value : 'Desktop';
@@ -68,7 +68,7 @@ onMounted(() => {
 
 watch(newDirRef, () => {
     if (newDirRef.value) {
-        const input = newDirRef.value.querySelector('input[type=text]');
+        const input = newDirRef.value.querySelector<HTMLInputElement>('input[type=text]')!;
         input.select();
     }
 })

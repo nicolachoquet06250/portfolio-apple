@@ -2,34 +2,34 @@
     <div>
         <h3> Photos </h3>
 
-        <button v-for="tab of Object.keys(TABS)" :key="tab"
-            :class="{ active: isActive(tab) }" 
-            @click="handleClick(tab)">
-            {{ TABS[tab] }}
+        <button v-for="[tab, value] of Object.entries(TABS)" :key="tab"
+            :class="{ active: isActive(tab as keyof typeof TABS) }"
+            @click="handleClick(tab as keyof typeof TABS)">
+            {{ value }}
         </button>
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { usePhotos } from '@/hooks/photos';
 
 const { selectTab, selectedTab } = usePhotos();
 
-const TABS = {
-    LIBRARY: 'Library',
-    MEMORIES: 'Memories',
-    PEOPLE: 'People',
-    PLACES: 'Places',
-    FAVORITES: 'Favorites',
-    RECENTS: 'Recents',
-    IMPORTS: 'Imports',
-    RECENTLY_DELETED: 'Recently Deleted'
-};
+enum TABS {
+    LIBRARY = 'Library',
+    MEMORIES = 'Memories',
+    PEOPLE = 'People',
+    PLACES = 'Places',
+    FAVORITES = 'Favorites',
+    RECENTS = 'Recents',
+    IMPORTS = 'Imports',
+    RECENTLY_DELETED = 'Recently Deleted'
+}
 
 selectTab(TABS.LIBRARY);
 
-const isActive = tab => selectedTab.value === TABS[tab];
-const handleClick = tab => {
+const isActive = (tab: keyof typeof TABS) => selectedTab.value === TABS[tab];
+const handleClick = (tab: keyof typeof TABS) => {
     selectTab(TABS[tab]);
 };
 </script>

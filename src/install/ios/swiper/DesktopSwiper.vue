@@ -4,7 +4,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { usePointerSwipe } from '@vueuse/core';
 import { ref } from 'vue';
 

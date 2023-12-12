@@ -52,7 +52,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { THEMES, useTheme } from '@/hooks/installation/system-style';
 
 const { selectedTheme, selectTheme } = useTheme();

@@ -86,32 +86,33 @@
   </header>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {computed, defineProps, onMounted, onUnmounted, ref} from 'vue';
 import IOSNotch from "@/components/ios/IOSNotch.vue";
 
-defineProps({
-  showHour: {
-    type: Boolean,
-    default: false
+type TopBar = {
+  network: {
+    wifi: {
+      online: boolean,
+    },
   },
-  topBar: {
-    network: () => ({
-      wifi: () => ({
-        online: Boolean,
-      }),
-    }),
-    battery: () => ({
-      charging: Boolean,
-      chargingTime: Number,
-      dischargingTime: Number,
-      level: Number,
-    })
+  battery: {
+    charging: boolean,
+    chargingTime: number,
+    dischargingTime: number,
+    level: number,
   }
+}
+
+withDefaults(defineProps<{
+  showHour: boolean,
+  topBar: TopBar
+}>(), {
+  showHour: false,
 });
 
 const t = ref(new Date());
-const dateInterval = ref(null);
+const dateInterval = ref<NodeJS.Timeout|number|null>(null);
 const formattedTime = computed(() => `${t.value.getHours() < 10 ? '0' : ''}${t.value.getHours()}:${t.value.getMinutes() < 10 ? '0' : ''}${t.value.getMinutes()}`)
 
 onMounted(() => {

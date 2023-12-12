@@ -64,8 +64,8 @@
     </component>
 </template>
 
-<script setup>
-import { ref, onMounted, onUnmounted, computed, defineProps } from 'vue';
+<script setup lang="ts">
+import {ref, onMounted, onUnmounted, computed, defineProps, Ref, ComputedRef} from 'vue';
 import { useIosSwiper } from '@/hooks/ios-swiper';
 import Notification from '@/components/ios/UnlockScreenNotification.vue';
 import UnlockScreenNotificationList from './UnlockScreenNotificationList.vue';
@@ -78,24 +78,26 @@ const swiperComponent = useIosSwiper();
 
 const emit = defineEmits(['unlock-screen']);
 
-const props = defineProps({
-    backgroundImage: String,
-    apps: Array,
-    currentAppName: String,
-    topBar: {
-        network: () => ({
-            wifi: () => ({
-                online: Boolean,
-            }),
-        }),
-        battery: () => ({
-            charging: Boolean,
-            chargingTime: Number,
-            dischargingTime: Number,
-            level: Number,
-        })
-    }
-});
+type TopBarProps = {
+  network: {
+    wifi: {
+      online: boolean,
+    },
+  },
+  battery: {
+    charging: boolean,
+    chargingTime: number,
+    dischargingTime: number,
+    level: number,
+  }
+}
+
+const props = defineProps<{
+  backgroundImage: string,
+  apps: any[],
+  currentAppName: string,
+  topBar: TopBarProps
+}>();
 const backgroundImage = computed(() => `url(${props.backgroundImage})`);
 
 const days = [
@@ -135,7 +137,7 @@ const notifications = ref([
     }
 ]);
 
-const view = ref(null);
+const view = ref<HTMLElement|null>(null);
 const swipeHeight = computed(() => view.value?.offsetHeight);
 const blur = ref(0);
 const cssBlur = computed(() => `${blur.value}px`);
@@ -145,7 +147,7 @@ const buttonZIndex = computed(() => isSwiped.value ? 0 : 2);
 
 const showNotifications = ref(false);
 
-function onSwipe(distanceY) {
+function onSwipe(distanceY: Ref<number>|ComputedRef<number>) {
     if (swipeHeight.value) {
         if (distanceY.value < 0) {
             const distance = -1 * Math.abs(distanceY.value)
@@ -157,7 +159,7 @@ function onSwipe(distanceY) {
     }
 }
 
-function onSwipeEnd(direction) {
+function onSwipeEnd(direction: string) {
     if (direction === 'down') {
         showNotifications.value = true;
     } else if (direction === 'up') {
@@ -170,7 +172,7 @@ function onSwipeEnd(direction) {
 }
 
 const t = ref(new Date());
-const dateInterval = ref(null);
+const dateInterval = ref<NodeJS.Timeout|number|null>(null);
 const formattedTime = computed(() => `${t.value.getHours() < 10 ? '0' : ''}${t.value.getHours()}:${t.value.getMinutes() < 10 ? '0' : ''}${t.value.getMinutes()}`)
 const formattedDate = computed(() => `${days[t.value.getDay()]} ${t.value.getDate()} ${months[t.value.getMonth()]}`)
 

@@ -9,11 +9,11 @@
             d="M80.7,32c0-6.8-5.2-12-11.2-12c-4.2,0-7.6,1.4-9.7,4.5c-2.1-3.1-5.5-4.5-9-4.5c-6.8,0-12,5.2-12,12   c0-0.3,0-0.2,0,0c0-0.1,0,0,0,0c0,10.1,9.7,20.3,21,24.7C68.6,53.8,80.7,42.1,80.7,32C80.7,32,80.7,31.9,80.7,32   C80.7,31.8,80.7,31.7,80.7,32z"/></g></svg>
 </template>
 
-<script setup>
-defineProps({
-  width: Number,
-  height: Number
-});
+<script setup lang="ts">
+defineProps<{
+  width: number,
+  height: number
+}>();
 </script>
 
 <style scoped lang="scss">

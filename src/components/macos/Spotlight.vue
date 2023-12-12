@@ -10,19 +10,19 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, watch } from 'vue';
 import { onClickOutside, useToggle, onKeyDown, onKeyUp } from '@vueuse/core';
 
-const props = defineProps({
-    open: {
-        default: false
-    }
+const props = withDefaults(defineProps<{
+  open: boolean
+}>(), {
+  open: false
 })
 
 const emit = defineEmits(['close']);
 
-const spotlight = ref(null);
+const spotlight = ref<HTMLElement|null>(null);
 const displaySpotlight = ref(props.open);
 const toggleSpotlight = useToggle(displaySpotlight);
 const readyToDisplayed = ref(false);
@@ -54,7 +54,7 @@ onKeyUp('Escape', () => closeSpotlight());
 
 watch(spotlight, () => {
     if (spotlight.value) {
-        spotlight.value?.querySelector('input').focus();
+        spotlight.value?.querySelector('input')!.focus();
     }
 })
 

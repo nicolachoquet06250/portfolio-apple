@@ -3,7 +3,7 @@
     <IOSDesktop
         v-if="showMobileVersion"
         :apps="[]"
-        :current-app-name="currentApp"
+        :current-app-name="currentApp!"
         background-image="/img/wallpapers/ios-wallpaper.png"
         :top-bar="desktopTopBar"
         @lock-screen="showIOSLoginView = true"
@@ -11,16 +11,17 @@
       <IOSUnlockView
         v-if="showIOSLoginView" 
         @unlock-screen="showIOSLoginView = false" 
-        :current-app-name="currentApp"
+        :current-app-name="currentApp!"
         background-image="/img/wallpapers/ios-wallpaper.png"
         :top-bar="desktopTopBar"
+        :apps="[]"
       />
 <!--      <StartInstall />-->
 
 <!--      <IOSCursor v-if="!showIOSLoginView" />-->
     </IOSDesktop>
 
-    <MacOsCursor v-else>
+    <MacOsCursor :white="isDark" v-else>
       <template v-if="installSkipped">
         <MacOsSystemLoader
             v-if="systemLoading"
@@ -29,7 +30,7 @@
         <MacDesktop
           v-else
           :apps="[]"
-          :current-app-name="currentApp"
+          :current-app-name="currentApp!"
           :background-image="wallpaper"
           :top-bar="desktopTopBar">
 
@@ -85,14 +86,14 @@
 
         <MacOsLoginView
             v-if="!connected"
-            :show-buttons="screenNumber === 0"
-            :show-form="screenNumber === 0"
+            :show-buttons="screenId === 0"
+            :show-form="screenId === 0"
             @connected="connectUser()" />
 
         <MacDesktop
           v-else
           :apps="[]"
-          :current-app-name="currentApp"
+          :current-app-name="currentApp!"
           :background-image="wallpaper"
           :top-bar="desktopTopBar">
 
@@ -146,7 +147,7 @@
     <IOSDesktop
         v-if="showMobileVersion"
         :apps="[]"
-        :current-app-name="currentApp"
+        :current-app-name="currentApp!"
         background-image="/img/wallpapers/ios-wallpaper.png"
         :top-bar="desktopTopBar"
         @lock-screen="showIOSLoginView = true"
@@ -154,9 +155,10 @@
       <IOSUnlockView
         v-if="showIOSLoginView" 
         @unlock-screen="showIOSLoginView = false" 
-        :current-app-name="currentApp"
+        :current-app-name="currentApp!"
         background-image="/img/wallpapers/ios-wallpaper.png"
         :top-bar="desktopTopBar"
+        :apps="[]"
       />
 <!--      <StartInstall />-->
 
@@ -169,8 +171,7 @@
   </template>
 </template>
 
-<script setup>
-import MobileDetect from "mobile-detect";
+<script setup lang="ts">
 import MacOsDock from "@/components/macos/MacOsDock.vue";
 import MacDesktop from "@/components/macos/MacDesktop.vue";
 import IOSDesktop from '@/components/ios/IOSDesktop.vue';
@@ -180,44 +181,34 @@ import MacOsSystemLoader from '@/components/macos/MacOsSystemLoader.vue';
 import Installation from '@/components/Installation.vue';
 import MacOsLoginView from '@/components/macos/LoginView.vue';
 import IOSUnlockView from '@/components/ios/UnlockView.vue';
-// import InstallDesktopIcon from '@/components/macos/InstallDesktopIcon.vue';
 import Checkbox from '@/components/macos/Checkbox.vue';
 import Notification from '@/components/utilities/macos/Notification.vue';
 
 import iconCdInstall from '@/assets/icon-cd-install-mac.png';
 import appstore from '@/assets/dock/appstore.png';
 
-import { ref, computed, reactive, watch, onMounted } from "vue";
+import { ref, computed, reactive, watch } from "vue";
 import { useNetwork, useBattery, useWindowSize } from "@vueuse/core";
 import { APPLICATION, useCurrentApp } from "@/hooks/apps";
 import { useInstalled } from '@/hooks/installed';
 import { useNotifications } from '@/hooks/notifications';
-import { useSystemLoading } from "@/hooks/system-loading.js";
-import { useScreens } from "@/hooks/screens.js";
+import { useSystemLoading } from "@/hooks/system-loading";
+import { useScreens } from "@/hooks/screens";
+import {useDark} from "@/hooks/theme";
+import {useMobile, useTablet} from '@/hooks/device-type.ts';
+
+// import InstallDesktopIcon from '@/components/macos/InstallDesktopIcon.vue';
 // import StartInstall from "@/install/ios/StartInstall.vue";
 
-onMounted(() => {
-  const handleResize = () => {
-    isMobile.value = md.phone() !== null || md.mobile() === 'UnknownMobile';
-    isTablet.value = md.tablet() !== null || md.mobile() === 'UnknownTablet';
-  };
-
-  window.addEventListener('resize', handleResize);
-
-  return () => {
-    window.removeEventListener('resize', handleResize);
-  }
-});
-
 const { isOnline } = useNetwork();
-const { isOnline: _ } = useNetwork();
+const { isDark } = useDark();
 const { charging, chargingTime, dischargingTime, level } = useBattery();
 const { width: screenWidth } = useWindowSize();
 const { currentApp, setCurrentApp } = useCurrentApp();
 const { installed, skipped: installSkipped, isInstalled, isNotInstalled, isSkipped, isNotSkipped } = useInstalled();
 const { notifications, createNotification, deleteNotification, closeNotification, cleanNotifications } = useNotifications();
 const { systemLoading, setSystemLoading } = useSystemLoading();
-const { screenNumber, isMultiScreen, post, on } = useScreens();
+const { screenId/*, screenNumber*/, isMultiScreen, post, on } = useScreens();
 
 setCurrentApp?.(APPLICATION.FINDER);
 
@@ -255,10 +246,8 @@ const alertAppInDev = reactive({
   ]
 });
 
-const md = new MobileDetect(navigator.userAgent);
-const isMobile = ref(md.phone() !== null || md.mobile() === 'UnknownMobile');
-const isTablet = ref(md.tablet() !== null || md.mobile() === 'UnknownTablet');
-// const isDesktop = computed(() => !isMobile.value && !isTablet.value);
+const isMobile = useMobile();
+const isTablet = useTablet();
 
 const showMobileVersion = computed(() => isMobile.value || isTablet.value || screenWidth.value <= 950);
 
@@ -268,7 +257,7 @@ const showAlert = () => {
 const hideAlert = () => {
   displayAlert.value = false;
 };
-const hasInstalled = e => {
+const hasInstalled = (e: {install_skipped: boolean}) => {
   isInstalled?.();
   if (e.install_skipped) {
     isSkipped?.();
@@ -280,7 +269,8 @@ const installMac = () => {
   isNotSkipped?.();
   //installSkipped.value = false;
 };
-const installNotifyOpened = computed(() => (installSkipped.value === null ? false : installSkipped.value) && displayInstallNotify.value);
+const installNotifyOpened = computed(() => (installSkipped.value === null
+    ? false : installSkipped.value) && displayInstallNotify.value);
 
 const initNotifsQueue = () => {
   cleanNotifications?.();
@@ -332,20 +322,22 @@ const initNotifsQueue = () => {
     ]
   });
 }
-const handleSystemLoaded = (initNotifs) => {
+const handleSystemLoaded = (initNotifs: boolean) => {
   setSystemLoading?.(false);
 
-  console.log(
-      initNotifs,
-      isMultiScreen.value && screenNumber.value !== 0,
-      initNotifs || isMultiScreen.value && screenNumber.value !== 0
-  );
-  (initNotifs && screenNumber.value === 0) && initNotifsQueue();
+  // console.log(
+  //     initNotifs,
+  //     isMultiScreen.value,
+  //     screenId.value,
+  //     isMultiScreen.value && screenId.value !== 0,
+  //     initNotifs || isMultiScreen.value && screenId.value !== 0
+  // );
+  (initNotifs || isMultiScreen.value && screenId.value === 0) && initNotifsQueue();
 };
 const connectUser = () => {
   connected.value = true;
 
-  if (screenNumber.value === 0) {
+  if (screenId.value === 0) {
     initNotifsQueue();
 
     isMultiScreen.value && post?.('log-screen');
@@ -354,7 +346,22 @@ const connectUser = () => {
 
 on?.('log-screen', connectUser)
 
-const desktopTopBar = reactive({
+type DesktopTopBar = {
+  network: {
+    wifi: {
+      online: boolean
+    }
+  },
+  battery: {
+    charging: boolean,
+    chargingTime: number,
+    dischargingTime: number,
+    level: number,
+  },
+  menu: Menu[]
+};
+
+const desktopTopBar = reactive<DesktopTopBar>({
   network: {
     wifi: {
       online: isOnline.value,
@@ -406,14 +413,15 @@ const desktopTopBar = reactive({
   ]
 });
 
-watch([isOnline], (sources) => {
-  Object.keys(desktopTopBar.network.wifi)
-      .map(key => (desktopTopBar.network.wifi.online = sources[key]));
-});
-watch([charging, chargingTime, dischargingTime, level], (sources) => {
-  Object.keys(desktopTopBar.battery)
-      .map(key => sources[key] !== undefined && (desktopTopBar.battery[key] = sources[key]));
-});
+watch(isOnline, (isOnline) => (desktopTopBar.network.wifi.online = isOnline));
+watch(
+    [charging, chargingTime, dischargingTime, level],
+    ([charging, chargingTime, dischargingTime, level]) => {
+        desktopTopBar.battery.charging = charging;
+        desktopTopBar.battery.chargingTime = chargingTime;
+        desktopTopBar.battery.dischargingTime = dischargingTime;
+        desktopTopBar.battery.level = level;
+    });
 
 watch(() => alertAppInDev.dontShowAgain, () => {
   if (alertAppInDev.dontShowAgain) {
@@ -422,6 +430,16 @@ watch(() => alertAppInDev.dontShowAgain, () => {
     localStorage.removeItem('dontShowWarningAlertAgain');
   }
 })
+</script>
+
+<script lang="ts">
+  export type Menu = {
+    name?: string,
+    click?: (e?: MouseEvent) => void,
+    children?: Menu[],
+    type?: string,
+    shortcut?: string
+  };
 </script>
 
 <style lang="scss">

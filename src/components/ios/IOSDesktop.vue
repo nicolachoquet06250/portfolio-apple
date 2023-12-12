@@ -2,18 +2,18 @@
 <!--  Ne plus afficher le curseur -->
   <slot></slot>
 
-  <div :class="{
-    desktop: true,
-    mobile: deviceType === IS_MOBILE || deviceType === IS_TABLET
-  }">
+  <div :class="{desktop: true, mobile}">
     <top-bar :top-bar="topBar" show-hour />
 
     <main class="grid">
       <div role="row" v-for="(row, i) in gridDesktopApps" :key="i">
         <div role="cell" v-for="(cel, j) in row" :key="j">
           <template v-if="cel !== null">
-            <img :src="cel.icon" alt="icon" v-if="typeof cel.icon === 'string'">
-            <component :is="cel.icon" :width="70" :height="70" v-else />
+            <component :is="cel.icon as Component<{width: number, height: number}>"
+                       :width="70" :height="70"
+                       v-if="typeof cel.icon === 'object'"
+            />
+            <img :src="cel.icon" alt="icon" v-else-if="typeof cel.icon === 'string'">
 
             <span> {{ cel.label }} </span>
           </template>
@@ -27,8 +27,9 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {computed, onMounted, defineProps, watch, ref} from 'vue';
+import type {Component} from 'vue';
 import {useScreenLocker} from "@/hooks/screen-locker";
 import {useDocumentVisibility, useWindowSize} from "@vueuse/core";
 import TopBar from "@/components/ios/TopBar.vue";
@@ -47,26 +48,28 @@ import Store from "@/components/ios/icons/Store.vue";
 import Health from "@/components/ios/icons/Health.vue";
 import Maps from "@/components/ios/icons/Maps.vue";
 import Settings from "@/components/ios/icons/Settings.vue";
-import {IS_MOBILE, IS_TABLET, useDeviceType} from "@/hooks/device-type.js";
+import {useDesktop,/*IS_MOBILE, IS_TABLET, useDeviceType, useMobile, useTablet*/} from "@/hooks/device-type";
 
-const props = defineProps({
-  backgroundImage: String,
-  apps: Array,
-  currentAppName: String,
-  topBar: {
-    network: () => ({
-      wifi: () => ({
-        online: Boolean,
-      }),
-    }),
-    battery: () => ({
-      charging: Boolean,
-      chargingTime: Number,
-      dischargingTime: Number,
-      level: Number,
-    })
+type TopBar = {
+  network: {
+    wifi: {
+      online: boolean,
+    },
+  },
+  battery: {
+    charging: boolean,
+    chargingTime: number,
+    dischargingTime: number,
+    level: number,
   }
-});
+}
+
+const props = defineProps<{
+  backgroundImage: string,
+  apps: any[],
+  currentAppName: string,
+  topBar: TopBar
+}>();
 const emit = defineEmits(['lock-screen']);
 
 useScreenLocker();
@@ -74,7 +77,13 @@ const { height, width } = useWindowSize({
   listenOrientation: true
 });
 const isVisible = useDocumentVisibility();
-const deviceType = useDeviceType();
+// const deviceType = useDeviceType();
+const isDesktop = useDesktop();
+const mobile = computed(() => !isDesktop.value);
+
+watch(isDesktop, () => {
+  console.log(isDesktop.value)
+})
 
 watch(isVisible, isVisible => {
   if (isVisible === 'hidden') {
@@ -160,8 +169,8 @@ const desktopApps = ref([
 const gridDesktopApps = computed(() => {
   let cmp = 0;
   return Array.from((new Array(rows.value)).keys())
-      .map(i => Array.from((new Array(cols.value)).keys())
-          .map(j => {
+      .map(_i => Array.from((new Array(cols.value)).keys())
+          .map(_j => {
             const r = desktopApps.value[cmp] ?? null;
             cmp++;
             return r;

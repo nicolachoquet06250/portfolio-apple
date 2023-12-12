@@ -2,7 +2,7 @@
     <div>
         <template v-for="file of files" :key="file.id">
             <button :class="{ active: isActive(file) }" @click.prevent.stop="openFile(file)">
-                {{ file.name }}.{{ file.extention }}
+                {{ file.name }}.{{ file.extension }}
             </button>
 
             <span>
@@ -12,13 +12,14 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useTextEdit } from '@/hooks/textedit';
+import type { File } from '@/hooks/textedit';
 
 const { files, activeFile, openFile } = useTextEdit();
 
-const isActive = file => activeFile.value?.name === file.name 
-    && activeFile.value?.extention === file.extention 
+const isActive = (file: File) => activeFile.value?.name === file.name
+    && activeFile.value?.extension === file.extension
     && activeFile.value?.parent === file.parent;
 </script>
 

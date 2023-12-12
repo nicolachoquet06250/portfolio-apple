@@ -1,31 +1,27 @@
 <template>
-    <div :class="{
-            'mac-application': true,
-            'full-screen': openedApplications[appName.toLowerCase()].full_screen,
-            'movable': !isOutside && headerPressed,
-            'not-header': !hasHeader,
-            [appCode]: true,
-            active: currentApp === appCode,
-            close,
-            dark: isDark
-        }" v-if="opened" 
-        ref="application"
-        @click="handleApplicationClick($event)"
-        :style="{
-            'min-width': '777px'
-        }">
-
+    <div v-if="opened"
+         :class="appClasses"
+         ref="application"
+         @click="handleApplicationClick"
+         :style="{'min-width': '777px'}"
+    >
         <div class="left-bloc" v-if="hasMenu">
             <div class="btn-container">
-                <button class="btn-close" @click.prevent="closeApplication"></button>
-                <button class="btn-minmax" @click.prevent="() => (openedApplications[appName.toLowerCase()].full_screen ? minApp() : maxApp())"></button>
-                <button class="btn-todock" @click.prevent="appToDock"></button>
+                <button class="btn-close"
+                        @click.prevent="closeApplication"
+                />
+                <button class="btn-minmax"
+                        @click.prevent="() => (isFullScreen ? minApp() : maxApp())"
+                />
+                <button class="btn-todock"
+                        @click.prevent="appToDock"
+                />
             </div>
 
             <div class="menu-container">
-                <AppMenuComponent />
+                <component :is="AppMenuComponent" />
 
-                <slot name="menu"></slot>
+                <slot name="menu" />
             </div>
         </div>
 
@@ -35,76 +31,104 @@
         }">
             <div class="header-container">
                 <div class="btn-container" v-if="!hasMenu">
-                    <button class="btn-close" @click.prevent="closeApplication"></button>
-                    <button class="btn-minmax" @click.prevent="() => (openedApplications[appName.toLowerCase()].full_screen ? minApp() : maxApp())"></button>
-                    <button class="btn-todock" @click.prevent="appToDock"></button>
+                    <button class="btn-close"
+                            @click.prevent="closeApplication"
+                    />
+                    <button class="btn-minmax"
+                            @click.prevent="() => (isFullScreen ? minApp() : maxApp())"
+                    />
+                    <button class="btn-todock"
+                            @click.prevent="appToDock"
+                    />
                 </div>
 
                 <div class="app-header-bar" v-if="hasHeader">
-                    <AppHeaderComponent />
+                    <component :is="AppHeaderComponent" />
 
-                    <slot name="header"></slot>
+                    <slot name="header" />
                 </div>
-                <div class="app-header-bar void" v-else></div>
-            </div>
-            <div class="application-body">
-                <AppComponent />
 
-                <slot></slot>
+                <div class="app-header-bar void" v-else />
+            </div>
+
+            <div class="application-body">
+                <component :is="AppComponent" />
+
+                <slot />
             </div>
         </div>
 
         <div class="resize-left" 
              ref="resizeLeft" 
-             @mousedown="resizePressed = 'left'"></div>
+             @mousedown="resizePressed = 'left'" />
 
         <div class="resize-right" 
              ref="resizeRight" 
-             @mousedown="resizePressed = 'right'"></div>
+             @mousedown="resizePressed = 'right'" />
 
         <div class="resize-top" 
              ref="resizeTop" 
-             @mousedown="resizePressed = 'top'"></div>
+             @mousedown="resizePressed = 'top'" />
 
         <div class="resize-bottom" 
              ref="resizeBottom" 
-             @mousedown="resizePressed = 'bottom'"></div>
+             @mousedown="resizePressed = 'bottom'" />
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, ref, watch, reactive } from 'vue';
-import { useCurrentApp, useOpenedApplications, useAppActions } from '@/hooks/apps';
+import {
+  useCurrentApp,
+  useOpenedApplications,
+  useAppActions,
+  APPLICATION,
+  useApplicationBodyComponent,
+  useApplicationHeaderComponent, useApplicationMenuComponent, useApplicationFullScreen
+} from '@/hooks/apps';
 import { useDark } from '@/hooks/theme';
 import { useWindowSize } from '@vueuse/core';
 
 const { setCurrentApp, currentApp } = useCurrentApp();
-const { lastApplicationOpened, applicationToDock, minifyApplication, maximizeApplication, openedApplications } = useOpenedApplications();
+const {
+  lastApplicationOpened,
+  applicationToDock,
+  minifyApplication,
+  maximizeApplication,
+  // openedApplications
+} = useOpenedApplications();
 const { width: windowWidth } = useWindowSize();
 const { isDark } = useDark();
 
 const windowWidthForCss = computed(() => `${windowWidth.value}px`);
 
-const props = defineProps({
-    appName: String,
-    opened: Boolean,
-    appCode: String
-});
+const props = defineProps<{
+  appName: APPLICATION,
+  opened: boolean,
+  appCode: APPLICATION
+}>();
 
-const AppComponent = ref(openedApplications.value[props.appCode].component);
-const AppHeaderComponent = ref(openedApplications.value[props.appCode].componentHeader);
-const AppMenuComponent = ref(openedApplications.value[props.appCode].componentMenu);
+const resizePressed = ref('');
+
+// const AppComponent = computed(() => openedApplications.value[props.appCode].component);
+// const AppHeaderComponent = computed(() => openedApplications.value[props.appCode].componentHeader);
+// const AppMenuComponent = computed(() => openedApplications.value[props.appCode].componentMenu);
+
+const AppComponent = useApplicationBodyComponent(props.appCode);
+const AppHeaderComponent = useApplicationHeaderComponent(props.appCode);
+const AppMenuComponent = useApplicationMenuComponent(props.appCode);
+
+const isFullScreen = useApplicationFullScreen(props.appCode);
+
+watch(AppComponent, (c) => console.log(c))
 
 const hasHeader = computed(() => AppHeaderComponent.value !== null);
 const hasMenu = computed(() => AppMenuComponent.value !== null);
 
 const opened = ref(props.opened);
-const application = ref(null);
+const application = ref<HTMLElement|null>(null);
 
-const { 
-    size, position, close, bodyHeight: applicationBodyHeight, 
-    closeApp 
-} = useAppActions(application, props.appCode, opened);
+const { size, position, close, headerPressed, isOutside, closeApp } = useAppActions(application, props.appCode, opened);
 
 const applicationWidth = computed(() => size.width + 'px');
 const applicationHeight = computed(() => size.height + 'px');
@@ -113,38 +137,49 @@ watch(() => props.opened, () => {
     opened.value = props.opened;
 });
 
-const dockHeight = computed(() => document.querySelector('.dock__wrapper')?.offsetHeight + 'px');
-const desktopTopBarHeight = computed(() => document.querySelector('#desktop > .top-bar')?.offsetHeight + 'px');
+// const isFullScreen = computed(() => openedApplications.value[props.appName.toLowerCase() as APPLICATION]!.full_screen)
+
+const dockHeight = computed(() => document.querySelector<HTMLElement>('.dock__wrapper')?.offsetHeight + 'px');
+const desktopTopBarHeight = computed(() => document.querySelector<HTMLElement>('#desktop > .top-bar')?.offsetHeight + 'px');
 const zIndex = computed(() => currentApp.value === props.appCode ? 1 : 0);
 
-const positionBeforeClose = reactive({
-    x: 0,
-    y: 0
-});
+const positionBeforeClose = reactive({x: 0, y: 0});
 const positionBeforeCloseXUnit = computed(() => `${positionBeforeClose.x}px`);
 const positionBeforeCloseYUnit = computed(() => `${positionBeforeClose.y}px`);
 
 const applicationCurrentPositionXUnit = computed(() => `${position.value.x}px`);
 const applicationCurrentPositionYUnit = computed(() => `${position.value.y}px`);
 
+const appClasses = computed(() => ({
+  'mac-application': true,
+  'full-screen': isFullScreen.value,
+  'movable': !isOutside && headerPressed,
+  'not-header': !hasHeader,
+  [props.appCode]: true,
+  active: currentApp.value === props.appCode,
+  close: close.value,
+  dark: isDark
+}));
+
 const minApp = () => {
     minifyApplication(props.appName);
-    setCurrentApp(lastApplicationOpened.value);
+    setCurrentApp(lastApplicationOpened.value as APPLICATION);
 };
 const maxApp = () => {
     maximizeApplication(props.appName);
-    setCurrentApp(lastApplicationOpened.value);
+    setCurrentApp(lastApplicationOpened.value as APPLICATION);
 };
 const appToDock = () => {
     applicationToDock(props.appName);
-    setCurrentApp(lastApplicationOpened.value);
+    setCurrentApp(lastApplicationOpened.value as APPLICATION);
 };
-const handleLeftMenuClick = (currentAppMenu, e) => {
-    currentAppMenu?.click(e);
-    Array.from(e.target.parentElement.parentElement.querySelectorAll('button.active')).map(c => c.classList.remove('active'));
-    e.target.classList.add('active');
-};
-const handleApplicationClick = (e) => {
+/*const handleLeftMenuClick = (currentAppMenu: Menu, e: MouseEvent) => {
+    currentAppMenu.click?.(e);
+    Array.from<HTMLElement>((e.target as unknown as HTMLElement).parentElement!.parentElement!.querySelectorAll('button.active'))
+        .map(c => c.classList.remove('active'));
+    (e.target as unknown as HTMLElement).classList.add('active');
+};*/
+const handleApplicationClick = (e: Event) => {
     if (!(currentApp.value === props.appCode)) {
         setCurrentApp(props.appCode)
     } else {

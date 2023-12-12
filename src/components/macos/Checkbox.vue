@@ -1,6 +1,6 @@
 <template>
     <div class="checkbox-container">
-        <input type="checkbox" :id="id" :checked="modelValue" @change="$emit('update:modelValue', $event.target.checked)" />
+        <input type="checkbox" :id="id" :checked="modelValue" @change="handleChange" />
 
         <label :for="id" clickable>
             <slot></slot>
@@ -8,9 +8,15 @@
     </div>
 </template>
 
-<script setup>
-const modelValue = defineModel({type: Boolean})
-defineProps({id: String});
+<script setup lang="ts">
+const modelValue = defineModel<boolean>({
+  default: false
+});
+defineProps<{id: string}>();
+
+const handleChange = (e: Event) => {
+  modelValue.value = (e.target as unknown as { checked: boolean }).checked
+}
 </script>
 
 <style lang="scss" scoped>

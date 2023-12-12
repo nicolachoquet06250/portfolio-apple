@@ -16,7 +16,7 @@
     </button>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import finder from '@/hooks/finder';
 import { useContextualMenu } from '@/hooks/contextual-menu';
@@ -25,19 +25,18 @@ import { useTextEdit } from '@/hooks/textedit';
 import { useMouse, onClickOutside, onKeyUp } from '@vueuse/core';
 import iconUnknownFile from '@/assets/icons/icon-unknownFile.png';
 
-const { useRootDirectory, useTreeActions } = finder();
+const { /*useRootDirectory, */useTreeActions } = finder();
 
-const props = defineProps({
-    id: Number,
-    name: String,
-    x: Number,
-    y: Number,
-    color: String,
-    selectColor: String,
-    icon: {
-        type: String,
-        default: iconUnknownFile
-    }
+const props = withDefaults(defineProps<{
+  id: number,
+  name: string,
+  x: number,
+  y: number,
+  color: string,
+  selectColor: string,
+  icon: string
+}>(), {
+  icon: iconUnknownFile
 });
 
 const emit = defineEmits(['select', 'ready', 'unselect']);
@@ -59,10 +58,7 @@ const unselect = () => {
     isSelected.value = false;
     emit('unselect');
 };
-/**
- * @param {String} appCode
- */
-const openApp = appCode => {
+const openApp = (appCode: APPLICATION) => {
     openApplication(appCode);
     setCurrentApp(appCode);
 };

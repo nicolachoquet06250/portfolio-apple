@@ -30,18 +30,15 @@
     </article>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {computed, useSlots} from 'vue';
 
-const props = defineProps({
-    icon: {
-        type: String,
-        default: ''
-    },
-    date: {
-        type: [Date, String],
-        default: () => new Date()
-    }
+const props = withDefaults(defineProps<{
+  icon: string,
+  date: Date|string
+}>(), {
+  icon: '',
+  date: () => new Date()
 });
 
 const slots = useSlots();

@@ -33,7 +33,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, defineEmits } from 'vue';
 import { useMenu, useStepTitle } from '@/hooks/installation/menu';
 import iconInstallMac from '@/assets/install-icons/icon-install-macos.png';
@@ -48,21 +48,15 @@ const {
 
 const selectedOption = ref('');
 
-const OPTIONS = {
-    INSTALL: 'install'
+enum OPTIONS {
+    INSTALL = 'install'
 }
 
-/**
- * @param {keyof OPTIONS} option
- */
-const selectOption = option => {
+const selectOption = (option: OPTIONS) => {
     selectedOption.value = option;
 };
 
-/**
- * @param {keyof OPTIONS} option
- */
-const isActive = option => selectedOption.value === option;
+const isActive = (option: OPTIONS) => selectedOption.value === option;
 
 useStepTitle('Récupération');
 const { setMenu, resetMenus } = useMenu();

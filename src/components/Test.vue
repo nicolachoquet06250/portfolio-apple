@@ -2,8 +2,7 @@
     <div></div>
 </template>
 
-<script setup>
-import { watch } from 'vue';
+<script setup lang="ts">
 import { useDatabase } from '@/hooks/database';
 
 const { 
@@ -12,10 +11,16 @@ const {
     connect
 } = useDatabase('portfolio-apple', 'tree-structure');
 
-onUpgradeNeeded(({ context: { add } }) => {
+type TestEvent = {
+  context: {
+    add(...item: any[]): void
+  }
+}
+
+onUpgradeNeeded(({ context: { add } }: TestEvent) => {
     add({
         name: 'nchoquet',
-        extention: null,
+        extension: null,
         parent: '/',
         content: null,
         type: 'directory',
@@ -25,7 +30,7 @@ onUpgradeNeeded(({ context: { add } }) => {
     },
     {
         name: 'Applications',
-        extention: null,
+        extension: null,
         parent: '/nchoquet',
         content: null,
         type: 'directory',
@@ -35,7 +40,7 @@ onUpgradeNeeded(({ context: { add } }) => {
     },
     {
         name: 'AirDrop',
-        extention: null,
+        extension: null,
         parent: '/nchoquet',
         content: null,
         type: 'directory',
@@ -45,7 +50,7 @@ onUpgradeNeeded(({ context: { add } }) => {
     },
     {
         name: 'Desktop',
-        extention: null,
+        extension: null,
         parent: '/nchoquet',
         content: null,
         type: 'directory',
@@ -55,7 +60,7 @@ onUpgradeNeeded(({ context: { add } }) => {
     },
     {
         name: 'Images',
-        extention: null,
+        extension: null,
         parent: '/nchoquet',
         content: null,
         type: 'directory',
@@ -65,7 +70,7 @@ onUpgradeNeeded(({ context: { add } }) => {
     },
     {
         name: 'Videos',
-        extention: null,
+        extension: null,
         parent: '/nchoquet',
         content: null,
         type: 'directory',
@@ -75,7 +80,7 @@ onUpgradeNeeded(({ context: { add } }) => {
     },
     {
         name: 'Documents',
-        extention: null,
+        extension: null,
         parent: '/nchoquet',
         content: null,
         type: 'directory',
@@ -85,7 +90,7 @@ onUpgradeNeeded(({ context: { add } }) => {
     },
     {
         name: 'Downloads',
-        extention: null,
+        extension: null,
         parent: '/nchoquet',
         content: null,
         type: 'directory',
@@ -95,10 +100,10 @@ onUpgradeNeeded(({ context: { add } }) => {
     });
 });
 
-onSuccess(({ context: { add, remove, get, getAllValues, getAllKeys } }) => {
+onSuccess((/*{ context: { add, remove, get, getAllValues, getAllKeys } }*/) => {
     /*add({
         name: 'Projects-2020',
-        extention: null,
+        extension: null,
         parent: '/Documents',
         content: null,
         type: 'directory',
@@ -108,7 +113,7 @@ onSuccess(({ context: { add, remove, get, getAllValues, getAllKeys } }) => {
     },
     {
         name: 'portfolio-apple',
-        extention: null,
+        extension: null,
         parent: '/Documents/Projects-2020',
         content: null,
         type: 'directory',

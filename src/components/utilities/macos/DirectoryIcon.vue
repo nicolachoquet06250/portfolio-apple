@@ -16,7 +16,7 @@
     </button>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import finder from '@/hooks/finder';
 import { useContextualMenu } from '@/hooks/contextual-menu';
@@ -26,14 +26,14 @@ import iconDirectory from '@/assets/icons/icon-directory.png';
 
 const { useRootDirectory, useTreeActions } = finder();
 
-const props = defineProps({
-    id: Number,
-    name: String,
-    x: Number,
-    y: Number,
-    color: String,
-    selectColor: String
-});
+const props = defineProps<{
+  id: number,
+  name: string,
+  x: number,
+  y: number,
+  color: string,
+  selectColor: string
+}>();
 
 const emit = defineEmits(['select', 'ready', 'unselect']);
 
@@ -62,10 +62,7 @@ onKeyUp('Delete', () => {
     }
 });
 
-/**
- * @param {String} appCode
- */
-const openApp = appCode => {
+const openApp = (appCode: APPLICATION) => {
     openApplication(appCode);
     setCurrentApp(appCode);
 };

@@ -2,7 +2,7 @@
   <div class="cursor" />
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from "vue";
 import { useMouse } from "@vueuse/core";
 

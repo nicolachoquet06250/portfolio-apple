@@ -65,9 +65,9 @@
     </div>
 </template>
 
-<script setup>
-import { computed, defineEmits } from 'vue';
-import { useWindowSize } from '@vueuse/core';
+<script setup lang="ts">
+import { /*computed, */defineEmits } from 'vue';
+// import { useWindowSize } from '@vueuse/core';
 import { useMenu, useStepTitle } from '@/hooks/installation/menu';
 import { DISQUES, useDisque } from '@/hooks/installation/disque';
 
@@ -84,8 +84,8 @@ resetMenus();
 setMenu('Edition', {});
 setMenu('Fenêtre', {});
 
-const { width } = useWindowSize();
-const windowWidth = computed(() => `${width.value}px`);
+// const { width } = useWindowSize();
+// const windowWidth = computed(() => `${width.value}px`);
 </script>
 
 <style lang="scss" scoped>

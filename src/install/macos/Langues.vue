@@ -73,7 +73,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { defineEmits } from 'vue';
 import { LANGUES, useLangues } from '@/hooks/installation/langue';
 import { useMenu } from '@/hooks/installation/menu';

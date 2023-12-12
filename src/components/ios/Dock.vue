@@ -17,7 +17,7 @@
   </nav>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import phoneAppIcon from "@/assets/icons/ios/ios-phone-icon.png";
 import messagesAppIcon from "@/assets/icons/ios/ios-messages-icon.png";
 import safariAppIcon from "@/assets/icons/ios/ios-safari-icon.png";

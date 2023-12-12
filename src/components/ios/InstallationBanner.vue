@@ -24,11 +24,11 @@
   </Notification>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import Notification from "@/components/ios/UnlockScreenNotification.vue";
 import installIcon from "@/assets/icon-cd-install-mac.png";
 import {watch} from "vue";
-import {usePwa} from "@/hooks/pwa.js";
+import {usePwa} from "@/hooks/pwa";
 
 const emit = defineEmits(['close']);
 

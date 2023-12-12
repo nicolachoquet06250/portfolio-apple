@@ -4,7 +4,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, watch } from "vue";
 import { useMouse } from "@vueuse/core";
 import { useWait } from "@/hooks/wait";
@@ -12,30 +12,29 @@ import { useWait } from "@/hooks/wait";
 const { x, y } = useMouse();
 const { waiting } = useWait();
 
-defineProps({
-  white: {
-    type: Boolean,
-    default: false
-  }
+withDefaults(defineProps<{
+  white: boolean
+}>(), {
+  white: false
 });
 
 const cursorPositionsFor1second = ref(0);
 const bigCursor = ref(false);
-const interval = ref(null);
+const interval = ref<number|NodeJS.Timeout|null>(null);
 const cmp = ref(0);
-const classes = ref([]);
+const classes = ref<string[]>([]);
 
 if (waiting.value) {
-  document.querySelector('#app').classList.add('waiting');
+  document.querySelector('#app')!.classList.add('waiting');
 
   interval.value = setInterval(async () => {
-    document.querySelector('#app').classList.remove(`waiting-${(cmp.value)}`);
+    document.querySelector('#app')!.classList.remove(`waiting-${(cmp.value)}`);
     cmp.value++;
     if (cmp.value > 14) {
       cmp.value = 0;
     }
-    //document.querySelector('#app').classList.remove(`waiting-${(cmp.value === 0 ? 14 : cmp.value - 1)}`);
-    document.querySelector('#app').classList.add(`waiting-${cmp.value}`);
+    //document.querySelector('#app')!.classList.remove(`waiting-${(cmp.value === 0 ? 14 : cmp.value - 1)}`);
+    document.querySelector('#app')!.classList.add(`waiting-${cmp.value}`);
   }, 100);
 }
 
@@ -60,7 +59,7 @@ watch(waiting, () => {
       }
     }, 50);
   } else {
-    clearInterval(interval.value);
+    clearInterval(interval.value as number);
 
     classes.value = classes.value.filter(c => c !== 'waiting' && c !== `waiting-${(cmp.value)}`);
     
