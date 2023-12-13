@@ -50,20 +50,6 @@ import Maps from "@/components/ios/icons/Maps.vue";
 import Settings from "@/components/ios/icons/Settings.vue";
 import {useDesktop,/*IS_MOBILE, IS_TABLET, useDeviceType, useMobile, useTablet*/} from "@/hooks/device-type";
 
-type TopBar = {
-  network: {
-    wifi: {
-      online: boolean,
-    },
-  },
-  battery: {
-    charging: boolean,
-    chargingTime: number,
-    dischargingTime: number,
-    level: number,
-  }
-}
-
 const props = defineProps<{
   backgroundImage: string,
   apps: any[],
@@ -210,6 +196,22 @@ onMounted(() => {
     cols.value = 4;
   }
 });
+</script>
+
+<script lang="ts">
+  type TopBar = {
+    network: {
+      wifi: {
+        online: boolean,
+      },
+    },
+    battery: {
+      charging: boolean,
+      chargingTime: number,
+      dischargingTime: number,
+      level: number,
+    }
+  }
 </script>
 
 <style lang="scss" scoped>

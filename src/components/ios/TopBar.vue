@@ -90,20 +90,6 @@
 import {computed, defineProps, onMounted, onUnmounted, ref} from 'vue';
 import IOSNotch from "@/components/ios/IOSNotch.vue";
 
-type TopBar = {
-  network: {
-    wifi: {
-      online: boolean,
-    },
-  },
-  battery: {
-    charging: boolean,
-    chargingTime: number,
-    dischargingTime: number,
-    level: number,
-  }
-}
-
 withDefaults(defineProps<{
   showHour: boolean,
   topBar: TopBar
@@ -125,6 +111,22 @@ onUnmounted(() => {
     clearInterval(dateInterval.value);
   }
 });
+</script>
+
+<script lang="ts">
+  type TopBar = {
+    network: {
+      wifi: {
+        online: boolean,
+      },
+    },
+    battery: {
+      charging: boolean,
+      chargingTime: number,
+      dischargingTime: number,
+      level: number,
+    }
+  }
 </script>
 
 <style scoped lang="scss">

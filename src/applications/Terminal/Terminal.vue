@@ -3,11 +3,15 @@
         <div ref="target">
             {{ lineHeader }}
             {{ command }}
-            <span>{{autocompletion}}</span>
+            <span>{{ autocompletion }}</span>
             <cursor :blink="appFocused" />
         </div>
 
-        <div></div>
+        <div>
+          <template v-for="(line, _i) of result" :key="line.replace(/ /g, '-') + _i">
+            {{ line }}
+          </template>
+        </div>
     </div>
 </template>
 
@@ -21,7 +25,7 @@ import {useTerminalLineHeader} from "@/hooks/terminal/line-header";
 const {currentApp} = useCurrentApp();
 const target = ref(null);
 const appFocused = computed(() => currentApp.value === APPLICATION.TERMINAL);
-const [command, autocompletion] = useTerminal(appFocused);
+const [command, autocompletion, result] = useTerminal(appFocused);
 const lineHeader = useTerminalLineHeader();
 </script>
 

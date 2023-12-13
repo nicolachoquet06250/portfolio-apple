@@ -83,7 +83,7 @@
                     
                     <li>
                         <button class="double-icon" 
-                                @click="toggleSettingsHub!">
+                                @click="toggleSettingsHub">
                             <i class="fas fa-toggle-off"></i>
 
                             <i class="fas fa-toggle-on"></i>
@@ -310,7 +310,7 @@
 <script setup lang="ts">
 import siriIcon from '@/assets/icons/siri.png'
 import musicIcon from '@/assets/icons/icon-Music.png'
-import { ref, computed, watch, reactive } from "vue";
+import {ref, computed, watch, reactive, onMounted} from "vue";
 import { APPLICATION, APPLICATION_STATE, useOpenedApplications, useCurrentApp } from '@/hooks/apps';
 import { useAuthUser } from '@/hooks/account';
 import finder from '@/hooks/finder';
@@ -333,21 +333,6 @@ import {Menu} from '@/App.vue';
 import {Item} from '@/hooks/finder/types.ts';
 
 const { useRootDirectory, useTreeActions, useFinder, initBreadcrumb } = finder();
-
-type TopBarProps = {
-  network: {
-    wifi: {
-      online: boolean,
-    },
-  },
-  battery: {
-    charging: boolean,
-    chargingTime: number,
-    dischargingTime: number,
-    level: number,
-  },
-  menu: Menu[]
-}
 
 const props = defineProps<{
   backgroundImage: string,
@@ -373,16 +358,6 @@ const { isDark } = useDark();
 const { selectTab } = useFinder(5);
 const { screenId } = useScreens();
 
-initApplicationHistory();
-
-if (installed.value) {
-    if (skipped.value) {
-        setRoot('/');
-        selectTab('Desktop');
-    }
-    get();
-}
-
 const treeToGrid = ref<Item[][]>([]);
 const displayNewDirectory = ref(false);
 const newDirectoryName = ref('new directory');
@@ -401,7 +376,7 @@ const openSpotlight = ref(false);
 const lightValue = ref(50);
 const soundValue = ref(50);
 const showSettingsHub = ref(false);
-const toggleSettingsHub = useToggle(showSettingsHub);
+const toggleSettingsHub = () => (showSettingsHub.value = !showSettingsHub.value);
 const settingsHub = ref<HTMLElement|null>(null);
 const showBatteryData = ref(false);
 const toggleBatteryData = useToggle(showBatteryData);
@@ -471,15 +446,6 @@ const formattedDate = ref(
   })
 );
 const contextMenu = ref<HTMLElement|null>(null);
-
-setInterval(() => {
-  formattedDate.value = new Date(Date.now()).toLocaleDateString("fr-FR", {
-    weekday: "short",
-    hour12: false,
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}, 1000);
 
 const selectedDirectoryPosition = reactive({
     x: 0,
@@ -621,7 +587,28 @@ const buildTree = () => {
     treeToGrid.value = tmp;
 };
 
-buildTree();
+onMounted(() => {
+  initApplicationHistory();
+
+  if (installed.value) {
+    if (skipped.value) {
+      setRoot('/');
+      selectTab('Desktop');
+    }
+    get();
+  }
+
+  setInterval(() => {
+    formattedDate.value = new Date(Date.now()).toLocaleDateString("fr-FR", {
+      weekday: "short",
+      hour12: false,
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }, 1000);
+
+  buildTree();
+})
 
 watch(treeStructure, buildTree);
 
@@ -643,6 +630,23 @@ watch([contextMenu, () => contextMenuPosition.value.x], () => {
         }
     }
 });
+</script>
+
+<script lang="ts">
+  type TopBarProps = {
+    network: {
+      wifi: {
+        online: boolean,
+      },
+    },
+    battery: {
+      charging: boolean,
+      chargingTime: number,
+      dischargingTime: number,
+      level: number,
+    },
+    menu: Menu[]
+  }
 </script>
 
 <style lang="scss" scoped>
