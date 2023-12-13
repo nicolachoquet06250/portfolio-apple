@@ -74,13 +74,6 @@ setMenu('Fenêtre', {});
 
 const progressCmp = ref(0);
 
-type InstallEvent = {
-  context: {
-    add(...config: { field: string, value: any }[]): void,
-    addIndex(key: string, value: any): void
-  }
-}
-
 onSettingsUpgradeNeeded(({ context: { addIndex, add } }: InstallEvent) => {
     addIndex('field', INDEX_PARAMS.UNIQUE);
     add(
@@ -110,6 +103,15 @@ const interval = setInterval(() => {
         })
     }
 }, 300);
+</script>
+
+<script lang="ts">
+  type InstallEvent = {
+    context: {
+      add(...config: { field: string, value: any }[]): void,
+      addIndex(key: string, value: any): void
+    }
+  }
 </script>
 
 <style lang="scss" scoped>

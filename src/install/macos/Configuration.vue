@@ -39,15 +39,6 @@ const [
 
 const nbFinished = ref(0);
 
-type ConfigEvent = {
-  context: {
-    add(...config: { field: string, value: any }[]): void
-    add(config: Record<string, any>): void,
-    add(...config: Record<string, any>[]): void,
-    addIndex(key: string, value: any): void
-  }
-}
-
 const dbQueue = ref([
     () => {
         onSettingsSuccess(({ context: { add } }: ConfigEvent) => {
@@ -194,6 +185,17 @@ watch(nbFinished, () => {
         }, 2000);
     }
 });
+</script>
+
+<script lang="ts">
+  type ConfigEvent = {
+    context: {
+      add(...config: { field: string, value: any }[]): void
+      add(config: Record<string, any>): void,
+      add(...config: Record<string, any>[]): void,
+      addIndex(key: string, value: any): void
+    }
+  }
 </script>
 
 <style lang="scss" scoped>

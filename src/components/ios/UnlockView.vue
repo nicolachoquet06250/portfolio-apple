@@ -78,20 +78,6 @@ const swiperComponent = useIosSwiper();
 
 const emit = defineEmits(['unlock-screen']);
 
-type TopBarProps = {
-  network: {
-    wifi: {
-      online: boolean,
-    },
-  },
-  battery: {
-    charging: boolean,
-    chargingTime: number,
-    dischargingTime: number,
-    level: number,
-  }
-}
-
 const props = defineProps<{
   backgroundImage: string,
   apps: any[],
@@ -187,6 +173,22 @@ onUnmounted(() => {
         clearInterval(dateInterval.value);
     }
 });
+</script>
+
+<script lang="ts">
+  type TopBarProps = {
+    network: {
+      wifi: {
+        online: boolean,
+      },
+    },
+    battery: {
+      charging: boolean,
+      chargingTime: number,
+      dischargingTime: number,
+      level: number,
+    }
+  }
 </script>
 
 <style scoped lang="scss">

@@ -346,21 +346,6 @@ const connectUser = () => {
 
 on?.('log-screen', connectUser)
 
-type DesktopTopBar = {
-  network: {
-    wifi: {
-      online: boolean
-    }
-  },
-  battery: {
-    charging: boolean,
-    chargingTime: number,
-    dischargingTime: number,
-    level: number,
-  },
-  menu: Menu[]
-};
-
 const desktopTopBar = reactive<DesktopTopBar>({
   network: {
     wifi: {
@@ -439,6 +424,21 @@ watch(() => alertAppInDev.dontShowAgain, () => {
     children?: Menu[],
     type?: string,
     shortcut?: string
+  };
+
+  type DesktopTopBar = {
+    network: {
+      wifi: {
+        online: boolean
+      }
+    },
+    battery: {
+      charging: boolean,
+      chargingTime: number,
+      dischargingTime: number,
+      level: number,
+    },
+    menu: Menu[]
   };
 </script>
 

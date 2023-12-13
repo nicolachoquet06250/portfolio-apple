@@ -115,13 +115,6 @@ const { onSuccess: onSettingsSuccess, results: settings } = useDatabase<{value: 
 const { isOnline } = useNetwork();
 const { charging, dischargingTime, level } = useBattery();
 
-type DbEvent = {
-  context: {
-    getAllValues(): void,
-    getFromIndex(key: string, value: any): void
-  }
-};
-
 onAccountSuccess(({ context: { getAllValues } }: DbEvent) => getAllValues()).connect();
 onSettingsSuccess(({ context: { getFromIndex } }: DbEvent) => getFromIndex('field', 'langue')).connect();
 
@@ -165,6 +158,15 @@ const login = (event: Event, user: User) => {
 };
 
 watch(settings, (settings) => (displayedLangue.value = settings.value.displayed));
+</script>
+
+<script lang="ts">
+  type DbEvent = {
+    context: {
+      getAllValues(): void,
+      getFromIndex(key: string, value: any): void
+    }
+  };
 </script>
 
 <style lang="scss" scoped>
