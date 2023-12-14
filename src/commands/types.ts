@@ -24,5 +24,6 @@ export type TerminalCommandExecute<
 export type TerminalCommand = {
     command: RegExp;
     adminCommand?: RegExp;
+    name?: string;
     execute: TerminalCommandExecute;
 }

@@ -10,7 +10,7 @@ export const commands =
     Object.values($commands) as TerminalCommand[];
 
 type UseCommandReturn = {
-    proposedCommand: ComputedRef<string>,
+    proposedCommand: ComputedRef<string|string[]>,
     result: ComputedRef<string[]>,
 
     autocomplete(command: string): void,
@@ -61,7 +61,7 @@ const migrateToArray = <T extends string|number|boolean|void>(p: T[]|T): string[
     p ? (typeof p === 'object' ? p : [p]) : [] as any[]
 
 export const useCommands: UseCommands = (command, terminalHistory) => {
-    const proposedCommand = ref('');
+    const proposedCommand = ref<string|string[]>('');
     const result = ref<string[]>([]);
 
     const lineHeader = useTerminalLineHeader();
@@ -70,12 +70,51 @@ export const useCommands: UseCommands = (command, terminalHistory) => {
     const setCommand = createSetter(command);
     const setTerminalHistory = createSetter(terminalHistory);
 
+    let lastTabPressTime = 0;
+    let timeout: NodeJS.Timeout;
+
     return {
         proposedCommand: computed(() => proposedCommand.value),
         result: computed(() => result.value),
 
         autocomplete(command: string) {
-            console.log('complete', command)
+            const items: TerminalCommand[] = [];
+            for (const [name, cmd] of Object.entries($commands) as [name: string, cmd: TerminalCommand][]) {
+                if ((cmd.name && cmd.name.startsWith(command)) || name.startsWith(command)) {
+                    items.push({
+                        ...cmd,
+                        name: (cmd.name ?? name)
+                    });
+                }
+            }
+
+            const currentTime = Date.now();
+
+            if (currentTime - lastTabPressTime < 300) {
+                // double tab
+                proposedCommand.value =
+                    items.map(item => item.name!);
+                setTerminalHistory(th => [
+                    ...th,
+                    lineHeader.value + command,
+                    items.map(item => item.name!)
+                        .join(Array.from(new Array(5)).map(() => '&nbsp;').join(''))
+                ])
+
+                clearTimeout(timeout);
+
+                lastTabPressTime = 0;
+            } else {
+                // simple tab
+                lastTabPressTime = currentTime;
+
+                timeout = setTimeout(() => {
+                    if (items.length === 1) {
+                        proposedCommand.value = items[0].name!;
+                        setCommand(c => c + items[0].name!.substring(c.length))
+                    }
+                }, 300)
+            }
         },
         execute(addToHistory) {
             const cmd = command.value;
