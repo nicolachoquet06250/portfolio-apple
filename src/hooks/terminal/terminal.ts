@@ -6,7 +6,7 @@ import {useCommandHistory, useCommands} from "@/hooks/terminal/commands";
 
 type UseTerminal = (active: Ref<boolean> | ComputedRef<boolean>) => [
     command: Ref<string>,
-    completion: ComputedRef<string>,
+    completion: ComputedRef<string|string[]>,
     result: ComputedRef<string[]>,
     terminalHistory: ComputedRef<string[]>
 ];
@@ -108,9 +108,12 @@ export const useTerminal: UseTerminal = (active) => {
         }
     });
 
+    watch(proposedCommand, (proposed) => console.log(proposed))
+
     return [
         command,
-        computed(() => proposedCommand.value.substring(command.value.length)),
+        computed(() => typeof proposedCommand.value === 'string'
+            ? proposedCommand.value.substring(command.value.length) : proposedCommand.value),
         result,
         computed(() => terminalHistory.value)
     ];

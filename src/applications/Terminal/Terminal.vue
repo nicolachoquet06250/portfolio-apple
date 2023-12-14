@@ -3,13 +3,14 @@
         terminal: true,
         isDarkMode
     }">
-        <div v-for="(line, i) of terminalHistory" :key="i">
-          {{ line }}
-        </div>
-        <div ref="target">
+        <div v-for="(line, i) of terminalHistory" :key="i"
+             v-html="line"
+        />
+
+      <div ref="target">
             {{ lineHeader }} {{ command }}
 
-            <span>{{ autocompletion }}</span>
+<!--            <span>{{ autocompletion }}</span>-->
 
             <cursor :blink="appFocused" />
         </div>
@@ -30,7 +31,7 @@ const { isDark: isDarkMode } = useDark();
 const {currentApp} = useCurrentApp();
 const target = ref(null);
 const appFocused = computed(() => currentApp.value === APPLICATION.TERMINAL);
-const [command, autocompletion,, terminalHistory] = useTerminal(appFocused);
+const [command,,, terminalHistory] = useTerminal(appFocused);
 const lineHeader = useTerminalLineHeader();
 
 const end = ref<HTMLElement|null>(null);
