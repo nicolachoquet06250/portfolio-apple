@@ -1,5 +1,9 @@
 <template>
-  <div :class="{blink, isDarkMode}" />
+  <div :class="{
+      cursor: true,
+      blink,
+      isDarkMode
+  }" />
 </template>
 
 <script setup lang="ts">
@@ -15,7 +19,7 @@ const { isDark: isDarkMode } = useDark();
 </script>
 
 <style scoped lang="scss">
-div {
+.cursor {
   display: inline-block;
   height: 20px;
   width: 5px;

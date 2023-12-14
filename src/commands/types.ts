@@ -10,8 +10,16 @@ export const createSetter: SetterCreator = (obj) =>
             ? (results as Function)(obj.value) : results);
 
 export type TerminalCommandExecute<
-    G extends Record<string, string|null> = Record<string, string|null>
-> = (groups: G, isAdmin: boolean, setResult: Setter<string[]>, setCommand: Setter<string>) => string|string[];
+    G extends Record<string, string|null>|RegExpMatchArray = Record<string, string|null>|RegExpMatchArray
+> = (
+    groups: G,
+    isAdmin: boolean,
+    setters: {
+        result: Setter<string[]>,
+        command: Setter<string>,
+        terminalHistory: Setter<string[]>
+    }
+) => string|string[]|void;
 
 export type TerminalCommand = {
     command: RegExp;

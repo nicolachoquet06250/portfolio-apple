@@ -5,10 +5,13 @@ export const adminCommand = /^sudo clear$/g;
 
 export const execute: TerminalCommandExecute = (
     _, __,
-    setResult,
-    setCommand
+    {
+        result: setResult,
+        command: setCommand,
+        terminalHistory: setTerminalHistory
+    }
 ) => {
     setResult([]);
     setCommand('');
-    return '';
+    setTerminalHistory([]);
 }

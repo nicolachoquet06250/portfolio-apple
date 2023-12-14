@@ -6,17 +6,19 @@ import {useCommands} from "@/hooks/terminal/commands";
 type UseTerminal = (active: Ref<boolean> | ComputedRef<boolean>) => [
     command: Ref<string>,
     completion: ComputedRef<string>,
-    result: ComputedRef<string[]>
+    result: ComputedRef<string[]>,
+    terminalHistory: ComputedRef<string[]>
 ];
 
 export const useTerminal: UseTerminal = (active) => {
+    const terminalHistory = ref<string[]>([]);
     const command = ref('');
     const {
         autocomplete,
         execute,
         proposedCommand,
         result
-    } = useCommands(command);
+    } = useCommands(command, terminalHistory);
 
     const excludedKeys = ['Shift', 'Control', 'Backspace', 'Enter', 'Tab'];
 
@@ -57,11 +59,14 @@ export const useTerminal: UseTerminal = (active) => {
             execute();
             validCommand.value = false;
         }
-    })
+    });
+
+    watch(terminalHistory, (th) => console.log(th))
 
     return [
         command,
         computed(() => proposedCommand.value.substring(command.value.length)),
-        result
+        result,
+        computed(() => terminalHistory.value)
     ];
 };
