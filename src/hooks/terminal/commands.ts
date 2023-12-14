@@ -14,7 +14,7 @@ type UseCommandReturn = {
     result: ComputedRef<string[]>,
 
     autocomplete(command: string): void,
-    execute(): void
+    execute(addToHistory: (command: string) => void): void
 }
 
 function preg_match(pattern: RegExp|string, input: string): Record<string, string|null>|RegExpExecArray|null {
@@ -77,7 +77,7 @@ export const useCommands: UseCommands = (command, terminalHistory) => {
         autocomplete(command: string) {
             console.log('complete', command)
         },
-        execute() {
+        execute(addToHistory) {
             const cmd = command.value;
             const selectedCommand = getSelectedCommandResult(cmd);
 
@@ -102,6 +102,31 @@ export const useCommands: UseCommands = (command, terminalHistory) => {
                 setTerminalHistory(th => [...th, lineHeader.value + cmd, ...result.value]);
                 setCommand('');
             }
+            addToHistory(cmd)
         }
     }
-}
+};
+
+type UseCommandHistory = () => [
+    history: ComputedRef<string[]>,
+    currentHistoryIndex: ComputedRef<number>,
+    addToHistory: (command: string) => void,
+    setIndex: (index: ((i: number) => number)|number) => void,
+    currentHistoryCommand: ComputedRef<string|null>
+]
+
+export const useCommandHistory: UseCommandHistory = () => {
+    const history = ref<string[]>([]);
+    const currentHistoryIndex = ref<number>(-1);
+
+    return [
+        computed(() => history.value),
+        computed(() => currentHistoryIndex.value),
+        (c) => (history.value = [c, ...history.value]),
+        (index) => {
+            currentHistoryIndex.value = typeof index === 'function' ?
+                index(currentHistoryIndex.value) : index;
+        },
+        computed(() => history.value[currentHistoryIndex.value] ?? null)
+    ];
+};

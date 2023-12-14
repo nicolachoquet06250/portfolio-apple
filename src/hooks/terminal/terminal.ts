@@ -1,7 +1,8 @@
 import {onKeyStroke} from "@vueuse/core";
+import type {KeyFilter} from "@vueuse/core";
 import {computed, ref, watch} from "vue";
 import type {ComputedRef, Ref} from 'vue';
-import {useCommands} from "@/hooks/terminal/commands";
+import {useCommandHistory, useCommands} from "@/hooks/terminal/commands";
 
 type UseTerminal = (active: Ref<boolean> | ComputedRef<boolean>) => [
     command: Ref<string>,
@@ -13,6 +14,12 @@ type UseTerminal = (active: Ref<boolean> | ComputedRef<boolean>) => [
 export const useTerminal: UseTerminal = (active) => {
     const terminalHistory = ref<string[]>([]);
     const command = ref('');
+    const tmpCommand = ref<string|null>(null);
+    const [
+        history, historyIndex,
+        addCommandToHistory, setHistoryIndex,
+        currentHistoryCommand
+    ] = useCommandHistory();
     const {
         autocomplete,
         execute,
@@ -20,7 +27,13 @@ export const useTerminal: UseTerminal = (active) => {
         result
     } = useCommands(command, terminalHistory);
 
-    const excludedKeys = ['Shift', 'Control', 'Backspace', 'Enter', 'Tab'];
+    const excludedKeys: KeyFilter[] = [
+        'Shift', 'Control',
+        'Backspace', 'Enter',
+        'Tab', 'Del',
+        'ArrowUp', 'ArrowDown',
+        'ArrowLeft', 'ArrowRight'
+    ];
 
     const validCommand = ref(false);
 
@@ -46,22 +59,54 @@ export const useTerminal: UseTerminal = (active) => {
         }
     });
 
-    onKeyStroke(true, e => {
-        if (active.value) {
-            // console.log(e);
-            e.preventDefault();
-            !excludedKeys.includes(e.key) && (command.value += e.key);
+    onKeyStroke('ArrowUp', e => {
+        e.preventDefault();
+
+        if (historyIndex.value === -1) {
+            tmpCommand.value = command.value;
+        }
+
+        if (historyIndex.value < history.value.length - 1) {
+            setHistoryIndex(i => ++i);
         }
     });
 
-    watch([validCommand], ([_validCommand]) => {
+    onKeyStroke('ArrowDown', e => {
+        e.preventDefault();
+
+        if (historyIndex.value > -1) {
+            setHistoryIndex(i => --i);
+        }
+    });
+
+    onKeyStroke(true, e => {
+        if (active.value) {
+            e.preventDefault();
+
+            if (!excludedKeys.includes(e.key)) {
+                tmpCommand.value = null;
+                setHistoryIndex(-1);
+                command.value += e.key;
+            }
+        }
+    });
+
+    watch(validCommand, (_validCommand) => {
         if (_validCommand) {
-            execute();
+            execute(addCommandToHistory);
             validCommand.value = false;
         }
     });
 
-    watch(terminalHistory, (th) => console.log(th))
+    watch(currentHistoryCommand, currentHistoryCommand => {
+        if (currentHistoryCommand !== null) {
+            command.value = currentHistoryCommand;
+        }
+        else if (tmpCommand.value !== null) {
+            command.value = tmpCommand.value;
+            tmpCommand.value = null;
+        }
+    });
 
     return [
         command,
