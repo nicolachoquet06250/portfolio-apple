@@ -10,9 +10,8 @@ type Props = {
 export const execute: TerminalCommandExecute<Props> = (
     {dist},
     isAdmin,
-    _, setCommand
+    {command: setCommand}
 ) => {
-    console.log(dist, isAdmin)
     setCommand('');
-    return 'test de cd';
+    return `direction ${dist}${isAdmin ? ' en mode admin' : ''}`;
 }
