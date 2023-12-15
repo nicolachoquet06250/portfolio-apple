@@ -97,6 +97,65 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 - [<span style="color: green">&check;</span>] works 
 - [<span style="color: gray"> ? </span>] in progress
 
+### Documentation
+
+#### Terminal
+##### Système de commandes
+
+Dans :
+`/src/commands/[command].ts`
+
+exporter :
+- Une constante `name` de type `string` pour définir le nom de la commande si il contient des tirets (`Optionel`).
+- Une constante `command` de type `RegExp` (`Requis`)
+- Une constante `adminCommand` de type `RegExp` (`Optionel`)
+- Une constante `flags` de type `TerminalCommandFlag[]` (`Optionel` => dans le cas où votre commande gère des flags)
+```typescript
+type TerminalCommandFlag = {
+    long: string,
+    short?: string,
+    type: BooleanConstructor|StringConstructor|NumberConstructor|ArrayConstructor,
+    value?: any,
+    detectedFormat?: string
+}
+```
+- Une fonction / constante `execute` de type `TerminalCommandExecute<Props, Flags, Setters>` avec les types `Props`, `Flags` et `Setters` que vous pouvez définir pour préciser votre autocompletion, sinon ne précisez rien. (`Requis`)
+```typescript
+type TerminalCommandExecute<
+    G extends Record<string, string|null>|RegExpMatchArray =
+            Record<string, string|null>|RegExpMatchArray,
+    F extends {[K: string]: string|boolean|number|any[]} = {[K: string]: string|boolean|number|any[]},
+    S extends Record<string, Setter<any>> = Record<string, Setter<any>>
+> = (
+    groups: G,
+    isAdmin: boolean,
+    flags: F,
+    location: ComputedRef<string>,
+    setters: S
+) => string|string[]|void;
+```
+
+
+Pour créer une commande custom :
+
+Où vous voulez :
+- Créer un fichier nommé avec le nom de la commande
+- Reproduisez la structure définie ci-dessus.
+- Dans un fichier importé dans le point d'entré, enregistrez vos commands avec les fonctions `registerPlugin` et/ou `registerPlugins`
+```typescript
+type TerminalCommand = {
+    command: RegExp;
+    adminCommand?: RegExp;
+    name?: string;
+    flags?: TerminalCommandFlag[];
+    execute: TerminalCommandExecute;
+}
+
+let registerPlugin: (command: TerminalCommand) => void;
+let registerPlugins: (...commandList: TerminalCommand[]) => void;
+```
+
+
 ### ANNEXES
 - [FIGMA **MacOS 11 (Big Sur)**](https://www.figma.com/community/file/949158727443209284?preview=fullscreen)
 - [FIGMA **MacOS 14.1.1 (Sonoma)**](https://www.figma.com/community/file/1251588934545918753/apple-design-resources-macos)

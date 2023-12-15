@@ -12,11 +12,14 @@ type Setters = {
     location: Setter<string>
 }
 
+type Flags = {};
+
 const { isPathExists } = finder();
 
-export const execute: TerminalCommandExecute<Props, Setters> = (
+export const execute: TerminalCommandExecute<Props, Flags, Setters> = (
     {dist},
     _isAdmin,
+    _flags,
     location,
     {location: setLocation}
 ) => {
