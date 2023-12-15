@@ -1,10 +1,9 @@
 import {onKeyStroke} from "@vueuse/core";
-import type {KeyFilter} from "@vueuse/core";
 import {computed, ref, watch} from "vue";
 import type {ComputedRef, Ref} from 'vue';
 import {useCommandHistory, useCommands} from "@/hooks/terminal/commands";
 import {useTerminalLocation} from '@/hooks/terminal/location';
-import {Setter} from '@/commands/types';
+import type {Setter} from '@/commands/types';
 
 type UseTerminal = (active: Ref<boolean> | ComputedRef<boolean>) => [
     command: Ref<string>,
@@ -12,6 +11,17 @@ type UseTerminal = (active: Ref<boolean> | ComputedRef<boolean>) => [
     result: ComputedRef<string[]>,
     terminalHistory: ComputedRef<string[]>,
     location: [location: ComputedRef<string>, setComputed: Setter<string>]
+];
+
+type ExcludedKey = string|RegExp;
+
+const excludedKeys: ExcludedKey[] = [
+    'Shift', 'Control',
+    'Backspace', 'Enter',
+    'Tab', 'Delete',
+    'ArrowUp', 'ArrowDown',
+    'ArrowLeft', 'ArrowRight',
+    /^F[1-9][0-2]?$/
 ];
 
 export const useTerminal: UseTerminal = (active) => {
@@ -31,16 +41,6 @@ export const useTerminal: UseTerminal = (active) => {
         result
     } = useCommands(command, terminalHistory, location);
 
-    const excludedKeys: KeyFilter[] = [
-        'Shift', 'Control',
-        'Backspace', 'Enter',
-        'Tab', 'Del',
-        'ArrowUp', 'ArrowDown',
-        'ArrowLeft', 'ArrowRight'
-    ];
-
-    const validCommand = ref(false);
-
     onKeyStroke('Backspace', e => {
         if (active.value) {
             e.preventDefault();
@@ -59,7 +59,7 @@ export const useTerminal: UseTerminal = (active) => {
     onKeyStroke('Enter', e => {
         if (active.value) {
             e.preventDefault();
-            validCommand.value = true;
+            execute(addCommandToHistory);
         }
     });
 
@@ -87,18 +87,16 @@ export const useTerminal: UseTerminal = (active) => {
         if (active.value) {
             e.preventDefault();
 
-            if (!excludedKeys.includes(e.key)) {
+            const isIncluded = excludedKeys
+                .map(key =>
+                    typeof key === 'string' ?
+                        key === e.key : key.exec(e.key) !== null)
+                .filter(i => i).length > 0;
+            if (!isIncluded) {
                 tmpCommand.value = null;
                 setHistoryIndex(-1);
                 command.value += e.key;
             }
-        }
-    });
-
-    watch(validCommand, (_validCommand) => {
-        if (_validCommand) {
-            execute(addCommandToHistory);
-            validCommand.value = false;
         }
     });
 

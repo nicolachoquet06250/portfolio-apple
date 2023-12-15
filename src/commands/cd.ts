@@ -1,8 +1,8 @@
 import type {Setter, TerminalCommandExecute} from '@/commands/types';
-import finder from '@/hooks/finder';
+import finder, {realpath} from '@/hooks/finder';
 
-export const command = /^cd (?<dist>[a-zA-Z0-9_\-\/]+)$/g;
-export const adminCommand = /^sudo cd (?<dist>[a-zA-Z0-9_\-\/]+)$/g;
+export const command = /^cd (?<dist>([a-zA-Z0-9_\-\/.]+|'[a-zA-Z0-9_\-\/. ]+'))$/g;
+export const adminCommand = /^sudo cd (?<dist>([a-zA-Z0-9_\-\/.]+|'[a-zA-Z0-9_\-\/. ]+'))$/g;
 
 type Props = {
     dist: string
@@ -12,7 +12,7 @@ type Setters = {
     location: Setter<string>
 }
 
-const { getChildrenItems, isPathExists } = finder();
+const { isPathExists } = finder();
 
 export const execute: TerminalCommandExecute<Props, Setters> = (
     {dist},
@@ -20,23 +20,37 @@ export const execute: TerminalCommandExecute<Props, Setters> = (
     location,
     {location: setLocation}
 ) => {
-    // @TODO implementer les retours arrière '../'
-    // @TODO Fixer la partie chemins absoluts
-    /*if (dist.startsWith('/')) {
-        if (isPathExists(dist.replace('//', '/'))) {
-            setLocation(dist.replace('//', '/'));
-            console.log(getChildrenItems()('', location.value))
+    if (dist.startsWith('\'')) dist = dist.substring(1);
+    if (dist.endsWith('\'')) dist = dist.substring(0, dist.length - 1);
+
+    if (dist.startsWith('/')) {
+        if (isPathExists(realpath(dist.replace('//', '/')))) {
+            setLocation(realpath(dist.replace('//', '/')));
             return [``];
         }
 
         return `cd: ${dist}: Aucun fichier ou dossier de ce type`
-    } else {*/
-        if (isPathExists((location.value + '/' + dist).replace('//', '/'))) {
-            setLocation(l => (l + '/' + dist).replace('//', '/'));
-            console.log(getChildrenItems()('', location.value))
+    }
+    else {
+        if (dist === '.') return [``];
+
+        if (
+            isPathExists(
+                realpath(
+                    (location.value + '/' + dist)
+                        .replace('//', '/')
+                )
+            )
+        ) {
+            setLocation(l =>
+                realpath(
+                    (l + '/' + dist)
+                        .replace('//', '/')
+                )
+            );
             return [``];
         }
 
         return `cd: ${dist}: Aucun fichier ou dossier de ce type`
-    /*}*/
+    }
 }
