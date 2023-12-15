@@ -147,6 +147,33 @@ export const getComputedShowedItems = (
         }, {cmp: 0, result: []}
     ).result ?? []);
 
+type RealPath = (path: string) => string;
+
+export const realpath: RealPath = path => {
+    const p = path.split('/');
+    if ([...p].pop() === '') p.pop();
+    if ([...p].shift() === '') p.shift();
+
+    if (path.includes('..')) {
+
+        const newP: string[] = [];
+        for (const it of p) {
+            if (it === '..') {
+                if (p.length > 0) {
+                    newP.pop();
+                }
+            }
+            else {
+                newP.push(it)
+            }
+        }
+
+        return '/' + newP.join('/');
+    }
+
+    return '/' + p.join('/');
+};
+
 export default () => ({
     ...(skipped.value ? finderMock : finder)
 } as unknown as Finder);

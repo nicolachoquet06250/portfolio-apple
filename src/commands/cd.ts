@@ -1,5 +1,5 @@
 import type {Setter, TerminalCommandExecute} from '@/commands/types';
-import finder from '@/hooks/finder';
+import finder, {realpath} from '@/hooks/finder';
 
 export const command = /^cd (?<dist>([a-zA-Z0-9_\-\/.]+|'[a-zA-Z0-9_\-\/. ]+'))$/g;
 export const adminCommand = /^sudo cd (?<dist>([a-zA-Z0-9_\-\/.]+|'[a-zA-Z0-9_\-\/. ]+'))$/g;
@@ -12,34 +12,7 @@ type Setters = {
     location: Setter<string>
 }
 
-const { getChildrenItems, isPathExists } = finder();
-
-type RealPath = (path: string) => string;
-
-const realpath: RealPath = path => {
-    const p = path.split('/');
-    if ([...p].pop() === '') p.pop();
-    if ([...p].shift() === '') p.shift();
-
-    if (path.includes('..')) {
-
-        const newP: string[] = [];
-        for (const it of p) {
-            if (it === '..') {
-                if (p.length > 0) {
-                    newP.pop();
-                }
-            }
-            else {
-                newP.push(it)
-            }
-        }
-
-        return '/' + newP.join('/');
-    }
-
-    return '/' + p.join('/');
-};
+const { isPathExists } = finder();
 
 export const execute: TerminalCommandExecute<Props, Setters> = (
     {dist},
@@ -53,13 +26,14 @@ export const execute: TerminalCommandExecute<Props, Setters> = (
     if (dist.startsWith('/')) {
         if (isPathExists(realpath(dist.replace('//', '/')))) {
             setLocation(realpath(dist.replace('//', '/')));
-            console.log(getChildrenItems()('', location.value))
             return [``];
         }
 
         return `cd: ${dist}: Aucun fichier ou dossier de ce type`
     }
     else {
+        if (dist === '.') return [``];
+
         if (
             isPathExists(
                 realpath(
@@ -74,7 +48,6 @@ export const execute: TerminalCommandExecute<Props, Setters> = (
                         .replace('//', '/')
                 )
             );
-            console.log(getChildrenItems()('', location.value))
             return [``];
         }
 
