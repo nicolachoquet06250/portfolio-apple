@@ -31,8 +31,8 @@ const { isDark: isDarkMode } = useDark();
 const {currentApp} = useCurrentApp();
 const target = ref(null);
 const appFocused = computed(() => currentApp.value === APPLICATION.TERMINAL);
-const [command,,, terminalHistory] = useTerminal(appFocused);
-const lineHeader = useTerminalLineHeader();
+const [command,,, terminalHistory, [location]] = useTerminal(appFocused);
+const lineHeader = useTerminalLineHeader(location);
 
 const end = ref<HTMLElement|null>(null);
 
