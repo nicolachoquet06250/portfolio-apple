@@ -142,85 +142,93 @@ tree.value = [
 
 export const initBreadcrumb = createBreadcrumbInitializer(breadcrumb, selectedTab);
 
-export const useFinder = (maxPerLine: number) => {
-    return {
-        selectedTab: computed(() => selectedTab.value),
-        showedItems: getComputedShowedItems(showedItems, maxPerLine),
-        activatedItem: computed(() => activeItem.value),
-        breadcrumb: computed(() => breadcrumb.value),
+export const useFinder = (maxPerLine: number) => ({
+    selectedTab: computed(() => selectedTab.value),
+    showedItems: getComputedShowedItems(showedItems, maxPerLine),
+    activatedItem: computed(() => activeItem.value),
+    breadcrumb: computed(() => breadcrumb.value),
 
-        selectTab: createTabSelector(rootDir, selectedTab),
-        initBreadcrumb,
-        selectItem: createItemSelector(breadcrumb, showedItems, activeItem),
-        activeItem: createItemActivator(activeItem),
-        
-        backInPath() {
-            const currentSelectedDir = breadcrumb.value[breadcrumb.value.length - 1];
+    selectTab: createTabSelector(rootDir, selectedTab),
+    initBreadcrumb,
+    selectItem: createItemSelector(breadcrumb, showedItems, activeItem),
+    activeItem: createItemActivator(activeItem),
 
-            if (breadcrumb.value.length > 1) {
-                const copy = [...breadcrumb.value];
-                copy.pop();
+    backInPath() {
+        const currentSelectedDir = breadcrumb.value[breadcrumb.value.length - 1];
 
-                subDirectory.value = copy.join('/').replace('Desktop', '');
-                showedItems.value = getChildren(tree)('/', copy.join('/'));
-                breadcrumb.value = breadcrumb.value.reduce<string[]>((r, c) =>
-                    c === currentSelectedDir ? r : [...r, c], []);
+        if (breadcrumb.value.length > 1) {
+            const copy = [...breadcrumb.value];
+            copy.pop();
+
+            subDirectory.value = copy.join('/').replace('Desktop', '');
+            showedItems.value = getChildren(tree)('/', copy.join('/'));
+            breadcrumb.value = breadcrumb.value.reduce<string[]>((r, c) =>
+                c === currentSelectedDir ? r : [...r, c], []);
+        }
+    }
+});
+
+export const useRootDirectory = () => ({
+    root: computed(() => rootDir.value),
+    subDirectory: computed(() => subDirectory.value),
+
+    setRoot(root: string) {
+        rootDir.value = root;
+    },
+
+    setSubDirectory(subDir: string) {
+        subDirectory.value = subDir;
+    }
+});
+
+export const useTreeActions = () => ({
+    tree: computed(() => tree.value),
+
+    get() {},
+
+    createFile() {},
+
+    add(root: string, dirName: string) {
+        tree.value = [
+            ...tree.value,
+            {
+                id: (tree.value[tree.value.length - 1].id ?? 0) + 1,
+                user_id: 0,
+                content: null,
+                extension: null,
+                name: dirName,
+                parent: root.replace('//', '/'),
+                type: 'directory',
+                creation_date: new Date(),
+                updated_date: new Date(),
+                opened_date: new Date()
             }
+        ];
+    },
+
+    remove(id: number) {
+        tree.value = tree.value.reduce<Item[]>((r, c) => {
+            if (c.id === id) {
+                return r;
+            }
+            return [...r, c];
+        }, []);
+    }
+});
+
+export const getChildrenItems = () => getChildren(tree);
+
+export const isPathExists = (path: string) => {
+    return tree.value.filter(item => {
+        if (item.parent === path) {
+            return true;
         }
-    };
-};
 
-export const useRootDirectory = () => {
-   return {
-        root: computed(() => rootDir.value),
-        subDirectory: computed(() => subDirectory.value),
-    
-        setRoot(root: string) {
-            rootDir.value = root;
-        },
-    
-        setSubDirectory(subDir: string) {
-            subDirectory.value = subDir;
-        }
-    };
-};
-
-export const useTreeActions = () => {
-    return {
-        tree: computed(() => tree.value),
-
-        get() {},
-
-        createFile() {},
-
-        add(root: string, dirName: string) {
-            tree.value = [
-                ...tree.value,
-                {
-                    id: (tree.value[tree.value.length - 1].id ?? 0) + 1,
-                    user_id: 0,
-                    content: null,
-                    extension: null,
-                    name: dirName,
-                    parent: root.replace('//', '/'),
-                    type: 'directory',
-                    creation_date: new Date(),
-                    updated_date: new Date(),
-                    opened_date: new Date()
-                }
-            ];
-        },
-        
-        remove(id: number) {
-            tree.value = tree.value.reduce<Item[]>((r, c) => {
-                if (c.id === id) {
-                    return r;
-                }
-                return [...r, c];
-            }, []);
-        }
-    };
-};
+        const p = path.split('/');
+        const dirname = p.pop()!;
+        return item.parent === p.join('/') && item.name === dirname;
+    }).length > 0
+}
 
 watch([selectedTab, subDirectory, tree], (_, [oldSelectedTab]) => {
     if (selectedTab.value !== oldSelectedTab) {

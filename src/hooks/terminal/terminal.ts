@@ -3,12 +3,15 @@ import type {KeyFilter} from "@vueuse/core";
 import {computed, ref, watch} from "vue";
 import type {ComputedRef, Ref} from 'vue';
 import {useCommandHistory, useCommands} from "@/hooks/terminal/commands";
+import {useTerminalLocation} from '@/hooks/terminal/location';
+import {Setter} from '@/commands/types';
 
 type UseTerminal = (active: Ref<boolean> | ComputedRef<boolean>) => [
     command: Ref<string>,
     completion: ComputedRef<string|string[]>,
     result: ComputedRef<string[]>,
-    terminalHistory: ComputedRef<string[]>
+    terminalHistory: ComputedRef<string[]>,
+    location: [location: ComputedRef<string>, setComputed: Setter<string>]
 ];
 
 export const useTerminal: UseTerminal = (active) => {
@@ -20,12 +23,13 @@ export const useTerminal: UseTerminal = (active) => {
         addCommandToHistory, setHistoryIndex,
         currentHistoryCommand
     ] = useCommandHistory();
+    const location = useTerminalLocation();
     const {
         autocomplete,
         execute,
         proposedCommand,
         result
-    } = useCommands(command, terminalHistory);
+    } = useCommands(command, terminalHistory, location);
 
     const excludedKeys: KeyFilter[] = [
         'Shift', 'Control',
@@ -115,6 +119,7 @@ export const useTerminal: UseTerminal = (active) => {
         computed(() => typeof proposedCommand.value === 'string'
             ? proposedCommand.value.substring(command.value.length) : proposedCommand.value),
         result,
-        computed(() => terminalHistory.value)
+        computed(() => terminalHistory.value),
+        location
     ];
 };

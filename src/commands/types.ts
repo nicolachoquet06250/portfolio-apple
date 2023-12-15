@@ -1,4 +1,4 @@
-import {Ref} from 'vue';
+import {ComputedRef, Ref} from 'vue';
 
 type SetterParam<P> = ((p: P) => P) | P;
 export type Setter<P> = (p: SetterParam<P>) => void;
@@ -10,15 +10,14 @@ export const createSetter: SetterCreator = (obj) =>
             ? (results as Function)(obj.value) : results);
 
 export type TerminalCommandExecute<
-    G extends Record<string, string|null>|RegExpMatchArray = Record<string, string|null>|RegExpMatchArray
+    G extends Record<string, string|null>|RegExpMatchArray =
+            Record<string, string|null>|RegExpMatchArray,
+    S extends Record<string, Setter<any>> = Record<string, Setter<any>>
 > = (
     groups: G,
     isAdmin: boolean,
-    setters: {
-        result: Setter<string[]>,
-        command: Setter<string>,
-        terminalHistory: Setter<string[]>
-    }
+    location: ComputedRef<string>,
+    setters: S
 ) => string|string[]|void;
 
 export type TerminalCommand = {

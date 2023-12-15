@@ -135,6 +135,20 @@ export const useTreeActions = () => {
     };
 };
 
+export const getChildrenItems = () => getChildren(tree);
+
+export const isPathExists = (path: string) => {
+    return tree.value.filter(item => {
+        if (item.parent === path) {
+            return true;
+        }
+
+        const p = path.split('/');
+        const dirname = p.pop()!;
+        return item.parent === p.join('/') && item.name === dirname;
+    }).length > 0
+}
+
 watch(
     [selectedTab, subDirectory, items],
     (_, [

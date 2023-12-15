@@ -4,6 +4,7 @@ import { commands as commandsPlugins } from '@/commands/plugins';
 import type {ComputedRef} from "vue";
 import type {TerminalCommand, TerminalCommandExecute} from "@/commands/types";
 import {createSetter} from '@/commands/types';
+import type {Setter} from '@/commands/types';
 import {useTerminalLineHeader} from '@/hooks/terminal/line-header.ts';
 
 export const commands =
@@ -24,7 +25,14 @@ function preg_match(pattern: RegExp|string, input: string): Record<string, strin
     return match !== null ? (match.groups ?? match) : null;
 }
 
-type UseCommands = (command: Ref<string>, terminalHistory: Ref<string[]>) => UseCommandReturn;
+type UseCommands = (
+    command: Ref<string>,
+    terminalHistory: Ref<string[]>,
+    location: [
+        location: ComputedRef<string>,
+        setLocation: Setter<string>
+    ]
+) => UseCommandReturn;
 
 const getSelectedCommandResult = (cmd: string) => {
     let regex: RegExp|null = null;
@@ -60,11 +68,15 @@ const getSelectedCommandResult = (cmd: string) => {
 const migrateToArray = <T extends string|number|boolean|void>(p: T[]|T): string[] =>
     p ? (typeof p === 'object' ? p : [p]) : [] as any[]
 
-export const useCommands: UseCommands = (command, terminalHistory) => {
+export const useCommands: UseCommands = (
+    command,
+    terminalHistory,
+    [location, setLocation]
+) => {
     const proposedCommand = ref<string|string[]>('');
     const result = ref<string[]>([]);
 
-    const lineHeader = useTerminalLineHeader();
+    const lineHeader = useTerminalLineHeader(location);
 
     const setResult = createSetter(result);
     const setCommand = createSetter(command);
@@ -127,14 +139,17 @@ export const useCommands: UseCommands = (command, terminalHistory) => {
                 const setters = {
                     result: setResult,
                     command: setCommand,
-                    terminalHistory: setTerminalHistory
+                    terminalHistory: setTerminalHistory,
+                    location: setLocation
                 };
-                const r = migrateToArray(execute((groups ?? {}), isAdmin, setters));
+                const oldLineHeader = lineHeader.value;
+                const r = migrateToArray(execute((groups ?? {}), isAdmin, location, setters));
 
                 if (r.length) {
                     setResult(r);
-                    setTerminalHistory(h => [...h, lineHeader.value + cmd, ...r]);
+                    setTerminalHistory(h => [...h, oldLineHeader + cmd, ...r]);
                 }
+                setCommand('');
             }
             else {
                 setResult([`command '${cmd}' not found`]);

@@ -40,7 +40,11 @@ export type Finder = {
         add(root: string, dirName: string): void,
         createFile(path: string, { name, type, extension }: Pick<Item, 'name' | 'type' | 'extension'>): void,
         remove(id: number): void
-    }
+    },
+
+    getChildrenItems(): (root: string, dirName: string) => Item[];
+
+    isPathExists(path: string): boolean;
 }
 
 type WritableRef<T> = Ref<T> | WritableComputedRef<T>
@@ -93,24 +97,25 @@ export function createBreadcrumbInitializer(
     }
 }
 
-export const getChildren = (tree: WritableRef<Item[]>) => (root: string, dirName: string): Item[] => {
-    return tree.value.reduce<Item[]>((r, c) => {
-        return c.parent === `${root}/${dirName}`
-            .replace('//', '/')
-                ? [
-                    ...r,
-                    {
-                        ...c,
-                        icon: c.type === 'directory'
-                            ? iconDirectory : iconUnknownFile,
-                        children: getChildren(tree)(
-                            `${root}/${dirName}`,
-                            c.name
-                        )
-                    }
-                ] : r
-    }, []);
-};
+export const getChildren = (tree: WritableRef<Item[]>) =>
+    (root: string, dirName: string): Item[] => {
+        return tree.value.reduce<Item[]>((r, c) => {
+            return c.parent === `${root}/${dirName}`
+                .replace('//', '/')
+                    ? [
+                        ...r,
+                        {
+                            ...c,
+                            icon: c.type === 'directory'
+                                ? iconDirectory : iconUnknownFile,
+                            children: getChildren(tree)(
+                                `${root}/${dirName}`,
+                                c.name
+                            )
+                        }
+                    ] : r
+        }, []);
+    };
 
 export const getComputedShowedItems = (
     showedItems: Ref<Item[]> | WritableComputedRef<Item[]>,
