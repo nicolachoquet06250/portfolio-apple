@@ -1,20 +1,38 @@
-import type {TerminalCommandExecute} from '@/commands/types.ts';
+import type {TerminalCommandExecute, TerminalCommandFlag} from '@/commands/types';
 import finder, {realpath} from '@/hooks/finder';
 
-export const command = /^ls ?(?<dist>([a-zA-Z0-9_\-\/.]+|'[a-zA-Z0-9_\-\/. ]+')?)$/g
-export const adminCommand = /^sudo ls ?(?<dist>([a-zA-Z0-9_\-\/.]+|'[a-zA-Z0-9_\-\/. ]+')?)$/g;
+export const command = /^ls ?((?<flags>-[a-zA-Z0-9\-_=.\\\/' ]+) ?)?(?<dist>([a-zA-Z0-9_\-\/.]+|'[a-zA-Z0-9_\-\/. ]+')?)$/g
+export const adminCommand = /^sudo ls ?((?<flags>-[a-zA-Z0-9\-_=.\\\/ ]+) ?)?(?<dist>([a-zA-Z0-9_\-\/.]+|'[a-zA-Z0-9_\-\/. ]+')?)$/g;
+
+export const flags: TerminalCommandFlag[] = [
+    {
+        long: 'help',
+        short: 'h',
+        type: Boolean
+    }
+];
 
 type Props = {
     dist: string
 };
 
+type Flags = {
+    help: boolean,
+    test: string
+}
+
 const { getChildrenItems, isPathExists } = finder();
 
-export const execute: TerminalCommandExecute<Props> = (
+export const execute: TerminalCommandExecute<Props, Flags> = (
     {dist= ''},
     _isAdmin,
+    {help = false},
     location
 ) => {
+    if (help) {
+        return 'help ls'
+    }
+
     if (dist.startsWith('\'')) dist = dist.substring(1);
     if (dist.endsWith('\'')) dist = dist.substring(0, dist.length - 1);
 

@@ -2,7 +2,7 @@ import {computed, Ref, ref} from "vue";
 import * as $commands from "@/commands";
 import { commands as commandsPlugins } from '@/commands/plugins';
 import type {ComputedRef} from "vue";
-import type {TerminalCommand, TerminalCommandExecute} from "@/commands/types";
+import type {TerminalCommand, TerminalCommandExecute, TerminalCommandFlag} from "@/commands/types";
 import {createSetter} from '@/commands/types';
 import type {Setter} from '@/commands/types';
 import {useTerminalLineHeader} from '@/hooks/terminal/line-header.ts';
@@ -25,6 +25,27 @@ function preg_match(pattern: RegExp|string, input: string): Record<string, strin
     return match !== null ? (match.groups ?? match) : null;
 }
 
+function preg_match_all(pattern: RegExp|string, input: string): Record<string, string>[] {
+    if (typeof pattern === 'string') {
+        pattern = new RegExp(pattern);
+    }
+    let m;
+
+    const matches: Record<string, string>[] = [];
+
+    while ((m = pattern.exec(input)) !== null) {
+        // This is necessary to avoid infinite loops with zero-width matches
+        if (m.index === pattern.lastIndex) {
+            pattern.lastIndex++;
+        }
+
+        const groups = m.groups ?? {};
+        matches.push(groups as Record<string, string>);
+    }
+
+    return matches;
+}
+
 type UseCommands = (
     command: Ref<string>,
     terminalHistory: Ref<string[]>,
@@ -34,10 +55,74 @@ type UseCommands = (
     ]
 ) => UseCommandReturn;
 
+const getFlags = (flags: TerminalCommandFlag[], matched: string) =>
+    flags.map<TerminalCommandFlag>((flag) => {
+        let regex: RegExp;
+
+        if (flag.type.name === 'Boolean') {
+            regex = flag.short ?
+                new RegExp(`--(?<long>${flag.long})|-(?<short>${flag.short}) `, 'gm') :
+                new RegExp(`--(?<long>${flag.long}) `, 'gm');
+
+            const match = preg_match(regex, matched) as {flag: string, long?: string, short?: string, value: string}|null;
+            flag.value = match !== null;
+
+            if (match !== null) {
+                flag.detectedFormat = match.short ?? match.long;
+            }
+
+            return flag;
+        }
+        else if (flag.type.name === 'String') {
+            regex = flag.short ?
+                new RegExp(`(?<flag>-{2}(?<long>${flag.long})|-(?<short>${flag.short}))([= ])(?<value>([a-zA-Z0-9-_\/.]+|'[a-zA-Z0-9-_/. ]*'))`, 'gm') :
+                new RegExp(`(?<flag>-{2}(?<long>${flag.long}))([= ])(?<value>([a-zA-Z0-9-_\/.]+|'[a-zA-Z0-9-_\/. ]*'))`, 'gm');
+
+            const match = preg_match(regex, matched) as {flag: string, long?: string, short?: string, value: string}|null;
+            if (match !== null) {
+                flag.value = match.value.includes(' ') && match.value.startsWith('\'') && match.value.endsWith('\'') ? match.value.substring(1, match.value.length - 1) : match.value;
+                flag.detectedFormat = match.short ?? match.long;
+            }
+
+            return flag;
+        }
+        else if (flag.type.name === 'Number') {
+            regex = flag.short ?
+                new RegExp(`(?<flag>-{2}(?<long>${flag.long})|-(?<short>${flag.short}))([= ])(?<value>([0-9]+(\.[0-9]+)?)|([a-zA-Z0-9-_.]+|'[a-zA-Z0-9-_. ]*'))`, 'gm') :
+                new RegExp(`(?<flag>-{2}(?<long>${flag.long}))([= ])(?<value>([0-9]+(\.[0-9]+)?)|([a-zA-Z0-9-_.]+|'[a-zA-Z0-9-_. ]*'))`, 'gm');
+
+            const match = preg_match(regex, matched) as {flag: string, long?: string, short?: string, value: string}|null;
+            if (match !== null) {
+                flag.value = preg_match(/^[0-9]+.?[0-9]*$/g, match.value) !== null && !match.value.startsWith('0') ?
+                    (match.value.includes('.') ?
+                            parseFloat(match.value) :
+                            parseInt(match.value)
+                    ) : match.value;
+            }
+
+            return flag;
+        }
+
+        regex = flag.short ?
+            new RegExp(`(?<flag>-{2}(?<long>${flag.long})|-(?<short>${flag.short}))([= ])(?<value>([0-9]+(\.[0-9]+)?)|([a-zA-Z0-9-_\/.]+|'[a-zA-Z0-9-_/. ]*'))`, 'gm') :
+            new RegExp(`(?<flag>-{2}(?<long>${flag.long}))([= ])(?<value>([0-9]+(\.[0-9]+)?)|([a-zA-Z0-9-_\/.]+|'[a-zA-Z0-9-_/. ]*'))`, 'gm');
+
+        const matches = preg_match_all(regex, matched) as {flag: string, long?: string, short?: string, value: string}[]|null;
+        flag.value = matches?.reduce<(string|number)[]>((r, el) => {
+            if (preg_match(/^[0-9]+.?[0-9]*$/g, el.value) !== null && !el.value.startsWith('0')) {
+                return [...r, (el.value.includes('.') ? parseFloat(el.value) : parseInt(el.value))]
+            }
+            return [...r, el.value];
+        }, []);
+
+        return flag;
+    });
+
 const getSelectedCommandResult = (cmd: string) => {
     let regex: RegExp|null = null;
     let isAdmin = false;
     let matchExecute: TerminalCommandExecute|null = null;
+    let flags: TerminalCommandFlag[] = [];
 
     for (const c of [...commands, ...commandsPlugins.value]) {
         const isAdminCommand = c.adminCommand && preg_match(c.adminCommand, cmd) !== null;
@@ -47,19 +132,31 @@ const getSelectedCommandResult = (cmd: string) => {
             regex = c.adminCommand!;
             isAdmin = true;
             matchExecute = c.execute;
+            flags = c.flags ?? [];
             break;
         }
         else if (isNotAdminCommand) {
             regex = c.command;
             isAdmin = false;
             matchExecute = c.execute;
+            flags = c.flags ?? [];
             break;
         }
     }
 
     if (regex && matchExecute) {
         const groups = preg_match(regex, cmd);
-        return {regex, isAdmin, execute: matchExecute, groups: (typeof groups === 'object' ? groups : {})}
+        let _groups = typeof groups === 'object' ? groups : {};
+
+        if (_groups && Object.keys(_groups).includes('flags')) {
+            flags = getFlags(flags, (_groups as Record<string, string|null>)!.flags ?? '');
+        }
+
+        return {
+            regex, isAdmin,
+            execute: matchExecute,
+            flags, groups: _groups
+        }
     }
 
     return null;
@@ -134,7 +231,10 @@ export const useCommands: UseCommands = (
 
             if (selectedCommand) {
                 const {
-                    isAdmin, groups, execute
+                    isAdmin,
+                    groups,
+                    flags,
+                    execute
                 } = selectedCommand;
                 const setters = {
                     result: setResult,
@@ -143,7 +243,10 @@ export const useCommands: UseCommands = (
                     location: setLocation
                 };
                 const oldLineHeader = lineHeader.value;
-                const r = migrateToArray(execute((groups ?? {}), isAdmin, location, setters));
+                const r = migrateToArray(execute((groups ?? {}), isAdmin, flags.reduce<{[K: string]: string|boolean|number|any[]}>((r, c) => ({
+                    ...r,
+                    [c.long]: c.value!
+                }), {}), location, setters));
 
                 if (r.length) {
                     setResult(r);

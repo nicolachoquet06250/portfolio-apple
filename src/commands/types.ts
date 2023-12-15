@@ -12,17 +12,32 @@ export const createSetter: SetterCreator = (obj) =>
 export type TerminalCommandExecute<
     G extends Record<string, string|null>|RegExpMatchArray =
             Record<string, string|null>|RegExpMatchArray,
+    F extends {
+        [K: string]: string|boolean|number|any[]
+    } = {
+        [K: string]: string|boolean|number|any[]
+    },
     S extends Record<string, Setter<any>> = Record<string, Setter<any>>
 > = (
     groups: G,
     isAdmin: boolean,
+    flags: F,
     location: ComputedRef<string>,
     setters: S
 ) => string|string[]|void;
+
+export type TerminalCommandFlag = {
+    long: string,
+    short?: string,
+    type: BooleanConstructor|StringConstructor|NumberConstructor|ArrayConstructor,
+    value?: any,
+    detectedFormat?: string
+}
 
 export type TerminalCommand = {
     command: RegExp;
     adminCommand?: RegExp;
     name?: string;
+    flags?: TerminalCommandFlag[];
     execute: TerminalCommandExecute;
 }
