@@ -27,17 +27,22 @@ export type TerminalCommandExecute<
 ) => string|string[]|void;
 
 export type TerminalCommandFlag = {
-    long: string,
+    long?: string,
     short?: string,
     type: BooleanConstructor|StringConstructor|NumberConstructor|ArrayConstructor,
     value?: any,
-    detectedFormat?: string
+    detectedFormat?: string,
+    description?: string,
 }
 
 export type TerminalCommand = {
     command: RegExp;
     adminCommand?: RegExp;
-    name?: string;
     flags?: TerminalCommandFlag[];
     execute: TerminalCommandExecute;
+
+    help?: () => string[];
+    name?: string;
+    description: string;
+    usage: string;
 }
