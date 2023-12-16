@@ -1,17 +1,17 @@
-import type {Setter, TerminalCommandExecute} from '@/commands/types';
+import type {Setter, TerminalCommand, TerminalCommandExecute} from '@/commands/types';
 import finder, {realpath} from '@/hooks/finder';
 
-export const command = /^cd (?<dist>([a-zA-Z0-9_\-\/.]+|'[a-zA-Z0-9_\-\/. ]+'))$/g;
-export const adminCommand = /^sudo cd (?<dist>([a-zA-Z0-9_\-\/.]+|'[a-zA-Z0-9_\-\/. ]+'))$/g;
+export const command: TerminalCommand['command'] =
+    /^cd (?<dist>([a-zA-Z0-9_\-\/.]+|'[a-zA-Z0-9_\-\/. ]+'))$/g;
+export const adminCommand: TerminalCommand['adminCommand'] =
+    /^sudo cd (?<dist>([a-zA-Z0-9_\-\/.]+|'[a-zA-Z0-9_\-\/. ]+'))$/g;
 
 type Props = {
     dist: string
 }
-
 type Setters = {
     location: Setter<string>
 }
-
 type Flags = {};
 
 const { isPathExists } = finder();

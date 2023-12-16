@@ -60,6 +60,7 @@ export const useTerminal: UseTerminal = (active) => {
         if (active.value) {
             e.preventDefault();
             execute(addCommandToHistory);
+            setHistoryIndex(-1);
         }
     });
 
@@ -94,7 +95,6 @@ export const useTerminal: UseTerminal = (active) => {
                 .filter(i => i).length > 0;
             if (!isIncluded) {
                 tmpCommand.value = null;
-                setHistoryIndex(-1);
                 command.value += e.key;
             }
         }

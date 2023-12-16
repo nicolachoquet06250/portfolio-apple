@@ -1,15 +1,48 @@
-import type {TerminalCommandExecute, TerminalCommandFlag} from '@/commands/types';
+import type {TerminalCommand, TerminalCommandExecute} from '@/commands/types';
 import finder, {realpath} from '@/hooks/finder';
+import {generateHelp} from '@/hooks/terminal/commands.ts';
 
-export const command = /^ls ?((?<flags>-[a-zA-Z0-9\-_=.\\\/' ]+) ?)?(?<dist>([a-zA-Z0-9_\-\/.]+|'[a-zA-Z0-9_\-\/. ]+')?)$/g
-export const adminCommand = /^sudo ls ?((?<flags>-[a-zA-Z0-9\-_=.\\\/ ]+) ?)?(?<dist>([a-zA-Z0-9_\-\/.]+|'[a-zA-Z0-9_\-\/. ]+')?)$/g;
+export const command: TerminalCommand['command'] =
+    /^ls ?((?<flags>-[a-zA-Z0-9\-_=.\\\/' ]+) ?)?(?<dist>([a-zA-Z0-9_\-\/.]+|'[a-zA-Z0-9_\-\/. ]+')?)$/g
+export const adminCommand: TerminalCommand['adminCommand'] =
+    /^sudo ls ?((?<flags>-[a-zA-Z0-9\-_=.\\\/ ]+) ?)?(?<dist>([a-zA-Z0-9_\-\/.]+|'[a-zA-Z0-9_\-\/. ]+')?)$/g;
 
-export const flags: TerminalCommandFlag[] = [
+export const description: TerminalCommand['description'] =
+    `Afficher des renseignements sur les FICHIERs (du répertoire actuel par défaut).
+Trier les entrées alphabétiquement si aucune des options -cftuvSUX ou --sort
+ne sont utilisées.`
+export const usage: TerminalCommand['usage'] = 'ls [OPTION]... [FICHIER]...';
+export const flags: TerminalCommand['flags'] = [
     {
-        long: 'help',
-        short: 'h',
-        type: Boolean
-    }
+        long: 'all',
+        short: 'a',
+        type: Boolean,
+        description: 'ne pas ignorer les entrés débutant par .'
+    },
+    {
+        long: 'almost-all',
+        short: 'A',
+        type: Boolean,
+        description: 'ne pas inclure . ou .. dans la liste'
+    },
+    {
+        long: 'author',
+        short: 'l',
+        type: Boolean,
+        description: 'affiche l\'auteur de chaque fichier'
+    },
+    {
+        long: 'ignore-backup',
+        short: 'B',
+        type: Boolean,
+        description: 'ne pas inclure les entrées se terminant par ~ dans la liste'
+    },
+    {
+        long: 'reverse',
+        short: 'r',
+        type: Boolean,
+        description: 'inverse l\'ordre de tri'
+    },
 ];
 
 type Props = {
@@ -18,8 +51,14 @@ type Props = {
 
 type Flags = {
     help: boolean,
-    test: string
+    all: boolean,
+    'almost-all': boolean,
+    author: boolean,
+    'ignore-backup': boolean,
+    reverse: boolean,
 }
+
+export const help: TerminalCommand['help'] = () => generateHelp(usage, flags, description)
 
 const { getChildrenItems, isPathExists } = finder();
 

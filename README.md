@@ -109,6 +109,8 @@ exporter :
 - Une constante `name` de type `string` pour définir le nom de la commande si il contient des tirets (`Optionel`).
 - Une constante `command` de type `RegExp` (`Requis`)
 - Une constante `adminCommand` de type `RegExp` (`Optionel`)
+- Une constante `description` de type `string` utilisé pour générer le help (`Optionel`)
+- Une constante `usage` de type `string` utilisé pour générer le help (`Optionel`)
 - Une constante `flags` de type `TerminalCommandFlag[]` (`Optionel` => dans le cas où votre commande gère des flags)
 ```typescript
 type TerminalCommandFlag = {
@@ -119,6 +121,7 @@ type TerminalCommandFlag = {
     detectedFormat?: string
 }
 ```
+- Une constante `help` de type `() => string[]` qui retourne la partie help de la commande (`Optionel`)
 - Une fonction / constante `execute` de type `TerminalCommandExecute<Props, Flags, Setters>` avec les types `Props`, `Flags` et `Setters` que vous pouvez définir pour préciser votre autocompletion, sinon ne précisez rien. (`Requis`)
 ```typescript
 type TerminalCommandExecute<

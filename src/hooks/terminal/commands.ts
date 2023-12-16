@@ -1,6 +1,6 @@
 import {computed, Ref, ref} from "vue";
 import * as $commands from "@/commands";
-import { commands as commandsPlugins } from '@/commands/plugins';
+import {commands as commandsPlugins} from '@/commands/plugins';
 import type {ComputedRef} from "vue";
 import type {TerminalCommand, TerminalCommandExecute, TerminalCommandFlag} from "@/commands/types";
 import {createSetter} from '@/commands/types';
@@ -61,8 +61,8 @@ const getFlags = (flags: TerminalCommandFlag[], matched: string) =>
 
         if (flag.type.name === 'Boolean') {
             regex = flag.short ?
-                new RegExp(`--(?<long>${flag.long})|-(?<short>${flag.short}) `, 'gm') :
-                new RegExp(`--(?<long>${flag.long}) `, 'gm');
+                new RegExp(`--(?<long>${flag.long}) ?|-(?<short>${flag.short}) ?`, 'gm') :
+                new RegExp(`--(?<long>${flag.long}) ?`, 'gm');
 
             const match = preg_match(regex, matched) as {flag: string, long?: string, short?: string, value: string}|null;
             flag.value = match !== null;
@@ -75,8 +75,8 @@ const getFlags = (flags: TerminalCommandFlag[], matched: string) =>
         }
         else if (flag.type.name === 'String') {
             regex = flag.short ?
-                new RegExp(`(?<flag>-{2}(?<long>${flag.long})|-(?<short>${flag.short}))([= ])(?<value>([a-zA-Z0-9-_\/.]+|'[a-zA-Z0-9-_/. ]*'))`, 'gm') :
-                new RegExp(`(?<flag>-{2}(?<long>${flag.long}))([= ])(?<value>([a-zA-Z0-9-_\/.]+|'[a-zA-Z0-9-_\/. ]*'))`, 'gm');
+                new RegExp(`(?<flag>-{2}(?<long>${flag.long})|-(?<short>${flag.short}))([= ])(?<value>([a-zA-Z0-9-_\/.]+|'[a-zA-Z0-9-_/. ]*')) ?`, 'gm') :
+                new RegExp(`(?<flag>-{2}(?<long>${flag.long}))([= ])(?<value>([a-zA-Z0-9-_\/.]+|'[a-zA-Z0-9-_\/. ]*')) ?`, 'gm');
 
             const match = preg_match(regex, matched) as {flag: string, long?: string, short?: string, value: string}|null;
             if (match !== null) {
@@ -88,8 +88,8 @@ const getFlags = (flags: TerminalCommandFlag[], matched: string) =>
         }
         else if (flag.type.name === 'Number') {
             regex = flag.short ?
-                new RegExp(`(?<flag>-{2}(?<long>${flag.long})|-(?<short>${flag.short}))([= ])(?<value>([0-9]+(\.[0-9]+)?)|([a-zA-Z0-9-_.]+|'[a-zA-Z0-9-_. ]*'))`, 'gm') :
-                new RegExp(`(?<flag>-{2}(?<long>${flag.long}))([= ])(?<value>([0-9]+(\.[0-9]+)?)|([a-zA-Z0-9-_.]+|'[a-zA-Z0-9-_. ]*'))`, 'gm');
+                new RegExp(`(?<flag>-{2}(?<long>${flag.long})|-(?<short>${flag.short}))([= ])(?<value>([0-9]+(\.[0-9]+)?)|([a-zA-Z0-9-_.]+|'[a-zA-Z0-9-_. ]*')) ?`, 'gm') :
+                new RegExp(`(?<flag>-{2}(?<long>${flag.long}))([= ])(?<value>([0-9]+(\.[0-9]+)?)|([a-zA-Z0-9-_.]+|'[a-zA-Z0-9-_. ]*')) ?`, 'gm');
 
             const match = preg_match(regex, matched) as {flag: string, long?: string, short?: string, value: string}|null;
             if (match !== null) {
@@ -104,8 +104,8 @@ const getFlags = (flags: TerminalCommandFlag[], matched: string) =>
         }
 
         regex = flag.short ?
-            new RegExp(`(?<flag>-{2}(?<long>${flag.long})|-(?<short>${flag.short}))([= ])(?<value>([0-9]+(\.[0-9]+)?)|([a-zA-Z0-9-_\/.]+|'[a-zA-Z0-9-_/. ]*'))`, 'gm') :
-            new RegExp(`(?<flag>-{2}(?<long>${flag.long}))([= ])(?<value>([0-9]+(\.[0-9]+)?)|([a-zA-Z0-9-_\/.]+|'[a-zA-Z0-9-_/. ]*'))`, 'gm');
+            new RegExp(`(?<flag>-{2}(?<long>${flag.long})|-(?<short>${flag.short}))([= ])(?<value>([0-9]+(\.[0-9]+)?)|([a-zA-Z0-9-_\/.]+|'[a-zA-Z0-9-_/. ]*')) ?`, 'gm') :
+            new RegExp(`(?<flag>-{2}(?<long>${flag.long}))([= ])(?<value>([0-9]+(\.[0-9]+)?)|([a-zA-Z0-9-_\/.]+|'[a-zA-Z0-9-_/. ]*')) ?`, 'gm');
 
         const matches = preg_match_all(regex, matched) as {flag: string, long?: string, short?: string, value: string}[]|null;
         flag.value = matches?.reduce<(string|number)[]>((r, el) => {
@@ -123,7 +123,9 @@ const getSelectedCommandResult = (cmd: string) => {
     let isAdmin = false;
     let matchExecute: TerminalCommandExecute|null = null;
     let flags: TerminalCommandFlag[] = [];
+    let help: (() => string[])|null = null;
 
+    // match de la commande
     for (const c of [...commands, ...commandsPlugins.value]) {
         const isAdminCommand = c.adminCommand && preg_match(c.adminCommand, cmd) !== null;
         const isNotAdminCommand = preg_match(c.command, cmd) !== null;
@@ -132,14 +134,36 @@ const getSelectedCommandResult = (cmd: string) => {
             regex = c.adminCommand!;
             isAdmin = true;
             matchExecute = c.execute;
-            flags = c.flags ?? [];
+            // gestion implicite du flag 'help'
+            flags = [
+                {
+                    long: 'help',
+                    short: 'h',
+                    type: Boolean,
+                },
+                ...(c.flags ?? [])
+            ];
+            if (c.help) {
+                help = c.help;
+            }
             break;
         }
         else if (isNotAdminCommand) {
             regex = c.command;
             isAdmin = false;
             matchExecute = c.execute;
-            flags = c.flags ?? [];
+            // gestion implicite du flag 'help'
+            flags = [
+                {
+                    long: 'help',
+                    short: 'h',
+                    type: Boolean,
+                },
+                ...(c.flags ?? [])
+            ];
+            if (c.help) {
+                help = c.help;
+            }
             break;
         }
     }
@@ -148,6 +172,7 @@ const getSelectedCommandResult = (cmd: string) => {
         const groups = preg_match(regex, cmd);
         let _groups = typeof groups === 'object' ? groups : {};
 
+        // match des flags de la commande
         if (_groups && Object.keys(_groups).includes('flags')) {
             flags = getFlags(flags, (_groups as Record<string, string|null>)!.flags ?? '');
         }
@@ -155,7 +180,8 @@ const getSelectedCommandResult = (cmd: string) => {
         return {
             regex, isAdmin,
             execute: matchExecute,
-            flags, groups: _groups
+            flags, groups: _groups,
+            help
         }
     }
 
@@ -190,10 +216,7 @@ export const useCommands: UseCommands = (
             const items: TerminalCommand[] = [];
             for (const [name, cmd] of Object.entries($commands) as [name: string, cmd: TerminalCommand][]) {
                 if ((cmd.name && cmd.name.startsWith(command)) || name.startsWith(command)) {
-                    items.push({
-                        ...cmd,
-                        name: (cmd.name ?? name)
-                    });
+                    items.push({...cmd, name: (cmd.name ?? name)});
                 }
             }
 
@@ -213,7 +236,8 @@ export const useCommands: UseCommands = (
                 clearTimeout(timeout);
 
                 lastTabPressTime = 0;
-            } else {
+            }
+            else {
                 // simple tab
                 lastTabPressTime = currentTime;
 
@@ -234,7 +258,8 @@ export const useCommands: UseCommands = (
                     isAdmin,
                     groups,
                     flags,
-                    execute
+                    execute,
+                    help
                 } = selectedCommand;
                 const setters = {
                     result: setResult,
@@ -243,10 +268,29 @@ export const useCommands: UseCommands = (
                     location: setLocation
                 };
                 const oldLineHeader = lineHeader.value;
-                const r = migrateToArray(execute((groups ?? {}), isAdmin, flags.reduce<{[K: string]: string|boolean|number|any[]}>((r, c) => ({
-                    ...r,
-                    [c.long]: c.value!
-                }), {}), location, setters));
+
+                const f = flags.reduce<{[K: string]: string|boolean|number|any[]}>(
+                    (r, c) => ({
+                        ...r,
+                        [c.long ?? c.short!]: c.value!
+                    }), {}
+                );
+
+                let r: string[];
+                if (f.help && help) {
+                    r = migrateToArray<string>(help());
+                }
+                else {
+                    r = migrateToArray(
+                        execute(
+                            (groups ?? {}),
+                            isAdmin,
+                            f,
+                            location,
+                            setters
+                        )
+                    );
+                }
 
                 if (r.length) {
                     setResult(r);
@@ -287,3 +331,32 @@ export const useCommandHistory: UseCommandHistory = () => {
         computed(() => history.value[currentHistoryIndex.value] ?? null)
     ];
 };
+
+export const generateHelp = (
+    usage: string,
+    flags: TerminalCommandFlag[],
+    description?: string,
+) => [
+    `Usage: ${usage}`,
+    ...(description ? [description] : []),
+    'Options:',
+    ...flags
+        .filter(flag => flag.long !== 'help')
+        .map(flag => {
+            let str = '';
+
+            if (flag.short) {
+                str += '-' + flag.short + '&nbsp;';
+            }
+
+            if (flag.short && flag.long) {
+                str += ', ';
+            }
+
+            if (flag.long) {
+                str += '--' + flag.long + '&nbsp;';
+            }
+
+            return str + flag.description;
+        })
+];
