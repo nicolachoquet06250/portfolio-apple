@@ -159,8 +159,14 @@ export const useAppActions = (
      * Reactives variables
      */
     
-    const currentSize = reactive({ width: openedApplications[code]!.size!.width, height: openedApplications[code]!.size!.height });
-    const currentPosition = reactive({ x: openedApplications[code]!.position!.x, y: openedApplications[code]!.position!.y });
+    const currentSize = reactive({
+        width: openedApplications[code]!.size?.width ?? 0,
+        height: openedApplications[code]!.size?.height ?? 0
+    });
+    const currentPosition = reactive({
+        x: openedApplications[code]!.position?.x ?? 0,
+        y: openedApplications[code]!.position?.y ?? 0
+    });
     const mousePressed = reactive({
         move: false,
         resize: false,
@@ -350,17 +356,17 @@ export const useAppActions = (
         }
     });
 
-    watch([() => openedApplications[code]!.size!.width, () => openedApplications[code]!.size!.height], () => {
+    watch([() => openedApplications[code]!.size?.width, () => openedApplications[code]!.size?.height], ([width, height]) => {
         resize({
-            width: openedApplications[code]!.size!.width,
-            height: openedApplications[code]!.size!.height
+            width: width ?? 0,
+            height: height ?? 0
         });
     });
 
-    watch([() => openedApplications[code]?.position!.x, () => openedApplications[code]?.position!.y], () => {
+    watch([() => openedApplications[code]?.position?.x, () => openedApplications[code]?.position?.y], ([x, y]) => {
         move({
-            x: openedApplications[code]?.position!.x ?? 0,
-            y: openedApplications[code]?.position!.y ?? 0
+            x: x ?? 0,
+            y: y ?? 0
         });
     });
 
@@ -444,7 +450,7 @@ export const useOpenedApplications = () => ({
             openedApplications[application] = {
                 state: APPLICATION_STATE.OPENED,
                 full_screen: false,
-                name: application.substring(0, 1).toUpperCase() + application.substring(1, application.length - 1),
+                name: application.substring(0, 1).toUpperCase() + application.substring(1, application.length),
                 // component: APPLICATION_COMPONENT[application]?.body,
                 // componentHeader: APPLICATION_COMPONENT[application]?.header ?? null,
                 // componentMenu: APPLICATION_COMPONENT[application]?.menu ?? null,
