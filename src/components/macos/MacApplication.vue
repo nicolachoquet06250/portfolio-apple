@@ -4,7 +4,19 @@
              :class="appClasses"
              ref="application"
              @click="handleApplicationClick"
-             :style="{'min-width': '777px'}"
+             :style="{
+               'min-width': '777px',
+               '--dockHeight': dockHeight,
+               '--desktopTopBarHeight': desktopTopBarHeight,
+               '--zIndex': zIndex,
+               '--applicationWidth': applicationWidth,
+               '--applicationHeight': applicationHeight,
+               '--applicationCurrentPositionXUnit': applicationCurrentPositionXUnit,
+               '--applicationCurrentPositionYUnit': applicationCurrentPositionYUnit,
+               '--positionBeforeCloseXUnit': positionBeforeCloseXUnit,
+               '--positionBeforeCloseYUnit': positionBeforeCloseYUnit,
+               '--windowWidthForCss': windowWidthForCss,
+             }"
         >
             <div class="left-bloc" v-if="hasMenu">
                 <div class="btn-container">
@@ -223,7 +235,7 @@ const closeApplication = () => {
     -ms-user-select: none; /* Internet explorer depuis la version 10 et Edge */
     user-select: none; /* Propriété standard */
 
-    max-height: calc(100vh - v-bind(dockHeight) - v-bind(desktopTopBarHeight) - 5px);
+    max-height: calc(100vh - var(--dockHeight) - var(--desktopTopBarHeight) - 5px);
     max-width: 100%;
     min-width: 777px;
     position: absolute;
@@ -232,12 +244,12 @@ const closeApplication = () => {
     right: auto;
     bottom: auto;
     margin-top: 0;
-    z-index: v-bind(zIndex);
+    z-index: var(--zIndex);
     display: flex;
     flex-direction: row;
     box-shadow: 2px 20px 36px -5px rgba(0,0,0,0.59);
-    width: v-bind(applicationWidth);
-    height: v-bind(applicationHeight);
+    width: var(--applicationWidth);
+    height: var(--applicationHeight);
     border-radius: 10px;
 
     &.dark {
@@ -309,7 +321,7 @@ const closeApplication = () => {
     }
 
     &.movable {
-        transform: translateX(v-bind(applicationCurrentPositionXUnit)) translateY(v-bind(applicationCurrentPositionYUnit));
+        transform: translateX(var(--applicationCurrentPositionXUnit)) translateY(var(--applicationCurrentPositionYUnit));
     }
 
     &.full-screen {
@@ -498,37 +510,45 @@ const closeApplication = () => {
         cursor: n-resize;
     }
 
-    transform: translateX(v-bind(applicationCurrentPositionXUnit)) translateY(v-bind(applicationCurrentPositionYUnit));
+    transform: translateX(var(--applicationCurrentPositionXUnit)) translateY(var(--applicationCurrentPositionYUnit));
 
     &.close {
-        transform: translateX(v-bind(positionBeforeCloseXUnit)) translateY(v-bind(positionBeforeCloseYUnit));
+        transform: translateX(var(--positionBeforeCloseXUnit)) translateY(var(--positionBeforeCloseYUnit));
         animation: closeApp .2s ease-in-out both;
     }
 }
 
 @keyframes openApp {
     0% {
-        transform: translateX(calc((v-bind(windowWidthForCss) / 2) - (v-bind(applicationWidth) / 2))) translateY(600px);
+        $windowWidthForCss: var(--windowWidthForCss);
+        $applicationWidth: var(--applicationWidth);
+        transform: translateX(calc((#{$windowWidthForCss} / 2) - (#{$applicationWidth} / 2))) translateY(600px);
         -webkit-clip-path: polygon(51% 98%, 54% 98%, 52% 100%, 53% 100%);
         clip-path: polygon(51% 98%, 54% 98%, 52% 100%, 53% 100%);
     }
     25% {
-        transform: translateX(calc((v-bind(windowWidthForCss) / 2) - (v-bind(applicationWidth) / 2))) translateY(calc((600px / 4) * 3));
+        $windowWidthForCss: var(--windowWidthForCss);
+        $applicationWidth: var(--applicationWidth);
+        transform: translateX(calc((#{$windowWidthForCss} / 2) - (#{$applicationWidth} / 2))) translateY(calc((600px / 4) * 3));
         -webkit-clip-path: polygon(34% 58%, 70% 58%, 52% 100%, 52% 100%);
         clip-path: polygon(34% 58%, 70% 58%, 52% 100%, 52% 100%);
     }
     50% {
-        transform: translateX(calc((v-bind(windowWidthForCss) / 2) - (v-bind(applicationWidth) / 2))) translateY(calc((600px / 4) * 2));
+        $windowWidthForCss: var(--windowWidthForCss);
+        $applicationWidth: var(--applicationWidth);
+        transform: translateX(calc((#{$windowWidthForCss} / 2) - (#{$applicationWidth} / 2))) translateY(calc((600px / 4) * 2));
         -webkit-clip-path: polygon(23% 39%, 82% 39%, 52% 100%, 52% 100%);
         clip-path: polygon(23% 39%, 82% 39%, 52% 100%, 52% 100%);
     }
     75% {
-        transform: translateX(calc((v-bind(windowWidthForCss) / 2) - (v-bind(applicationWidth) / 2))) translateY(calc(600px / 4));
+        $windowWidthForCss: var(--windowWidthForCss);
+        $applicationWidth: var(--applicationWidth);
+        transform: translateX(calc((#{$windowWidthForCss} / 2) - (#{$applicationWidth} / 2))) translateY(calc(600px / 4));
         -webkit-clip-path: polygon(0 0, 100% 0, 52% 100%, 52% 100%);
         clip-path: polygon(0 0, 100% 0, 52% 100%, 52% 100%);
     }
     100% {
-        transform: translateX(v-bind(applicationCurrentPositionXUnit)) translateY(v-bind(applicationCurrentPositionYUnit));
+        transform: translateX(var(--applicationCurrentPositionXUnit)) translateY(var(--applicationCurrentPositionYUnit));
         -webkit-clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
         clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
     }
@@ -536,19 +556,19 @@ const closeApplication = () => {
 
 @keyframes closeApp {
     0% {
-        transform: translateX(v-bind(positionBeforeCloseXUnit)) translateY(v-bind(positionBeforeCloseYUnit)) scale(1, 1);
+        transform: translateX(var(--positionBeforeCloseXUnit)) translateY(var(--positionBeforeCloseYUnit)) scale(1, 1);
     }
     25% {
-        transform: translateX(v-bind(positionBeforeCloseXUnit)) translateY(v-bind(positionBeforeCloseYUnit)) scale(0.75, 0.75);
+        transform: translateX(var(--positionBeforeCloseXUnit)) translateY(var(--positionBeforeCloseYUnit)) scale(0.75, 0.75);
     }
     50% {
-        transform: translateX(v-bind(positionBeforeCloseXUnit)) translateY(v-bind(positionBeforeCloseYUnit)) scale(0.5, 0.5);
+        transform: translateX(var(--positionBeforeCloseXUnit)) translateY(var(--positionBeforeCloseYUnit)) scale(0.5, 0.5);
     }
     75% {
-        transform: translateX(v-bind(positionBeforeCloseXUnit)) translateY(v-bind(positionBeforeCloseYUnit)) scale(0.25, 0.25);
+        transform: translateX(var(--positionBeforeCloseXUnit)) translateY(var(--positionBeforeCloseYUnit)) scale(0.25, 0.25);
     }
     100% {
-        transform: translateX(v-bind(positionBeforeCloseXUnit)) translateY(v-bind(positionBeforeCloseYUnit)) scale(0, 0);
+        transform: translateX(var(--positionBeforeCloseXUnit)) translateY(var(--positionBeforeCloseYUnit)) scale(0, 0);
     }
 }
 
