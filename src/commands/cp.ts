@@ -26,7 +26,7 @@ export const flags: TerminalCommand['flags'] = [
 
 export const help: TerminalCommand['help'] = () => generateHelp(usage, flags, description);
 
-const {isPathExists, useTreeActions} = finder()
+const {isPathExists, useTreeActions} = finder();
 
 type Props = {
     files: string,
@@ -35,9 +35,8 @@ type Props = {
 type Flags = {
     recursive: boolean
 }
-type Setters = {}
 
-export const execute: TerminalCommandExecute<Props, Flags, Setters> = (
+export const execute: TerminalCommandExecute<Props, Flags> = (
     { files, dist }, _, {recursive}
 ) => {
     const { tree, createFile, add } = useTreeActions()

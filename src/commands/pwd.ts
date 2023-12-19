@@ -30,9 +30,8 @@ type Flags = {
     L: boolean,
     P: boolean
 };
-type Setters = {};
 
-export const execute: TerminalCommandExecute<Props, Flags, Setters> = (
+export const execute: TerminalCommandExecute<Props, Flags> = (
     _groups, _isAdmin, { L: _L = false, P: _P = false },
-    _location, _setters
+    _location
 ) => _location.value;
