@@ -1,4 +1,4 @@
-import {TerminalCommand, TerminalCommandExecute} from '@/commands/types';
+import type {TerminalCommand, TerminalCommandExecute} from '@/commands/types';
 import {generateHelp} from '@/hooks/terminal/commands';
 import * as $commands from '@/commands';
 

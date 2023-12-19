@@ -1,5 +1,5 @@
 import {ref} from 'vue';
-import {TerminalCommand} from '@/commands/types';
+import type {TerminalCommand} from '@/commands/types';
 
 export const commands = ref<TerminalCommand[]>([]);
 
