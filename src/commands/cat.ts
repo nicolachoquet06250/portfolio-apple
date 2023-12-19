@@ -1,11 +1,11 @@
 import type {TerminalCommand, TerminalCommandExecute} from '@/commands/types.ts';
 import {generateHelp} from '@/hooks/terminal/commands.ts';
-import {isPathExists} from '@/hooks/finder/finder';
+import finder, {realpath} from '@/hooks/finder';
 
 export const command: TerminalCommand['command'] =
-    /^cat ?((?<flags>-[a-zA-Z0-9\-_=.\\\/' ]+) ?)?(?<file>([./a-zA-Z][a-zA-Z0-9-_/.]+)|'([./a-zA-Z][a-zA-Z0-9-_/. ]+)')?$/g;
+    /^cat ?((?<input_files>[a-zA-Z0-9-\/_.' ]+)?(?<operator> ?> ?))?((?<flags>-[a-zA-Z0-9\-_=.\\\/' ]+) ?)?(?<file>([.a-zA-Z][a-zA-Z0-9-_\/.]+)|'([.a-zA-Z][a-zA-Z0-9-_\/. ]+)')?$/g;
 export const adminCommand: TerminalCommand['adminCommand'] =
-    /^sudo cat ?((?<flags>-[a-zA-Z0-9\-_=.\\\/' ]+) ?)?(?<file>([./a-zA-Z][a-zA-Z0-9-_/.]+)|'([./a-zA-Z][a-zA-Z0-9-_/. ]+)')?$/g;
+    /^sudo cat ?((?<input_files>[a-zA-Z0-9-\/_.' ]+)?(?<operator> ?> ?))?((?<flags>-[a-zA-Z0-9\-_=.\\\/' ]+) ?)?(?<file>([.a-zA-Z][a-zA-Z0-9-_\/.]+)|'([.a-zA-Z][a-zA-Z0-9-_\/. ]+)')?$/g;
 
 export const usage: TerminalCommand['usage'] = 'cat [OPTION]... [FICHIER]...';
 export const description: TerminalCommand['description'] =
@@ -46,24 +46,132 @@ export const flags: TerminalCommand['flags'] = [
 export const help = () => generateHelp(usage, flags, description);
 
 type Props = {
-    file: string
+    file: string,
+    operator?: string,
+    input_files?: string
 };
 type Flags = {};
 type Setters = {};
 
-export const execute: TerminalCommandExecute<Props, Flags, Setters> = (
-    { file }, _isAdmin,
-    _flags, _location,
-    _setters
-) => {
+const {isPathExists, useTreeActions} = finder();
+
+export const execute: TerminalCommandExecute<Props, Flags, Setters> = ({
+    file,
+    input_files = '',
+    operator = ''
+}) => {
+    const {
+        tree,
+        createFile
+    } = useTreeActions();
+
     file.startsWith('\'') &&
     file.startsWith('\'') &&
     file.includes(' ') &&
     (file = file.substring(1, file.length - 1));
 
-    if (!isPathExists(file)) {
-        return `cat: ${file}: Aucun fichier ou dossier de ce type`
+    file = realpath(file);
+
+    if (operator) {
+        if (!input_files) {
+            // création d'un fichier vide
+
+            const path = file.split('/');
+            const completeFilename = path.pop()!;
+            const [filename, ...extension] = completeFilename.split('.');
+
+            createFile(path.join('/'), {
+                name: filename,
+                type: 'text',
+                extension: extension.join('.')
+            });
+
+            console.log(tree.value);
+
+            return ['']
+        }
+        else {
+            // création d'un fichier à partir de un ou plusieurs autres fichiers
+
+            const notEmptyFiles = input_files.split(' ')
+                .reduce<string[]>((r, file) => {
+                    if (
+                        file.endsWith('\'') ||
+                        ([...r].pop() ?? '').startsWith('\'')
+                    ) {
+                        const last = r.pop()!;
+                        return [...r, last + file];
+                    }
+                    return [...r, file];
+                }, [])
+                .filter(it => it !== '');
+            const filesExistingStatus = notEmptyFiles
+                .map(file => realpath(file))
+                .map<[boolean, string]>(file => [isPathExists(file), file]);
+            const notExistingFiles = filesExistingStatus
+                .filter(([isExists]) => !isExists);
+            const existingFiles = filesExistingStatus
+                .filter(([isExists]) => isExists)
+                .map(([,file]) => file);
+
+            if (notExistingFiles.length > 0) {
+                return notExistingFiles
+                    .map(([,file]) =>
+                        `cat: ${file}: Aucun fichier ou dossier de ce type`)
+            }
+
+            const content = existingFiles.map((file) => {
+                const path = file.split('/');
+                const completeFilename = path.pop()!;
+                const [filename, ...extension] = completeFilename.split('.');
+
+                return tree.value
+                    .filter(item => item.type !== 'directory')
+                    .filter(f =>
+                        f.parent === (path.join('/') === '' ? '/' : path.join('/')) &&
+                        f.name === filename &&
+                        f.extension === extension.join('.')
+                    ).pop()!
+            })
+            .map(file => file.content).join('');
+
+            const path = file.split('/');
+            const completeFilename = path.pop()!;
+            const [filename, ...extension] = completeFilename.split('.');
+
+            try {
+                createFile((path.join('/') === '' ? '/' : path.join('/')), {
+                    name: filename,
+                    type: 'text',
+                    extension: extension.join('.')
+                }, content);
+            } catch (err: any) {
+                return [`cat: ${err.message}`];
+            }
+
+            return ['']
+        }
     }
 
-    return file;
+    if (!isPathExists(file)) {
+        return `cat: ${file}: Aucun fichier ou dossier de ce type`;
+    }
+
+    const path = file.split('/');
+    const completeFilename = path.pop()!;
+    const [filename, ...extension] = completeFilename.split('.')
+
+    const selectedFile = tree.value
+        .filter(item => item.type !== 'directory')
+        .filter(f =>
+            f.parent === (path.join('/') === '' ? '/' : path.join('/')) &&
+            f.name === filename &&
+            f.extension === extension.join('.')
+        );
+
+    if (selectedFile.length === 0) {
+        return `cat: ${completeFilename}: est un dossier`;
+    }
+
+    return selectedFile.pop()!.content?.split("\n") ?? [''];
 }

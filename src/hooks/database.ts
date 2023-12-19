@@ -10,11 +10,6 @@ export const INDEX_PARAMS = {
     UNIQUE: { unique: true }
 };
 
-// export const TABLES = {
-//     ACCOUNT: 'account',
-//     SETTINGS: 'settings',
-//     TREE_STRUCTURE: 'tree_structure'
-// };
 export enum TABLES {
     ACCOUNT = 'account',
     SETTINGS = 'settings',

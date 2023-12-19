@@ -18,7 +18,7 @@ type ExcludedKey = string|RegExp;
 const excludedKeys: ExcludedKey[] = [
     'Shift', 'Control',
     'Backspace', 'Enter',
-    'Tab', 'Delete',
+    'Tab', 'Delete', 'Alt',
     'ArrowUp', 'ArrowDown',
     'ArrowLeft', 'ArrowRight',
     /^F[1-9][0-2]?$/

@@ -6,7 +6,8 @@ import {
     createItemSelector,
     createTabSelector, getChildren,
     getComputedShowedItems
-} from '@/hooks/finder/index.ts';
+} from '@/hooks/finder';
+import type {Finder} from '@/hooks/finder';
 
 const selectedTab = ref('');
 const tree = ref<Item[]>([]);
@@ -106,7 +107,7 @@ tree.value = [
         content: null,
         creation_date: 'Tue Jan 25 2022 12:20:03 GMT+0100 (heure normale d’Europe centrale) {}',
         extension: null,
-        id: 9,
+        id: 8,
         name: "prod",
         opened_date: 'Tue Jan 25 2022 12:20:03 GMT+0100 (heure normale d’Europe centrale) {}',
         parent: "/Desktop",
@@ -118,7 +119,7 @@ tree.value = [
         content: null,
         creation_date: 'Tue Jan 25 2022 12:20:03 GMT+0100 (heure normale d’Europe centrale) {}',
         extension: null,
-        id: 10,
+        id: 9,
         name: "portfolio-apple",
         opened_date: 'Tue Jan 25 2022 12:20:03 GMT+0100 (heure normale d’Europe centrale) {}',
         parent: "/Desktop/prod",
@@ -137,12 +138,24 @@ tree.value = [
         type: "directory",
         updated_date: 'Tue Jan 25 2022 12:20:03 GMT+0100 (heure normale d’Europe centrale) {}',
         user_id: 1
+    },
+    {
+        content: 'un text de test',
+        creation_date: 'Tue Jan 25 2022 12:20:03 GMT+0100 (heure normale d’Europe centrale) {}',
+        extension: 'txt',
+        id: 11,
+        name: "fichier-de-test",
+        opened_date: 'Tue Jan 25 2022 12:20:03 GMT+0100 (heure normale d’Europe centrale) {}',
+        parent: "/Desktop/prod",
+        type: "text",
+        updated_date: 'Tue Jan 25 2022 12:20:03 GMT+0100 (heure normale d’Europe centrale) {}',
+        user_id: 1
     }
 ];
 
-export const initBreadcrumb = createBreadcrumbInitializer(breadcrumb, selectedTab);
+export const initBreadcrumb: Finder['initBreadcrumb'] = createBreadcrumbInitializer(breadcrumb, selectedTab);
 
-export const useFinder = (maxPerLine: number) => ({
+export const useFinder: Finder['useFinder'] = (maxPerLine: number) => ({
     selectedTab: computed(() => selectedTab.value),
     showedItems: getComputedShowedItems(showedItems, maxPerLine),
     activatedItem: computed(() => activeItem.value),
@@ -168,7 +181,7 @@ export const useFinder = (maxPerLine: number) => ({
     }
 });
 
-export const useRootDirectory = () => ({
+export const useRootDirectory: Finder['useRootDirectory'] = () => ({
     root: computed(() => rootDir.value),
     subDirectory: computed(() => subDirectory.value),
 
@@ -181,14 +194,34 @@ export const useRootDirectory = () => ({
     }
 });
 
-export const useTreeActions = () => ({
+export const useTreeActions: Finder['useTreeActions'] = () => ({
     tree: computed(() => tree.value),
 
     get() {},
 
-    createFile() {},
+    createFile(path, { name, type, extension }, content) {
+        if (!isPathExists(path)) {
+            throw new Error(`${path}: Aucun fichier ou dossier de ce type`)
+        }
 
-    add(root: string, dirName: string) {
+        tree.value = [
+            ...tree.value,
+            {
+                id: ([...tree.value].pop()?.id ?? 0) + 1,
+                user_id: 1,
+                name,
+                type,
+                extension,
+                content: content ?? '',
+                parent: path,
+                creation_date: (new Date()).toString(),
+                updated_date: (new Date()).toString(),
+                opened_date: (new Date()).toString()
+            }
+        ]
+    },
+
+    add(root, dirName) {
         tree.value = [
             ...tree.value,
             {
@@ -206,7 +239,7 @@ export const useTreeActions = () => ({
         ];
     },
 
-    remove(id: number) {
+    remove(id) {
         tree.value = tree.value.reduce<Item[]>((r, c) => {
             if (c.id === id) {
                 return r;
@@ -216,9 +249,9 @@ export const useTreeActions = () => ({
     }
 });
 
-export const getChildrenItems = () => getChildren(tree);
+export const getChildrenItems: Finder['getChildrenItems'] = () => getChildren(tree);
 
-export const isPathExists = (path: string) => {
+export const isPathExists: Finder['isPathExists'] = (path: string) => {
     return tree.value.filter(item => {
         if (item.parent === path) {
             return true;
@@ -226,7 +259,13 @@ export const isPathExists = (path: string) => {
 
         const p = path.split('/');
         const dirname = p.pop()!;
-        return item.parent === p.join('/') && item.name === dirname;
+
+        return (item.parent === p.join('/') && item.name === dirname) || (dirname.includes('.') && (() => {
+            const splitDirname = dirname.split('.');
+            const extension = splitDirname.pop()!;
+
+            return item.name === splitDirname.join('.') && item.extension === extension
+        })());
     }).length > 0
 }
 

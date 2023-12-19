@@ -8,7 +8,8 @@ import {
     createItemSelector,
     createTabSelector, getChildren,
     getComputedShowedItems
-} from '@/hooks/finder/index.ts';
+} from '@/hooks/finder';
+import type { Finder } from '@/hooks/finder';
 
 const { user } = useAuthUser();
 const { 
@@ -25,9 +26,9 @@ const breadcrumb = ref<string[]>([]);
 const rootDir = ref('');
 const subDirectory = ref('');
 
-export const initBreadcrumb = createBreadcrumbInitializer(breadcrumb, selectedTab);
+export const initBreadcrumb: Finder['initBreadcrumb'] = createBreadcrumbInitializer(breadcrumb, selectedTab);
 
-export const useFinder = (maxPerLine: number) => {
+export const useFinder: Finder['useFinder'] = (maxPerLine: number) => {
     onTreeSuccess(({ context: { getAllValues } }: FinderEvent) => getAllValues()).connect();
 
     const selectItem = createItemSelector(breadcrumb, showedItems, activeItem);
@@ -58,7 +59,7 @@ export const useFinder = (maxPerLine: number) => {
     };
 };
 
-export const useRootDirectory = () => {
+export const useRootDirectory: Finder['useRootDirectory'] = () => {
     onTreeSuccess(({ context: { getAllValues } }: FinderEvent) => getAllValues()).connect();
 
     return {
@@ -86,15 +87,15 @@ export const useRootDirectory = () => {
     };
 };
 
-export const useTreeActions = () => {
+export const useTreeActions: Finder['useTreeActions'] = () => {
     return {
-        tree,
+        tree: computed(() => tree.value),
 
         get() {
             onTreeSuccess(({ context: { getAllValues } }: FinderEvent) => getAllValues()).connect();
         },
 
-        add(root: string, dirName: string) {
+        add(root, dirName) {
             onTreeSuccess(({ context: { add, getAllValues } }: FinderEvent) => {
                 add({
                     user_id: user.value.id,
@@ -111,18 +112,18 @@ export const useTreeActions = () => {
             }).connect();
         },
         
-        remove(id: number) {
+        remove(id) {
             onTreeSuccess(({ context: { remove, getAllValues } }: FinderEvent) => {
                 remove(id);
                 getAllValues();
             }).connect();
         },
 
-        createFile(path: string, { name, type, extension }: Pick<Item, 'name' | 'type' | 'extension'>) {
+        createFile(path, { name, type, extension }, content) {
             onTreeSuccess(({ context: { add, getAllValues } }: FinderEvent) => {
                 add({
                     user_id: user.value.id,
-                    content: '',
+                    content: content ?? '',
                     extension, name, type,
                     parent: path.replace('//', '/'),
                     creation_date: new Date(),
@@ -135,9 +136,9 @@ export const useTreeActions = () => {
     };
 };
 
-export const getChildrenItems = () => getChildren(tree);
+export const getChildrenItems: Finder['getChildrenItems'] = () => getChildren(tree);
 
-export const isPathExists = (path: string) => {
+export const isPathExists: Finder['isPathExists'] = (path: string) => {
     return tree.value.filter(item => {
         if (item.parent === path) {
             return true;

@@ -222,7 +222,10 @@ export const useCommands: UseCommands = (
 
             const currentTime = Date.now();
 
-            if (currentTime - lastTabPressTime < 300) {
+            // in milliseconds
+            const timeoutTime = 150;
+
+            if (currentTime - lastTabPressTime < timeoutTime) {
                 // double tab
                 proposedCommand.value =
                     items.map(item => item.name!);
@@ -246,7 +249,7 @@ export const useCommands: UseCommands = (
                         proposedCommand.value = items[0].name!;
                         setCommand(c => c + items[0].name!.substring(c.length))
                     }
-                }, 300)
+                }, timeoutTime)
             }
         },
         execute(addToHistory) {

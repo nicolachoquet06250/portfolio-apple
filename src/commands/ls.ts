@@ -97,7 +97,7 @@ export const execute: TerminalCommandExecute<Props, Flags> = (
             const children = getChildrenItems()('',
                 location.value
                     .replace('//', '/')
-            ).map(it => it.name);
+            ).map(it => it.name + (it.extension ? `.${it.extension}` : ''));
 
             return [
                 ...(children.length > 0
@@ -116,7 +116,7 @@ export const execute: TerminalCommandExecute<Props, Flags> = (
             const children = getChildrenItems()('', realpath(
                 (location.value + '/' + dist)
                     .replace('//', '/')
-            )).map(it => it.name);
+            )).map(it => it.name + (it.extension ? `.${it.extension}` : ''));
 
             return [
                 ...(children.length > 0
