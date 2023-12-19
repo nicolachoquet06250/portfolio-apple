@@ -51,11 +51,10 @@ type Props = {
     input_files?: string
 };
 type Flags = {};
-type Setters = {};
 
 const {isPathExists, useTreeActions} = finder();
 
-export const execute: TerminalCommandExecute<Props, Flags, Setters> = ({
+export const execute: TerminalCommandExecute<Props, Flags> = ({
     file,
     input_files = '',
     operator = ''
