@@ -38,7 +38,7 @@ export type Finder = {
         tree: ComputedRef<Item[]>,
         get(): void,
         add(root: string, dirName: string): void,
-        createFile(path: string, { name, type, extension }: Pick<Item, 'name' | 'type' | 'extension'>): void,
+        createFile(path: string, { name, type, extension }: Pick<Item, 'name' | 'type' | 'extension'>, content?: string): void,
         remove(id: number): void
     },
 
