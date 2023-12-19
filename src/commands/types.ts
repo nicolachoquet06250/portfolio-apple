@@ -44,5 +44,5 @@ export type TerminalCommand = {
     help?: () => string[];
     name?: string;
     description: string;
-    usage: string;
+    usage: string|string[];
 }

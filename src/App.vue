@@ -195,7 +195,7 @@ import { useNotifications } from '@/hooks/notifications';
 import { useSystemLoading } from "@/hooks/system-loading";
 import { useScreens } from "@/hooks/screens";
 import {useDark} from "@/hooks/theme";
-import {useMobile, useTablet} from '@/hooks/device-type.ts';
+import {useMobile, useTablet} from '@/hooks/device-type';
 
 // import InstallDesktopIcon from '@/components/macos/InstallDesktopIcon.vue';
 // import StartInstall from "@/install/ios/StartInstall.vue";

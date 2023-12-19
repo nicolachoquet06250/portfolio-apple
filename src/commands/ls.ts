@@ -1,6 +1,6 @@
 import type {TerminalCommand, TerminalCommandExecute} from '@/commands/types';
 import finder, {realpath} from '@/hooks/finder';
-import {generateHelp} from '@/hooks/terminal/commands.ts';
+import {generateHelp} from '@/hooks/terminal/commands';
 
 export const command: TerminalCommand['command'] =
     /^ls ?((?<flags>-[a-zA-Z0-9\-_=.\\\/' ]+) ?)?(?<dist>([a-zA-Z0-9_\-\/.]+|'[a-zA-Z0-9_\-\/. ]+')?)$/g

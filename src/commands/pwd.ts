@@ -1,5 +1,5 @@
-import type {TerminalCommand, TerminalCommandExecute} from '@/commands/types.ts';
-import {generateHelp} from '@/hooks/terminal/commands.ts';
+import type {TerminalCommand, TerminalCommandExecute} from '@/commands/types';
+import {generateHelp} from '@/hooks/terminal/commands';
 
 export const command: TerminalCommand['command'] =
     /^(\$\(pwd\)|pwd) ?((?<flags>-[a-zA-Z0-9\-_=.\\\/' ]+) ?)?$/g;

@@ -79,7 +79,7 @@ import NewDirectory from '@/components/utilities/macos/NewDirectoryIcon.vue';
 import Directory from '@/components/utilities/macos/DirectoryIcon.vue';
 import NewFile from '@/components/utilities/macos/NewFileIcon.vue';
 import File from '@/components/utilities/macos/FileIcon.vue';
-import {Item} from '@/hooks/finder/types.ts';
+import {Item} from '@/hooks/finder/types';
 
 const { useFinder, useRootDirectory } = finder();
 

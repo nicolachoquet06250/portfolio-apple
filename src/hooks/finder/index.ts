@@ -5,7 +5,7 @@ import * as finder from './finder';
 import * as finderMock from './finder-mock';
 
 import type {ComputedRef, Ref, WritableComputedRef} from 'vue';
-import {Item} from '@/hooks/finder/types.ts';
+import {Item} from '@/hooks/finder/types';
 import {computed} from 'vue';
 import iconDirectory from '@/assets/icons/icon-directory.png';
 import iconUnknownFile from '@/assets/icons/icon-unknownFile.png';
@@ -38,7 +38,7 @@ export type Finder = {
         tree: ComputedRef<Item[]>,
         get(): void,
         add(root: string, dirName: string): void,
-        createFile(path: string, { name, type, extension }: Pick<Item, 'name' | 'type' | 'extension'>, content?: string): void,
+        createFile(path: string, { name, type, extension }: Pick<Item, 'name' | 'type' | 'extension'>, content?: string|null): void,
         remove(id: number): void
     },
 

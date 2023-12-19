@@ -5,7 +5,7 @@ import type {ComputedRef} from "vue";
 import type {TerminalCommand, TerminalCommandExecute, TerminalCommandFlag} from "@/commands/types";
 import {createSetter} from '@/commands/types';
 import type {Setter} from '@/commands/types';
-import {useTerminalLineHeader} from '@/hooks/terminal/line-header.ts';
+import {useTerminalLineHeader} from '@/hooks/terminal/line-header';
 
 export const commands =
     Object.values($commands) as TerminalCommand[];
@@ -18,14 +18,14 @@ type UseCommandReturn = {
     execute(addToHistory: (command: string) => void): void
 }
 
-function preg_match(pattern: RegExp|string, input: string): Record<string, string|null>|RegExpExecArray|null {
+export function preg_match(pattern: RegExp|string, input: string): Record<string, string|null>|RegExpExecArray|null {
     const regex = new RegExp(pattern);
     const match = regex.exec(input);
 
     return match !== null ? (match.groups ?? match) : null;
 }
 
-function preg_match_all(pattern: RegExp|string, input: string): Record<string, string>[] {
+export function preg_match_all(pattern: RegExp|string, input: string): Record<string, string>[] {
     if (typeof pattern === 'string') {
         pattern = new RegExp(pattern);
     }
@@ -275,16 +275,13 @@ export const useCommands: UseCommands = (
                 const f = flags.reduce<{[K: string]: string|boolean|number|any[]}>(
                     (r, c) => ({
                         ...r,
-                        [c.long ?? c.short!]: c.value!
+                        [c.long ?? c.short!]: !!r[c.long ?? c.short!] ? r[c.long ?? c.short!] : c.value!
                     }), {}
                 );
 
-                let r: string[];
-                if (f.help && help) {
-                    r = migrateToArray<string>(help());
-                }
-                else {
-                    r = migrateToArray(
+                const r = f.help && help ?
+                    migrateToArray<string>(help()) :
+                    migrateToArray(
                         execute(
                             (groups ?? {}),
                             isAdmin,
@@ -293,7 +290,6 @@ export const useCommands: UseCommands = (
                             setters
                         )
                     );
-                }
 
                 if (r.length) {
                     setResult(r);
@@ -336,11 +332,11 @@ export const useCommandHistory: UseCommandHistory = () => {
 };
 
 export const generateHelp = (
-    usage: string,
+    usage: string|string[],
     flags: TerminalCommandFlag[],
     description?: string,
 ) => [
-    `Usage: ${usage}`,
+    `Usage: ${(usage instanceof Array ? usage.join('<br>') : usage)}`,
     ...(description ? [description] : []),
     'Options:',
     ...flags
