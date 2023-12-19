@@ -1,5 +1,5 @@
-import type {TerminalCommand, TerminalCommandExecute} from '@/commands/types.ts';
-import {generateHelp} from '@/hooks/terminal/commands.ts';
+import type {TerminalCommand, TerminalCommandExecute} from '@/commands/types';
+import {generateHelp} from '@/hooks/terminal/commands';
 import finder, {realpath} from '@/hooks/finder';
 
 export const command: TerminalCommand['command'] =

@@ -1,6 +1,6 @@
 import type {TerminalCommand, TerminalCommandExecute} from '@/commands/types';
-import {useTerminalLineHeader} from '@/hooks/terminal/line-header.ts';
-import {InformationsType, usePersonalInformations} from '@/hooks/personal-informations.ts';
+import {useTerminalLineHeader} from '@/hooks/terminal/line-header';
+import {InformationsType, usePersonalInformations} from '@/hooks/personal-informations';
 import {CSSProperties} from 'vue';
 
 export const command: TerminalCommand['command'] = /^neofetch ?(?<flags>--help ?)?$/g;
@@ -109,7 +109,7 @@ export const execute: TerminalCommandExecute = () => {
             
             <div style="${monospace}"> Age: ${age} </div>
             
-            <div style="${monospace}"> Niveau d'études: ${studiesLevel} </div>
+            <div style="${monospace}"> Niveau d'études: ${studiesLevel} études:</div>
             
             <div style="${monospace}"> Domaine d'expertise: ${expertiseField} </div>
             

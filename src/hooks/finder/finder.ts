@@ -1,7 +1,7 @@
 import { ref, computed, watch } from 'vue';
 import { useDatabase, getParams, TABLES } from '@/hooks/database';
 import { useAuthUser } from '@/hooks/account';
-import type { FinderEvent, Item } from '@/hooks/finder/types.ts';
+import type { FinderEvent, Item } from '@/hooks/finder/types';
 import {
     createBreadcrumbInitializer,
     createItemActivator,

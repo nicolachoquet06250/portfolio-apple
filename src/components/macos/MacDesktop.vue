@@ -330,7 +330,7 @@ import ToogleLiteDarkMode from '@/components/macos/ToogleLiteDarkMode.vue';
 import Spotlight from '@/components/macos/Spotlight.vue';
 import {useScreens} from "@/hooks/screens";
 import {Menu} from '@/App.vue';
-import {Item} from '@/hooks/finder/types.ts';
+import {Item} from '@/hooks/finder/types';
 
 const { useRootDirectory, useTreeActions, useFinder, initBreadcrumb } = finder();
 

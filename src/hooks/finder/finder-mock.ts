@@ -1,5 +1,5 @@
 import { ref, computed, watch } from 'vue';
-import type { Item } from '@/hooks/finder/types.ts';
+import type { Item } from '@/hooks/finder/types';
 import {
     createBreadcrumbInitializer,
     createItemActivator,
@@ -226,7 +226,7 @@ export const useTreeActions: Finder['useTreeActions'] = () => ({
             ...tree.value,
             {
                 id: (tree.value[tree.value.length - 1].id ?? 0) + 1,
-                user_id: 0,
+                user_id: 1,
                 content: null,
                 extension: null,
                 name: dirName,
@@ -260,7 +260,7 @@ export const isPathExists: Finder['isPathExists'] = (path: string) => {
         const p = path.split('/');
         const dirname = p.pop()!;
 
-        return (item.parent === p.join('/') && item.name === dirname) || (dirname.includes('.') && (() => {
+        return (item.parent === (p.join('/') === '' ? '/' : p.join('/')) && item.name === dirname) || (dirname.includes('.') && (() => {
             const splitDirname = dirname.split('.');
             const extension = splitDirname.pop()!;
 
