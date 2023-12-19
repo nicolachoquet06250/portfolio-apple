@@ -1,4 +1,4 @@
-import {TerminalCommand, TerminalCommandExecute} from '@/commands/types';
+import type {TerminalCommand, TerminalCommandExecute} from '@/commands/types';
 import {generateHelp, preg_match} from '@/hooks/terminal/commands';
 import finder, {realpath} from '@/hooks/finder';
 

@@ -338,7 +338,7 @@ export const generateHelp = (
 ) => [
     `Usage: ${(usage instanceof Array ? usage.join('<br>') : usage)}`,
     ...(description ? [description] : []),
-    'Options:',
+    ...(flags.filter(f => f.long !== 'help').length > 0 ? ['Options:'] : []),
     ...flags
         .filter(flag => flag.long !== 'help')
         .map(flag => {
