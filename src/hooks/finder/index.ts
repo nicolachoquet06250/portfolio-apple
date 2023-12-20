@@ -39,6 +39,7 @@ export type Finder = {
         get(): void,
         add(root: string, dirName: string): void,
         createFile(path: string, { name, type, extension }: Pick<Item, 'name' | 'type' | 'extension'>, content?: string|null): void,
+        move(from: string, to: string): boolean,
         remove(id: number): void
     },
 
