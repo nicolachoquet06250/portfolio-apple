@@ -158,6 +158,20 @@ let registerPlugin: (command: TerminalCommand) => void;
 let registerPlugins: (...commandList: TerminalCommand[]) => void;
 ```
 
+### Commandes en place dans le terminal
+| Commande | Help              | Description                                                   |
+|----------|-------------------|---------------------------------------------------------------|
+| cat      | cat --help/-h     | Concaténer les fichiers vers la sortie standard               |
+| cd       | -                 | Permet de se déplacer dans l'arboraissence depuis le terminal |
+| clear    | clear --help/-h   | Nétoie l'historique de console                                |
+| compgen  | compgen --help/-h | Liste l'ensemble des commandes disponibles                    |
+| cp       | cp --help/-h      | Copie une ou plusieurs sources vers DEST                      |
+| exit     | -                 | Ferme le terminal                                             |
+| ls       | ls --help/-h      | Liste les fichiers et répertoires contenus dans la source     |
+| mkdir    | mkdir --help/-h   | Crée un ou plusieurs répertoires                              |
+| mv       | mv --help/-h      | Déplace ou renomme une fichier ou un répertoire               |
+| neofetch | -                 | Affiche des informations au sujet de Nicolas Choquet          |
+| pwd      | pwd --help/-h     | Affiche le nom du répertoire de travail courant               |
 
 ### ANNEXES
 - [FIGMA **MacOS 11 (Big Sur)**](https://www.figma.com/community/file/949158727443209284?preview=fullscreen)
