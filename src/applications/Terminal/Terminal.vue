@@ -27,11 +27,17 @@ import {useTerminal} from "@/hooks/terminal/terminal";
 import {useTerminalLineHeader} from "@/hooks/terminal/line-header";
 import {useDark} from '@/hooks/theme';
 
+const emit = defineEmits(['closeApp']);
+
 const { isDark: isDarkMode } = useDark();
 const {currentApp} = useCurrentApp();
 const target = ref(null);
 const appFocused = computed(() => currentApp.value === APPLICATION.TERMINAL);
-const [command,,, terminalHistory, [location]] = useTerminal(appFocused);
+const [
+    command,,,
+    terminalHistory,
+  [location]
+] = useTerminal(appFocused, () => emit('closeApp'));
 const lineHeader = useTerminalLineHeader(location);
 
 const end = ref<HTMLElement|null>(null);

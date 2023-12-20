@@ -7,3 +7,4 @@ export * as cp from './cp';
 export * as mkdir from './mkdir';
 export * as compgen from './compgen';
 export * as neofetch from './neofetch';
+export * as exit from './exit';

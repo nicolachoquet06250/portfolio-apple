@@ -65,7 +65,7 @@
                 </div>
 
                 <div class="application-body" ref="appBody">
-                    <component :is="AppComponent" :body-ref="appBody" />
+                    <component :is="AppComponent" :body-ref="appBody" @close-app="closeApplication" />
 
                     <slot />
                 </div>

@@ -52,7 +52,8 @@ type UseCommands = (
     location: [
         location: ComputedRef<string>,
         setLocation: Setter<string>
-    ]
+    ],
+    onCloseApp?: () => void
 ) => UseCommandReturn;
 
 const getFlags = (flags: TerminalCommandFlag[], matched: string) =>
@@ -194,7 +195,8 @@ const migrateToArray = <T extends string|number|boolean|void>(p: T[]|T): string[
 export const useCommands: UseCommands = (
     command,
     terminalHistory,
-    [location, setLocation]
+    [location, setLocation],
+    onCloseApp = () => {}
 ) => {
     const proposedCommand = ref<string|string[]>('');
     const result = ref<string[]>([]);
@@ -268,7 +270,8 @@ export const useCommands: UseCommands = (
                     result: setResult,
                     command: setCommand,
                     terminalHistory: setTerminalHistory,
-                    location: setLocation
+                    location: setLocation,
+                    closeApplication: onCloseApp
                 };
                 const oldLineHeader = lineHeader.value;
 
