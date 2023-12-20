@@ -5,7 +5,7 @@ import {useCommandHistory, useCommands} from "@/hooks/terminal/commands";
 import {useTerminalLocation} from '@/hooks/terminal/location';
 import type {Setter} from '@/commands/types';
 
-type UseTerminal = (active: Ref<boolean> | ComputedRef<boolean>) => [
+type UseTerminal = (active: Ref<boolean> | ComputedRef<boolean>, onCloseApp?: () => void) => [
     command: Ref<string>,
     completion: ComputedRef<string|string[]>,
     result: ComputedRef<string[]>,
@@ -24,7 +24,7 @@ const excludedKeys: ExcludedKey[] = [
     /^F[1-9][0-2]?$/
 ];
 
-export const useTerminal: UseTerminal = (active) => {
+export const useTerminal: UseTerminal = (active, onCloseApp = () => {}) => {
     const terminalHistory = ref<string[]>([]);
     const command = ref('');
     const tmpCommand = ref<string|null>(null);
@@ -39,7 +39,7 @@ export const useTerminal: UseTerminal = (active) => {
         execute,
         proposedCommand,
         result
-    } = useCommands(command, terminalHistory, location);
+    } = useCommands(command, terminalHistory, location, onCloseApp);
 
     onKeyStroke('Backspace', e => {
         if (active.value) {
