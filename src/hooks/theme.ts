@@ -1,20 +1,12 @@
 import { ref, computed, watch } from 'vue';
-import { useDatabase, TABLES, getParams } from '@/hooks/database';
+import { useDatabase } from '@/hooks/database/hooks';
 import { useInstalled } from '@/hooks/installed';
 
 const { installed, skipped } = useInstalled();
-const { onSuccess, results: settings } = useDatabase<{
-    key: string,
-    value: string
-}>(...getParams(TABLES.SETTINGS));
-
-type DbEvent = {
-    context: {
-        getFromIndex(key: string, value: string|boolean): void
-    }
-};
-
-const { connect } = onSuccess(({ context: { getFromIndex } }: DbEvent) => getFromIndex('field', 'theme'));
+const {
+    settings,
+    getSettingsFromIndex
+} = useDatabase('portfolio-apple', 'settings');
 
 const html = ref(document.querySelector('html')!);
 const isDark = ref(localStorage.getItem('vueuse-color-scheme') === 'auto');
@@ -36,12 +28,12 @@ export const useDark = () => ({
     }
 });
 
-watch(settings, () => {
-    isDark.value = settings.value.value === 'dark';
+watch(settings, (settings) => {
+    isDark.value = settings!.value === 'dark';
 });
 
-watch(installed, () => {
-    if (installed.value && !skipped.value) {
-        connect();
+watch(installed, (installed) => {
+    if (installed && !skipped.value) {
+        getSettingsFromIndex('field', 'theme');
     }
 })

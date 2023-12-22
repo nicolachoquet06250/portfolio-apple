@@ -48,7 +48,7 @@ import Store from "@/components/ios/icons/Store.vue";
 import Health from "@/components/ios/icons/Health.vue";
 import Maps from "@/components/ios/icons/Maps.vue";
 import Settings from "@/components/ios/icons/Settings.vue";
-import {useDesktop,/*IS_MOBILE, IS_TABLET, useDeviceType, useMobile, useTablet*/} from "@/hooks/device-type";
+import {useDesktop} from "@/hooks/device-type";
 
 const props = defineProps<{
   backgroundImage: string,

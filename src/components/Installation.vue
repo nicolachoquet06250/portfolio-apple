@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, defineEmits, watch } from 'vue';
+import { computed, ref, defineEmits, watch, onMounted } from 'vue';
 import { useMenu, isRebooted } from '@/hooks/installation/menu';
 import { useLangues } from '@/hooks/installation/langue';
 import { useWait } from '@/hooks/wait';
@@ -52,6 +52,7 @@ import GeneralConditionsStep from '@/install/macos/GeneralConditions.vue';
 import CreateAccountStep from '@/install/macos/CreateAccount.vue';
 import ChooseStyleStep from '@/install/macos/ChooseStyle.vue';
 import ConfigurationStep from '@/install/macos/Configuration.vue';
+import { Database } from '@/hooks/database/service';
 
 const emit = defineEmits(['installed']);
 
@@ -412,6 +413,16 @@ const components = [
     }
 ];
 const CurrentStep = computed(() => components[currentStep.value].component);
+
+onMounted(() => {
+  if (localStorage.getItem('currentStep')) {
+    (new Database('portfolio-apple', 1)).remove();
+    localStorage.removeItem('compiled-install-data');
+    localStorage.removeItem('currentStep');
+
+    window.location.reload();
+  }
+})
 </script>
 
 <style lang="scss" scoped>

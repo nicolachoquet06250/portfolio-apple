@@ -106,9 +106,6 @@ type ApplicationDetail = {
     full_screen: boolean,
     name: string,
     state: APPLICATION_STATE,
-    // component: Component|null,
-    // componentHeader: Component|null,
-    // componentMenu: Component|null,
     size: {
         width: number,
         height: number
@@ -442,18 +439,10 @@ export const useOpenedApplications = () => ({
         if (openedApplications[application]) {
             openedApplications[application]!.state = APPLICATION_STATE.OPENED;
         } else {
-            // console.log(
-            //     APPLICATION_COMPONENT[application.toLowerCase() as APPLICATION]?.body,
-            //     APPLICATION_COMPONENT[application.toLowerCase() as APPLICATION]?.header,
-            //     APPLICATION_COMPONENT[application.toLowerCase() as APPLICATION]?.menu
-            // )
             openedApplications[application] = {
                 state: APPLICATION_STATE.OPENED,
                 full_screen: false,
                 name: application.substring(0, 1).toUpperCase() + application.substring(1, application.length),
-                // component: APPLICATION_COMPONENT[application]?.body,
-                // componentHeader: APPLICATION_COMPONENT[application]?.header ?? null,
-                // componentMenu: APPLICATION_COMPONENT[application]?.menu ?? null,
                 position: {
                     x: 0,
                     y: 0

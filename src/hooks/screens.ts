@@ -64,7 +64,7 @@ export const useScreens = () => {
                 if (screens.value.filter(s => s === data).length === 0) {
                     screens.value = [...screens.value, data];
                 }
-                post?.(JSON.stringify({
+                post(JSON.stringify({
                     channel: 'register',
                     data
                 }));
@@ -75,11 +75,10 @@ export const useScreens = () => {
             console.log('close')
 
             try {
-                /** @type {string} data */
                 const data = screenDetailsSupported.value
                     ? screenDetails.value?.currentScreen.label ?? '' : uuid.value;
 
-                post?.(JSON.stringify({
+                post(JSON.stringify({
                     channel: 'unregister',
                     data: data
                 }));
@@ -101,7 +100,7 @@ export const useScreens = () => {
                         screens.value = [...screens.value, data.data];
                     }
 
-                    post?.(JSON.stringify({
+                    post(JSON.stringify({
                         channel: 'register',
                         data: _data
                     }));
@@ -132,7 +131,7 @@ export const useScreens = () => {
         console.log(screens)
     });
 
-    const _post = (channel: string, data = {}) => post?.(JSON.stringify({channel, data}));
+    const _post = (channel: string, data = {}) => post(JSON.stringify({channel, data}));
 
     return {
         supported: computed(() => screenDetailsSupported.value),

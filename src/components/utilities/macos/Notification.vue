@@ -31,22 +31,6 @@ const props = withDefaults(defineProps<{
   opened: true
 });
 
-/*{
-  index: {
-    type: Number,
-    default: 0
-  },
-  image: String,
-  latence: {
-    type: Number,
-    default: 0
-  },
-  opened: {
-    type: Boolean,
-    default: true
-  }
-}*/
-
 const emit = defineEmits(['closed']);
 
 const notif = ref(null);

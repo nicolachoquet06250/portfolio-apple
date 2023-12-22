@@ -32,7 +32,9 @@
           :apps="[]"
           :current-app-name="currentApp!"
           :background-image="wallpaper"
-          :top-bar="desktopTopBar">
+          :top-bar="desktopTopBar"
+          @lock-screen="connected = false"
+        >
 
           <Notification
               v-for="({ opened, index, image, title, content, buttons }, i) of notifications" :key="i"
@@ -49,7 +51,7 @@
 
             <template v-slot:button>
               <button v-for="(button, b) of buttons" :key="b"
-                      @click="button.click?.()">
+                      @click="button.click()">
                 {{ button.text }}
               </button>
             </template>
@@ -95,7 +97,9 @@
           :apps="[]"
           :current-app-name="currentApp!"
           :background-image="wallpaper"
-          :top-bar="desktopTopBar">
+          :top-bar="desktopTopBar"
+          @lock-screen="connected = false"
+        >
 
           <Notification v-for="({opened, image, index, title, content, buttons}, i) of notifications" :key="i"
                         :opened="opened" :index="index"
@@ -111,7 +115,7 @@
 
             <template v-slot:button>
               <button v-for="(button, b) of buttons" :key="b"
-                      @click="button.click?.()">
+                      @click="button.click()">
                 {{ button.text }}
               </button>
             </template>
@@ -194,11 +198,8 @@ import { useInstalled } from '@/hooks/installed';
 import { useNotifications } from '@/hooks/notifications';
 import { useSystemLoading } from "@/hooks/system-loading";
 import { useScreens } from "@/hooks/screens";
-import {useDark} from "@/hooks/theme";
-import {useMobile, useTablet} from '@/hooks/device-type';
-
-// import InstallDesktopIcon from '@/components/macos/InstallDesktopIcon.vue';
-// import StartInstall from "@/install/ios/StartInstall.vue";
+import { useDark } from "@/hooks/theme";
+import { useMobile, useTablet } from '@/hooks/device-type';
 
 const { isOnline } = useNetwork();
 const { isDark } = useDark();
@@ -210,7 +211,7 @@ const { notifications, createNotification, deleteNotification, closeNotification
 const { systemLoading, setSystemLoading } = useSystemLoading();
 const { screenId/*, screenNumber*/, isMultiScreen, post, on } = useScreens();
 
-setCurrentApp?.(APPLICATION.FINDER);
+setCurrentApp(APPLICATION.FINDER);
 
 const showIOSLoginView = ref(true);
 
@@ -258,24 +259,24 @@ const hideAlert = () => {
   displayAlert.value = false;
 };
 const hasInstalled = (e: {install_skipped: boolean}) => {
-  isInstalled?.();
+  isInstalled();
   if (e.install_skipped) {
-    isSkipped?.();
+    isSkipped();
     //installSkipped.value = true;
   }
 };
 const installMac = () => {
-  isNotInstalled?.();
-  isNotSkipped?.();
+  isNotInstalled();
+  isNotSkipped();
   //installSkipped.value = false;
 };
 const installNotifyOpened = computed(() => (installSkipped.value === null
     ? false : installSkipped.value) && displayInstallNotify.value);
 
 const initNotifsQueue = () => {
-  cleanNotifications?.();
+  cleanNotifications();
 
-  createNotification?.({
+  createNotification({
     image: iconCdInstall,
     title: 'Installez macOS',
     content: `Une npuvelle version de macOS est disponible`,
@@ -284,7 +285,7 @@ const initNotifsQueue = () => {
       {
         text: 'Installer',
         click() {
-          deleteNotification?.(0);
+          deleteNotification(0);
           installMac();
         }
       },
@@ -292,13 +293,13 @@ const initNotifsQueue = () => {
         text: 'Fermer',
         click() {
           displayInstallNotify.value = false;
-          deleteNotification?.(0);
+          deleteNotification(0);
         }
       }
     ]
   });
 
-  createNotification?.({
+  createNotification({
     index: (installNotifyOpened.value ? 1 : 0),
     image: appstore,
     title: alertAppInDev.title,
@@ -309,21 +310,21 @@ const initNotifsQueue = () => {
         text: 'OK',
         click() {
           displayAlertAppInDev.value = false;
-          deleteNotification?.(1);
+          deleteNotification(1);
         }
       },
       {
         text: 'Ne plus voir',
         click() {
           alertAppInDev.dontShowAgain = true;
-          deleteNotification?.(1);
+          deleteNotification(1);
         }
       }
     ]
   });
 }
 const handleSystemLoaded = (initNotifs: boolean) => {
-  setSystemLoading?.(false);
+  setSystemLoading(false);
 
   // console.log(
   //     initNotifs,
@@ -340,11 +341,11 @@ const connectUser = () => {
   if (screenId.value === 0) {
     initNotifsQueue();
 
-    isMultiScreen.value && post?.('log-screen');
+    isMultiScreen.value && post('log-screen');
   }
 }
 
-on?.('log-screen', connectUser)
+on('log-screen', connectUser)
 
 const desktopTopBar = reactive<DesktopTopBar>({
   network: {

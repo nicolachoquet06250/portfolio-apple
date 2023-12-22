@@ -1,10 +1,5 @@
 import {ref, computed, watch, ComputedRef} from 'vue';
 
-// export const CURSOR = {
-//     POINTER: 'pointer',
-//     DEFAULT: 'normal',
-//     MOVE: 'move'
-// };
 export enum CURSOR {
     POINTER = 'pointer',
     DEFAULT = 'normal',

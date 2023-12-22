@@ -92,7 +92,7 @@
 import { ref, watch } from 'vue';
 import { useNetwork, useBattery } from "@vueuse/core";
 import { useWait } from '@/hooks/wait';
-import { useDatabase, TABLES, getParams } from '@/hooks/database';
+import { useDatabase } from '@/hooks/database/hooks';
 import { useAuthUser } from '@/hooks/account';
 import defaultProfilePic from '@/assets/default-profile-pic.png';
 import iconSuspend from '@/assets/icon-suspend-login-view.png';
@@ -110,13 +110,34 @@ const emit = defineEmits(['connected']);
 
 const { authUser } = useAuthUser();
 const { isWait, isNotWait } = useWait();
-const { onSuccess: onAccountSuccess, results: accounts } = useDatabase<User[]>(...getParams(TABLES.ACCOUNT));
-const { onSuccess: onSettingsSuccess, results: settings } = useDatabase<{value: { displayed: string }}>(...getParams(TABLES.SETTINGS));
+const {
+  ready: accountReady,
+  accounts,
+  getAccounts
+} = useDatabase('portfolio-apple', 'account');
+type SpecificSettings = {
+  id: number,
+  value: {
+    displayed: string
+  }
+};
+const {
+  ready: settingsReady,
+  settings,
+  getSettingsFromIndex
+} = useDatabase<
+    'settings',
+    SpecificSettings
+>('portfolio-apple', 'settings');
 const { isOnline } = useNetwork();
 const { charging, dischargingTime, level } = useBattery();
 
-onAccountSuccess(({ context: { getAllValues } }: DbEvent) => getAllValues()).connect();
-onSettingsSuccess(({ context: { getFromIndex } }: DbEvent) => getFromIndex('field', 'langue')).connect();
+watch([accountReady, settingsReady], ([accountReady, settingsReady]) => {
+  if (accountReady && settingsReady) {
+    getAccounts();
+    getSettingsFromIndex('field', 'langue');
+  }
+});
 
 const displayedLangue = ref('');
 
@@ -157,16 +178,7 @@ const login = (event: Event, user: User) => {
     }, 1500);
 };
 
-watch(settings, (settings) => (displayedLangue.value = settings.value.displayed));
-</script>
-
-<script lang="ts">
-  type DbEvent = {
-    context: {
-      getAllValues(): void,
-      getFromIndex(key: string, value: any): void
-    }
-  };
+watch(settings, (settings) => (displayedLangue.value = settings!.value.displayed));
 </script>
 
 <style lang="scss" scoped>

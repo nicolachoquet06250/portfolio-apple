@@ -3,141 +3,99 @@
 </template>
 
 <script setup lang="ts">
-import { useDatabase } from '@/hooks/database';
+import { useDatabase } from '@/hooks/database/hooks';
 
-const { 
-    onUpgradeNeeded, 
-    onSuccess, 
-    connect
-} = useDatabase('portfolio-apple', 'tree-structure');
+const { addTreeStructures } =
+    useDatabase('portfolio-apple', 'treeStructure');
 
-type TestEvent = {
-  context: {
-    add(...item: any[]): void
-  }
-}
-
-onUpgradeNeeded(({ context: { add } }: TestEvent) => {
-    add({
-        name: 'nchoquet',
-        extension: null,
-        parent: '/',
-        content: null,
-        type: 'directory',
-        creation_date: new Date(),
-        updated_date: new Date(),
-        opened_date: new Date()
+addTreeStructures(
+    {
+      user_id: 1,
+      name: 'nchoquet',
+      extension: null,
+      parent: '/',
+      content: null,
+      type: 'directory',
+      creation_date: new Date(),
+      updated_date: new Date(),
+      opened_date: new Date()
     },
     {
-        name: 'Applications',
-        extension: null,
-        parent: '/nchoquet',
-        content: null,
-        type: 'directory',
-        creation_date: new Date(),
-        updated_date: new Date(),
-        opened_date: new Date()
+      user_id: 1,
+      name: 'Applications',
+      extension: null,
+      parent: '/nchoquet',
+      content: null,
+      type: 'directory',
+      creation_date: new Date(),
+      updated_date: new Date(),
+      opened_date: new Date()
     },
     {
-        name: 'AirDrop',
-        extension: null,
-        parent: '/nchoquet',
-        content: null,
-        type: 'directory',
-        creation_date: new Date(),
-        updated_date: new Date(),
-        opened_date: new Date()
+      user_id: 1,
+      name: 'AirDrop',
+      extension: null,
+      parent: '/nchoquet',
+      content: null,
+      type: 'directory',
+      creation_date: new Date(),
+      updated_date: new Date(),
+      opened_date: new Date()
     },
     {
-        name: 'Desktop',
-        extension: null,
-        parent: '/nchoquet',
-        content: null,
-        type: 'directory',
-        creation_date: new Date(),
-        updated_date: new Date(),
-        opened_date: new Date()
+      user_id: 1,
+      name: 'Desktop',
+      extension: null,
+      parent: '/nchoquet',
+      content: null,
+      type: 'directory',
+      creation_date: new Date(),
+      updated_date: new Date(),
+      opened_date: new Date()
     },
     {
-        name: 'Images',
-        extension: null,
-        parent: '/nchoquet',
-        content: null,
-        type: 'directory',
-        creation_date: new Date(),
-        updated_date: new Date(),
-        opened_date: new Date()
+      user_id: 1,
+      name: 'Images',
+      extension: null,
+      parent: '/nchoquet',
+      content: null,
+      type: 'directory',
+      creation_date: new Date(),
+      updated_date: new Date(),
+      opened_date: new Date()
     },
     {
-        name: 'Videos',
-        extension: null,
-        parent: '/nchoquet',
-        content: null,
-        type: 'directory',
-        creation_date: new Date(),
-        updated_date: new Date(),
-        opened_date: new Date()
+      user_id: 1,
+      name: 'Videos',
+      extension: null,
+      parent: '/nchoquet',
+      content: null,
+      type: 'directory',
+      creation_date: new Date(),
+      updated_date: new Date(),
+      opened_date: new Date()
     },
     {
-        name: 'Documents',
-        extension: null,
-        parent: '/nchoquet',
-        content: null,
-        type: 'directory',
-        creation_date: new Date(),
-        updated_date: new Date(),
-        opened_date: new Date()
+      user_id: 1,
+      name: 'Documents',
+      extension: null,
+      parent: '/nchoquet',
+      content: null,
+      type: 'directory',
+      creation_date: new Date(),
+      updated_date: new Date(),
+      opened_date: new Date()
     },
     {
-        name: 'Downloads',
-        extension: null,
-        parent: '/nchoquet',
-        content: null,
-        type: 'directory',
-        creation_date: new Date(),
-        updated_date: new Date(),
-        opened_date: new Date()
-    });
-});
-
-onSuccess((/*{ context: { add, remove, get, getAllValues, getAllKeys } }*/) => {
-    /*add({
-        name: 'Projects-2020',
-        extension: null,
-        parent: '/Documents',
-        content: null,
-        type: 'directory',
-        creation_date: new Date(),
-        updated_date: new Date(),
-        opened_date: new Date()
-    },
-    {
-        name: 'portfolio-apple',
-        extension: null,
-        parent: '/Documents/Projects-2020',
-        content: null,
-        type: 'directory',
-        creation_date: new Date(),
-        updated_date: new Date(),
-        opened_date: new Date()
-    });
-
-    const result = get(1);
-    const result2 = getAllValues();
-    const result3 = getAllKeys();
-    
-    remove(17, 18);
-
-    watch(result, () => {
-        console.log(result.value);
-    });
-    watch(result2, () => {
-        console.log(result2.value);
-    });
-    watch(result3, () => {
-        console.log(result3.value);
-    })*/
-});
-
-connect();
+      user_id: 1,
+      name: 'Downloads',
+      extension: null,
+      parent: '/nchoquet',
+      content: null,
+      type: 'directory',
+      creation_date: new Date(),
+      updated_date: new Date(),
+      opened_date: new Date()
+    }
+);
 </script>

@@ -1,39 +1,21 @@
-import {ref, computed, watch, Ref, ComputedRef} from 'vue';
-import { useDatabase, getParams, TABLES } from '@/hooks/database';
-
-export type File = {
-    content: string,
-    creation_date: Date,
-    extension: string,
-    id: number,
-    user_id: number,
-    name: string,
-    parent: string,
-    opened_date: Date,
-    type: string,
-    updated_date: Date
-};
+import { ref, computed, watch } from 'vue';
+import { useDatabase } from '@/hooks/database/hooks';
+import { Models } from '@/hooks/database';
 
 const {
-    onSuccess,
-    results
-} = useDatabase<File[]>(...getParams(TABLES.TREE_STRUCTURE));
+    treeStructures,
+    ready,
+    getTreeStructureFromId, getTreeStructures,
+    updateTreeStructure
+} = useDatabase('portfolio-apple', 'treeStructure')
 
-const files = ref<File[]>([]);
-const activeFile = ref<File|null>(null);
+const files = ref<Models['treeStructure'][]>([]);
+const activeFile = ref<Models['treeStructure']|null>(null);
 const action = ref('');
-const data = ref<Partial<{file: Partial<File>, content: string}>>({});
-
-type FileEvent = {
-    context: {
-        get(id: number): Ref<File[]>|ComputedRef<File[]>,
-        getAllValues(): void,
-        update(file: File): void
-    }
-}
+const data = ref<Partial<{file: Partial<Models['treeStructure']>, content: string}>>({});
 
 export const useTextEdit = () => {
-    const openFile = (file: File) => {
+    const openFile = (file: Models['treeStructure']) => {
         if (!files.value.reduce((r, c) => c.name === file.name && c.extension === file.extension && c.parent === file.parent ? true : r, false)) {
             files.value = [...files.value, file];
         }
@@ -43,60 +25,55 @@ export const useTextEdit = () => {
     return {
         files: computed(() => files.value),
         activeFile: computed(() => activeFile.value),
+        ready,
 
         openFile,
         openFileFromId(id: number) {
-            onSuccess(({ context: { get } }: FileEvent) => {
-                const all = get(id);
-    
-                watch(all, () => {
-                    const file = all.value[0];
+            const all = getTreeStructureFromId(id)
 
-                    if (file && ['application', 'directory'].indexOf(file.type) === -1) {
-                        console.log(file);
-                        
-                        openFile(file);
-                        console.log(files.value)
-                    }
-                })
-            }).connect();
+            watch(all, (file) => {
+                if (file && ['application', 'directory'].indexOf(file.type) === -1) {
+                    console.log(file);
+
+                    openFile(file);
+                    console.log(files.value)
+                }
+            })
         },
-        removeFileToList(file: File) {
-            files.value = files.value.reduce<File[]>((r, c) =>
+        removeFileToList(file: Models['treeStructure']) {
+            files.value = files.value.reduce<Models['treeStructure'][]>((r, c) =>
                 c === file ? r : [...r, c], []);
         },
-        updateFile(file: File, content: string) {
-            onSuccess(({ context: { getAllValues } }: FileEvent) => {
-                getAllValues();
+        updateFile(file: Models['treeStructure'], content: string) {
+            const tree = getTreeStructures();
 
+            watch(tree, () => {
                 action.value = 'update';
-                data.value = { file, content };
-            }).connect();
+                data.value = { file, content }
+            })
         }
     };
 };
 
-watch(results, () => {
+watch(treeStructures, (results) => {
     if (action.value === 'update') {
-        onSuccess(({ context: { update } }: FileEvent) => {
-            const _file = results.value.reduce<File|null>((r, c) =>
-                c.parent === data.value.file!.parent
-                    && c.name === data.value.file!.name
-                    && c.extension === data.value.file!.extension ? c : r, null);
+        const _file = results.reduce<Models['treeStructure']|null>((r, c) =>
+            c.parent === data.value.file!.parent
+                && c.name === data.value.file!.name
+                && c.extension === data.value.file!.extension ? c : r, null);
 
-            console.log(_file);
+        console.log(_file);
 
-            const newFile = {
-                ..._file,
-                content: data.value.content!
-            } as File;
+        const newFile = {
+            ..._file,
+            content: data.value.content!
+        } as Required<{id: Models['treeStructure']['id']}> & Exclude<Partial<Models['treeStructure']>, 'id'>;
 
-            console.log(newFile);
+        console.log(newFile);
 
-            update(newFile);
+        updateTreeStructure(newFile);
 
-            files.value = files.value.reduce<File[]>((r, c) =>
-                c.id === _file!.id ? [...r, newFile] : [...r, c], []);
-        }).connect();
+        files.value = files.value.reduce<Models['treeStructure'][]>((r, c) =>
+            c.id === _file!.id ? [...r, newFile as Models['treeStructure']] : [...r, c], []);
     }
 })

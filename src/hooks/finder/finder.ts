@@ -1,7 +1,7 @@
 import { ref, computed, watch } from 'vue';
-import { useDatabase, getParams, TABLES } from '@/hooks/database';
+import { useDatabase } from '@/hooks/database/hooks';
 import { useAuthUser } from '@/hooks/account';
-import type { FinderEvent, Item } from '@/hooks/finder/types';
+import type { Item } from '@/hooks/finder/types';
 import {
     createBreadcrumbInitializer,
     createItemActivator,
@@ -10,12 +10,14 @@ import {
     getComputedShowedItems, realpath
 } from '@/hooks/finder';
 import type { Finder } from '@/hooks/finder';
+import { TreeStructureType } from '@/hooks/database/models';
 
 const { user } = useAuthUser();
-const { 
-    onSuccess: onTreeSuccess, 
-    results: tree 
-} = useDatabase<Item[]>(...getParams(TABLES.TREE_STRUCTURE));
+const {
+    treeStructures: tree,
+    updateTreeStructure, getTreeStructures,
+    addTreeStructure, deleteTreeStructure
+} = useDatabase('portfolio-apple', 'treeStructure');
 
 const selectedTab = ref('');
 const items = ref<Item[]>([]);
@@ -29,7 +31,7 @@ const subDirectory = ref('');
 export const initBreadcrumb: Finder['initBreadcrumb'] = createBreadcrumbInitializer(breadcrumb, selectedTab);
 
 export const useFinder: Finder['useFinder'] = (maxPerLine: number) => {
-    onTreeSuccess(({ context: { getAllValues } }: FinderEvent) => getAllValues()).connect();
+    getTreeStructures();
 
     const selectItem = createItemSelector(breadcrumb, showedItems, activeItem);
     const showedItemsComputed = getComputedShowedItems(showedItems, maxPerLine);
@@ -60,7 +62,7 @@ export const useFinder: Finder['useFinder'] = (maxPerLine: number) => {
 };
 
 export const useRootDirectory: Finder['useRootDirectory'] = () => {
-    onTreeSuccess(({ context: { getAllValues } }: FinderEvent) => getAllValues()).connect();
+    getTreeStructures();
 
     return {
         root: computed(() => rootDir.value),
@@ -88,53 +90,48 @@ export const useRootDirectory: Finder['useRootDirectory'] = () => {
 };
 
 export const useTreeActions: Finder['useTreeActions'] = () => {
+    type UpdatedTreeStructure = Required<{
+        id?: number
+    }> & Partial<TreeStructureType>;
+
     return {
-        tree: computed(() => tree.value),
+        tree,
 
         get() {
-            onTreeSuccess(({ context: { getAllValues } }: FinderEvent) => getAllValues()).connect();
+            getTreeStructures();
         },
 
         add(root, dirName) {
-            onTreeSuccess(({ context: { add, getAllValues } }: FinderEvent) => {
-                add({
-                    user_id: user.value.id,
-                    content: null,
-                    extension: null,
-                    name: dirName,
-                    parent: root.replace('//', '/'),
-                    type: 'directory',
-                    creation_date: new Date(),
-                    updated_date: new Date(),
-                    opened_date: new Date()
-                });
-                getAllValues();
-            }).connect();
+            addTreeStructure({
+                user_id: user.value.id,
+                content: null,
+                extension: null,
+                name: dirName,
+                parent: root.replace('//', '/'),
+                type: 'directory',
+                creation_date: new Date(),
+                updated_date: new Date(),
+                opened_date: new Date()
+            })
         },
         
         remove(id) {
-            onTreeSuccess(({ context: { remove, getAllValues } }: FinderEvent) => {
-                remove(id);
-                getAllValues();
-            }).connect();
+            deleteTreeStructure(id);
         },
 
         createFile(path, { name, type, extension }, content) {
-            onTreeSuccess(({ context: { add, getAllValues } }: FinderEvent) => {
-                add({
-                    user_id: user.value.id,
-                    content: content ?? '',
-                    extension, name, type,
-                    parent: path.replace('//', '/'),
-                    creation_date: new Date(),
-                    updated_date: new Date(),
-                    opened_date: new Date()
-                });
-                getAllValues();
-            }).connect();
+            addTreeStructure({
+                user_id: user.value.id,
+                content: content ?? '',
+                extension, name, type,
+                parent: path.replace('//', '/'),
+                creation_date: new Date(),
+                updated_date: new Date(),
+                opened_date: new Date()
+            });
         },
 
-        move(from, to) {
+        move(from, to): boolean {
             if (isPathExists(realpath(from))) {
                 const fromParentPath = from.split('/');
                 const fromCompleteName = fromParentPath.pop()!;
@@ -144,7 +141,7 @@ export const useTreeActions: Finder['useTreeActions'] = () => {
                 if (fromCompleteName.includes('.')) {
                     fromIsDirectory = false;
                     [fromName, ...fromExtension] = fromCompleteName.split('.');
-                    fromExtension = (fromExtension as string[]).join('.');
+                    fromExtension = fromExtension!.join('.');
                 }
 
                 const toParentPath = to.split('/');
@@ -155,7 +152,7 @@ export const useTreeActions: Finder['useTreeActions'] = () => {
                 if (toCompleteName.includes('.')) {
                     toIsDirectory = false;
                     [toName, ...toExtension] = toCompleteName.split('.');
-                    toExtension = (toExtension as string[]).join('.');
+                    toExtension = toExtension!.join('.');
                 }
 
                 if (!isPathExists(realpath(from))) return false
@@ -182,22 +179,18 @@ export const useTreeActions: Finder['useTreeActions'] = () => {
                         const newItem = {
                             ...oldItem,
                             parent: realpath(to)
-                        }
+                        } as UpdatedTreeStructure;
 
-                        tree.value = tree.value.map<Item>(item => {
-                            if (JSON.stringify(item) === JSON.stringify(oldItem)) {
-                                return {
-                                    ...item,
-                                    parent: newItem.parent
-                                }
-                            } else if (item.parent.startsWith(oldItem.parent + '/' + oldItem.name)) {
-                                return {
+                        updateTreeStructure(newItem);
+                        updateTreeStructure({
+                            ...tree.value
+                                .filter(item =>
+                                    item.parent.startsWith(oldItem.parent + '/' + oldItem.name) &&
+                                    JSON.stringify(item) === JSON.stringify(oldItem)
+                                ).map(item => ({
                                     ...item,
                                     parent: newItem.parent + item.parent.substring(oldItem.parent.length)
-                                }
-                            }
-
-                            return item;
+                                })).pop()! as UpdatedTreeStructure
                         });
                     }
                     else {
@@ -211,28 +204,27 @@ export const useTreeActions: Finder['useTreeActions'] = () => {
                             name: toName
                         };
 
-                        tree.value = tree.value.map<Item>(item => {
+                        for (const item of tree.value) {
                             if (
                                 item.parent !== oldItem.parent &&
                                 item.parent.startsWith(oldItem.parent + '/' + oldItem.name)
                             ) {
-                                return {
+                                updateTreeStructure({
                                     ...item,
                                     parent: newItem.parent + '/' + newItem.name + item.parent.substring((oldItem.parent + '/' + oldItem.name).length)
-                                }
-                            } else if (
+                                } as UpdatedTreeStructure);
+                            }
+                            else if (
                                 item.parent === oldItem.parent &&
                                 item.name === oldItem.name
                             ) {
-                                return {
+                                updateTreeStructure({
                                     ...item,
                                     parent: newItem.parent,
                                     name: newItem.name
-                                }
+                                } as UpdatedTreeStructure);
                             }
-
-                            return item;
-                        });
+                        }
                     }
                 }
                 else {
@@ -246,28 +238,28 @@ export const useTreeActions: Finder['useTreeActions'] = () => {
 
                     if (toIsDirectory) {
                         // dans un répertoire
-                        if (!isPathExists(realpath(to))) return false
+                        if (!isPathExists(realpath(to))) {
+                            return false
+                        }
 
-                        tree.value = tree.value.map<Item>(item =>
-                            item.id === oldItem.id ? {
-                                ...item,
-                                parent: realpath(to)
-                            } : item
-                        )
+                        updateTreeStructure({
+                            ...oldItem as UpdatedTreeStructure,
+                            parent: realpath(to)
+                        });
                     }
                     else {
                         // dans un répertoire en le renommant
                         const newParent = realpath(toParentPath.join('/') === '' ? '/' : toParentPath.join('/'));
-                        if (!isPathExists(newParent)) return false
+                        if (!isPathExists(newParent)) {
+                            return false
+                        }
 
-                        tree.value = tree.value.map<Item>(item =>
-                            item.id === oldItem.id ? {
-                                ...item,
-                                parent: newParent,
-                                name: toName,
-                                extension: toExtension as string
-                            } : item
-                        )
+                        updateTreeStructure({
+                            ...oldItem as UpdatedTreeStructure,
+                            parent: newParent,
+                            name: toName,
+                            extension: toExtension
+                        });
                     }
                 }
 
@@ -279,7 +271,8 @@ export const useTreeActions: Finder['useTreeActions'] = () => {
     };
 };
 
-export const getChildrenItems: Finder['getChildrenItems'] = () => getChildren(tree);
+export const getChildrenItems: Finder['getChildrenItems'] =
+    () => getChildren(tree);
 
 export const isPathExists: Finder['isPathExists'] = path => {
     return tree.value.filter(item => {

@@ -10,7 +10,7 @@ export const useScreenLocker = () => {
 
     onMounted(() => {
         if (isSupported) {
-            lockOrientation?.('portrait');
+            lockOrientation('portrait');
         }
         // if (screen && screen.orientation && screen.orientation.lock) {
         //     screen.orientation.lock('portrait')
@@ -20,7 +20,7 @@ export const useScreenLocker = () => {
     });
     onUnmounted(() => {
         if (isSupported) {
-            unlockOrientation?.();
+            unlockOrientation();
         }
         // if (screen && screen.orientation && screen.orientation.unlock) {
         //     screen.orientation.unlock();

@@ -25,7 +25,7 @@ import { useTextEdit } from '@/hooks/textedit';
 import { useMouse, onClickOutside, onKeyUp } from '@vueuse/core';
 import iconUnknownFile from '@/assets/icons/icon-unknownFile.png';
 
-const { /*useRootDirectory, */useTreeActions } = finder();
+const { useTreeActions } = finder();
 
 const props = withDefaults(defineProps<{
   id: number,
