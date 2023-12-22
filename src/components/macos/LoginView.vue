@@ -31,7 +31,7 @@
             <div class="account-container">
                 <div v-for="account of accounts" :key="account.id"
                     class="account" clickable
-                    @click="login($event, {...account})">
+                    @click="login($event, {...(account as Required<AccountType>)})">
                     <img :src="defaultProfilePic" alt="profile picture" />
 
                     <h3> {{ account.full_name }} </h3>
@@ -97,6 +97,7 @@ import { useAuthUser } from '@/hooks/account';
 import defaultProfilePic from '@/assets/default-profile-pic.png';
 import iconSuspend from '@/assets/icon-suspend-login-view.png';
 import type { User } from '@/hooks/account';
+import {AccountType} from '@/hooks/database/models';
 
 withDefaults(defineProps<{
   showButtons: boolean,
