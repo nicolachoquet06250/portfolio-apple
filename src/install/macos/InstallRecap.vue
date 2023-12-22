@@ -40,9 +40,8 @@
 </template>
 
 <script setup lang="ts">
-import { /*computed, */defineEmits } from 'vue';
+import { defineEmits } from 'vue';
 import { useMenu, useStepTitle } from '@/hooks/installation/menu';
-// import { useWindowSize } from '@vueuse/core';
 import iconInstallMac from '@/assets/install-icons/icon-install-macos.png';
 import { usePwa } from '@/hooks/pwa';
 
@@ -58,9 +57,6 @@ const { setMenu, resetMenus } = useMenu();
 resetMenus();
 setMenu('Edition', {});
 setMenu('Fenêtre', {});
-
-// const { width } = useWindowSize();
-// const windowWidth = computed(() => `${width.value}px`);
 </script>
 
 <style lang="scss" scoped>

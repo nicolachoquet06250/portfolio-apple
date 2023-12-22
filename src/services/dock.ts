@@ -11,11 +11,6 @@ export const TransformOrigins: Record<Direction, string> = {
     1: "left"
 };
 
-// export const Direction = {
-//     None: 0,
-//     Right: -1,
-//     Left: 1
-// }
 export enum Direction {
     None = 0,
     Right = -1,

@@ -340,6 +340,7 @@ const props = defineProps<{
   currentAppName: string,
   topBar: TopBarProps
 }>();
+const emit = defineEmits(['lockScreen'])
 
 const { x: mouseX, y: mouseY } = useMouse();
 const { user } = useAuthUser();
@@ -352,8 +353,8 @@ const {
 } = useContextualMenu();
 const { openedApplications, initApplicationHistory, openApplication } = useOpenedApplications();
 const { installed, skipped } = useInstalled();
-const { setRoot, setSubDirectory } = useRootDirectory?.();
-const { tree: treeStructure, add, get } = useTreeActions?.();
+const { setRoot, setSubDirectory } = useRootDirectory();
+const { tree: treeStructure, add, get } = useTreeActions();
 const { isDark } = useDark();
 const { selectTab } = useFinder(5);
 const { screenId } = useScreens();
@@ -428,7 +429,8 @@ const appleMenu = ref<Menu[]>([
     },
     {
       name: 'Lock Screen',
-      shortcut: 'ctrl+maj+L'
+      shortcut: 'ctrl+maj+L',
+      click: () => emit('lockScreen')
     },
     {
       name: 'Log Out Big Sur',

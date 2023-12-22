@@ -53,7 +53,7 @@ import { useMenu, useStepTitle } from '@/hooks/installation/menu';
 import { useDisque } from '@/hooks/installation/disque';
 import { useLangues } from '@/hooks/installation/langue';
 import iconInstallMac from '@/assets/install-icons/icon-install-macos.png';
-import { useDatabase, INDEX_PARAMS } from '@/hooks/database';
+import { useDatabase } from '@/hooks/database/hooks';
 
 const emit = defineEmits(['previousStep', 'nextStep']);
 
@@ -62,10 +62,7 @@ const { disque, choosenDisque } = useDisque();
 useStepTitle('Install macOS');
 const { setMenu, resetMenus } = useMenu();
 
-const { 
-    onUpgradeNeeded: onSettingsUpgradeNeeded, 
-    connect: settingsConnect
-} = useDatabase('portfolio-apple_settings', 'settings');
+const { addSettings } = useDatabase('portfolio-apple', 'settings');
 const { langue } = useLangues();
 
 resetMenus();
@@ -74,20 +71,14 @@ setMenu('Fenêtre', {});
 
 const progressCmp = ref(0);
 
-onSettingsUpgradeNeeded(({ context: { addIndex, add } }: InstallEvent) => {
-    addIndex('field', INDEX_PARAMS.UNIQUE);
-    add(
-        {
-            field: 'langue',
-            value: langue.value
-        },
-        {
-            field: 'disque',
-            value: disque.value
-        }
-    );
+addSettings({
+  field: 'langue',
+  value: langue.value
 });
-settingsConnect();
+addSettings({
+  field: 'disque',
+  value: disque.value
+});
 
 const interval = setInterval(() => {
     progressCmp.value++;
@@ -103,15 +94,6 @@ const interval = setInterval(() => {
         })
     }
 }, 300);
-</script>
-
-<script lang="ts">
-  type InstallEvent = {
-    context: {
-      add(...config: { field: string, value: any }[]): void,
-      addIndex(key: string, value: any): void
-    }
-  }
 </script>
 
 <style lang="scss" scoped>

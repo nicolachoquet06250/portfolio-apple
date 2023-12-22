@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
 import {defineEmits, ref, watch} from 'vue';
-import { useDatabase, INDEX_PARAMS } from '@/hooks/database';
+import { useDatabase } from '@/hooks/database/hooks';
 import { useCountries } from '@/hooks/installation/langue';
 import { useAccount } from '@/hooks/installation/account';
 import { useTheme } from '@/hooks/installation/system-style';
@@ -25,134 +25,144 @@ import iconConfig from '@/assets/install-icons/icon-config-mac.png';
 const emit = defineEmits(['nextStep']);
 
 const { country } = useCountries();
-const { fullName, accountName/*, user*/ } = useAccount();
+const { fullName, accountName } = useAccount();
 const { selectedTheme } = useTheme();
 const [
-    { onSuccess: onSettingsSuccess },
-    { onUpgradeNeeded: onAccountUpgradeNeeded },
-    { onUpgradeNeeded: onTreeStructureUpgradeNeeded }
+  { addSettingss },
+  { addAccount },
+  { addTreeStructures }
 ] = [
-    useDatabase('portfolio-apple_settings', 'settings'),
-    useDatabase('portfolio-apple_account', 'account'),
-    useDatabase('portfolio-apple_tree_structure', 'tree_structure')
-];
+    useDatabase('portfolio-apple', 'settings'),
+    useDatabase('portfolio-apple', 'account'),
+    useDatabase('portfolio-apple', 'treeStructure')
+]
 
 const nbFinished = ref(0);
 
 const dbQueue = ref([
     () => {
-        onSettingsSuccess(({ context: { add } }: ConfigEvent) => {
-            add(
-                {
-                    field: 'country',
-                    value: country.value
-                },
-                {
-                    field: 'theme',
-                    value: selectedTheme.value
-                }
-            );
+      const ids = addSettingss(
+          {
+            field: 'country',
+            value: country.value
+          },
+          {
+            field: 'theme',
+            value: selectedTheme.value
+          }
+      );
 
-            nbFinished.value++;
-        }).connect();
+      watch(ids, (ids) => {
+        if (ids) {
+          console.log('step 1')
+
+          nbFinished.value++;
+        }
+      });
     },
     () => {
-        onAccountUpgradeNeeded(({ context: { addIndex, add } }: ConfigEvent) => {
-            addIndex('account_name', INDEX_PARAMS.UNIQUE);
-            
-            add({
-                full_name: fullName.value,
-                account_name: accountName.value
-            });
+      const accountId = addAccount({
+        full_name: fullName.value,
+        account_name: accountName.value
+      });
 
-            nbFinished.value++;
-        }).connect();
+      watch(accountId, (accountId) => {
+        if (accountId) {
+          console.log('step 2')
+
+          nbFinished.value++;
+        }
+      });
     },
     () => {
-        onTreeStructureUpgradeNeeded(({ context: { add } }: ConfigEvent) => {
-            const parent = `/${accountName.value}`;
-            add(
-                {
-                    user_id: 1,
-                    name: 'Applications',
-                    extension: null,
-                    parent,
-                    content: null,
-                    type: 'directory',
-                    creation_date: new Date(),
-                    updated_date: new Date(),
-                    opened_date: new Date()
-                },
-                {
-                    user_id: 1,
-                    name: 'AirDrop',
-                    extension: null,
-                    parent,
-                    content: null,
-                    type: 'directory',
-                    creation_date: new Date(),
-                    updated_date: new Date(),
-                    opened_date: new Date()
-                },
-                {
-                    user_id: 1,
-                    name: 'Desktop',
-                    extension: null,
-                    parent,
-                    content: null,
-                    type: 'directory',
-                    creation_date: new Date(),
-                    updated_date: new Date(),
-                    opened_date: new Date()
-                },
-                {
-                    user_id: 1,
-                    name: 'Images',
-                    extension: null,
-                    parent,
-                    content: null,
-                    type: 'directory',
-                    creation_date: new Date(),
-                    updated_date: new Date(),
-                    opened_date: new Date()
-                },
-                {
-                    user_id: 1,
-                    name: 'Videos',
-                    extension: null,
-                    parent,
-                    content: null,
-                    type: 'directory',
-                    creation_date: new Date(),
-                    updated_date: new Date(),
-                    opened_date: new Date()
-                },
-                {
-                    user_id: 1,
-                    name: 'Documents',
-                    extension: null,
-                    parent,
-                    content: null,
-                    type: 'directory',
-                    creation_date: new Date(),
-                    updated_date: new Date(),
-                    opened_date: new Date()
-                },
-                {
-                    user_id: 1,
-                    name: 'Downloads',
-                    extension: null,
-                    parent,
-                    content: null,
-                    type: 'directory',
-                    creation_date: new Date(),
-                    updated_date: new Date(),
-                    opened_date: new Date()
-                }
-            );
+        const parent = `/${accountName.value}`;
+        const ids = addTreeStructures(
+            {
+              user_id: 1,
+              name: 'Applications',
+              extension: null,
+              parent,
+              content: null,
+              type: 'directory',
+              creation_date: new Date(),
+              updated_date: new Date(),
+              opened_date: new Date()
+            },
+            {
+              user_id: 1,
+              name: 'AirDrop',
+              extension: null,
+              parent,
+              content: null,
+              type: 'directory',
+              creation_date: new Date(),
+              updated_date: new Date(),
+              opened_date: new Date()
+            },
+            {
+              user_id: 1,
+              name: 'Desktop',
+              extension: null,
+              parent,
+              content: null,
+              type: 'directory',
+              creation_date: new Date(),
+              updated_date: new Date(),
+              opened_date: new Date()
+            },
+            {
+              user_id: 1,
+              name: 'Images',
+              extension: null,
+              parent,
+              content: null,
+              type: 'directory',
+              creation_date: new Date(),
+              updated_date: new Date(),
+              opened_date: new Date()
+            },
+            {
+              user_id: 1,
+              name: 'Videos',
+              extension: null,
+              parent,
+              content: null,
+              type: 'directory',
+              creation_date: new Date(),
+              updated_date: new Date(),
+              opened_date: new Date()
+            },
+            {
+              user_id: 1,
+              name: 'Documents',
+              extension: null,
+              parent,
+              content: null,
+              type: 'directory',
+              creation_date: new Date(),
+              updated_date: new Date(),
+              opened_date: new Date()
+            },
+            {
+              user_id: 1,
+              name: 'Downloads',
+              extension: null,
+              parent,
+              content: null,
+              type: 'directory',
+              creation_date: new Date(),
+              updated_date: new Date(),
+              opened_date: new Date()
+            }
+        );
+
+        watch(ids, (ids) => {
+          if (ids.length) {
+            console.log('step 3')
 
             nbFinished.value++;
-        }).connect();
+          }
+        });
     }
 ]);
 
@@ -185,17 +195,6 @@ watch(nbFinished, () => {
         }, 2000);
     }
 });
-</script>
-
-<script lang="ts">
-  type ConfigEvent = {
-    context: {
-      add(...config: { field: string, value: any }[]): void
-      add(config: Record<string, any>): void,
-      add(...config: Record<string, any>[]): void,
-      addIndex(key: string, value: any): void
-    }
-  }
 </script>
 
 <style lang="scss" scoped>
