@@ -415,10 +415,17 @@ const components = [
 const CurrentStep = computed(() => components[currentStep.value].component);
 
 onMounted(() => {
-  if (localStorage.getItem('currentStep')) {
-    (new Database('portfolio-apple', 1)).remove();
+  if (
+      localStorage.getItem('compiled-install-data') ||
+      localStorage.getItem('currentStep') ||
+      localStorage.getItem('installed') ||
+      localStorage.getItem('vueuse-color-scheme')
+  ) {
     localStorage.removeItem('compiled-install-data');
     localStorage.removeItem('currentStep');
+    localStorage.removeItem('installed');
+    localStorage.removeItem('vueuse-color-scheme');
+    (new Database('portfolio-apple', 1)).remove();
 
     window.location.reload();
   }
