@@ -3,7 +3,7 @@
          ref="finderBody"
          @contextmenu.prevent.stop="showFinderContextMenu()"
     >
-        <div class="finder-breadcrumb" v-if="showBreadcrum">
+        <div class="finder-breadcrumb" v-if="showBreadcrumb">
           <template v-for="item of breadcrumb" :key="item">
               <div class="breadcrumb-item">
                 {{ item }}
@@ -129,7 +129,7 @@ onKeyUp('Enter', e => {
     }
 })
 
-const showBreadcrum = computed(() => breadcrumb.value.length > 1);
+const showBreadcrumb = computed(() => breadcrumb.value.length > 1);
 
 const addDirectory = () => {
     displayNewDirectory.value = true;

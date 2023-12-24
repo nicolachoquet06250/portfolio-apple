@@ -16,9 +16,10 @@
                '--positionBeforeCloseXUnit': positionBeforeCloseXUnit,
                '--positionBeforeCloseYUnit': positionBeforeCloseYUnit,
                '--windowWidthForCss': windowWidthForCss,
+               '--menuWidth': leftBloc?.offsetWidth ? leftBloc?.offsetWidth + 'px' : '0px'
              }"
         >
-            <div class="left-bloc" v-if="hasMenu">
+            <div class="left-bloc" ref="leftBloc" v-if="hasMenu">
                 <div class="btn-container">
                     <button class="btn-close"
                             @click.prevent="closeApplication"
@@ -136,6 +137,7 @@ watch(AppComponent, (c) => console.log(c))
 
 const hasHeader = computed(() => AppHeaderComponent.value !== null);
 const hasMenu = computed(() => AppMenuComponent.value !== null);
+const leftBloc = ref<HTMLDivElement|null>(null);
 
 const opened = ref(props.opened);
 const application = ref<HTMLElement|null>(null);
@@ -418,11 +420,12 @@ const closeApplication = () => {
     }
 
     .right-bloc {
-        width: 100%;
+        width: calc(100% - var(--menuWidth));
         background-color: white;
         border-radius: 0 10px 10px 0;
 
         &.no-menu {
+            width: 100%;
             border-radius: 10px;
         }
 
