@@ -10,6 +10,7 @@ import TerminalApp from '@/applications/Terminal';
 import TrashApp from '@/applications/Trash.vue';
 import PhotosApp from '@/applications/Photos.vue';
 import TextEditApp from '@/applications/TextEdit.vue';
+import PersonalCv from '@/applications/PersonalCv.vue';
 
 import FinderHeader from '@/applications/header/Finder.vue';
 import StoreHeader from '@/applications/header/Store.vue';
@@ -20,12 +21,14 @@ import TerminalHeader from '@/applications/header/Terminal.vue';
 import TrashHeader from '@/applications/header/Trash.vue';
 import PhotosHeader from '@/applications/header/Photos.vue';
 import TextEditHeader from '@/applications/header/TextEdit.vue';
+import PersonalCvHeader from '@/applications/header/PersonalCv.vue';
 
 import FinderMenu from '@/applications/menu/Finder.vue';
 import StoreMenu from '@/applications/menu/Store.vue';
 import MailsMenu from '@/applications/menu/Mail.vue';
 import PhotosMenu from '@/applications/menu/Photos.vue';
 import TextEditMenu from '@/applications/menu/TextEdit.vue';
+import PersonalCvMenu from '@/applications/menu/PersonalCv.vue';
 
 export enum APPLICATION {
     FINDER = 'finder',
@@ -36,7 +39,8 @@ export enum APPLICATION {
     TERMINAL = 'terminal',
     TRASH = 'trash',
     PHOTOS = 'photos',
-    TEXTEDIT = 'textedit'
+    TEXTEDIT = 'textedit',
+    MY_CV = 'mon cv'
 }
 
 export enum APPLICATION_STATE {
@@ -96,7 +100,12 @@ export const APPLICATION_COMPONENT: ApplicationComponent = {
         body: TextEditApp,
         header: TextEditHeader,
         menu: TextEditMenu
-    }
+    },
+    [APPLICATION.MY_CV]: {
+        body: PersonalCv,
+        header: PersonalCvHeader,
+        menu: PersonalCvMenu
+    },
 };
 
 const currentApp = ref<APPLICATION|null>(null);

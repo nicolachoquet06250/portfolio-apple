@@ -2,16 +2,19 @@
     <div>
         <h3> Favorites </h3>
 
-        <button v-for="[tab, value] of Object.entries(TABS)" :key="tab"
-            :class="{ active: isActive(tab as keyof typeof TABS) }"
-            @click="handleClick(tab as keyof typeof TABS)">
-            {{ value }}
-        </button>
+        <ApplicationMenuButton
+            v-for="[tab, value] of Object.entries(TABS)" :key="tab"
+            :active="isActive(tab as keyof typeof TABS)"
+            @click="handleClick(tab as keyof typeof TABS)"
+        >
+          {{ value }}
+        </ApplicationMenuButton>
     </div>
 </template>
 
 <script setup lang="ts">
 import { useMails } from '@/hooks/mails';
+import ApplicationMenuButton from '@/components/macos/ApplicationMenuButton.vue';
 
 const { selectTab, selectedTab } = useMails();
 

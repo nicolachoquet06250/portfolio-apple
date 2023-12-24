@@ -34,6 +34,7 @@ import preferences from '@/assets/dock/systempreferences.png';
 import terminal from '@/assets/dock/terminal.png';
 import trash from '@/assets/dock/trashbin.png';
 import photos from '@/assets/dock/photos.png';
+import personalCv from '@/assets/icons/facebook-profile-pic.png';
 
 const { setCursor } = useCursor();
 const { openApplication, openedApplications } = useOpenedApplications();
@@ -112,6 +113,13 @@ const icons = ref([
     {
         mouseover: () => setCursor(CURSOR.POINTER),
         mouseout: () => setCursor(CURSOR.DEFAULT),
+        click: openApp(APPLICATION.MY_CV),
+        code: APPLICATION.MY_CV,
+        img: personalCv
+    },
+    {
+        mouseover: () => setCursor(CURSOR.POINTER),
+        mouseout: () => setCursor(CURSOR.DEFAULT),
         click: openApp(APPLICATION.TERMINAL),
         code: APPLICATION.TERMINAL,
         img: terminal
@@ -181,6 +189,7 @@ watch(dock, () => {
         img {
             width: v-bind(iconSize);
             height: v-bind(iconSize);
+            border-radius: 10px;
             object-fit: contain
         }
 
