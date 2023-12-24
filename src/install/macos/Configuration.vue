@@ -79,6 +79,17 @@ const dbQueue = ref([
         const ids = addTreeStructures(
             {
               user_id: 1,
+              name: accountName.value,
+              extension: null,
+              parent: '/',
+              content: null,
+              type: 'directory',
+              creation_date: new Date(),
+              updated_date: new Date(),
+              opened_date: new Date()
+            },
+            {
+              user_id: 1,
               name: 'Applications',
               extension: null,
               parent,
