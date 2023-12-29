@@ -35,27 +35,7 @@
           :top-bar="desktopTopBar"
           @lock-screen="connected = false"
         >
-
-          <Notification
-              v-for="({ opened, index, image, title, content, buttons }, i) of notifications" :key="i"
-              :opened="opened" :index="index"
-              :image="image" :latence="2000"
-              @closed="closeNotification(i)">
-            <template v-slot:title>
-              <span> {{ title }} </span>
-            </template>
-
-            <template v-slot:content>
-              <span> {{ content }} </span>
-            </template>
-
-            <template v-slot:button>
-              <button v-for="(button, b) of buttons" :key="b"
-                      @click="button.click()">
-                {{ button.text }}
-              </button>
-            </template>
-          </Notification>
+          <MacOsNotifications />
 
           <MacOsAlert v-if="displayAlert"
                       @close="hideAlert"
@@ -100,26 +80,7 @@
           :top-bar="desktopTopBar"
           @lock-screen="connected = false"
         >
-
-          <Notification v-for="({opened, image, index, title, content, buttons}, i) of notifications" :key="i"
-                        :opened="opened" :index="index"
-                        :image="image" :latence="2000"
-                        @closed="closeNotification(i)">
-            <template v-slot:title>
-              <span> {{ title }} </span>
-            </template>
-
-            <template v-slot:content>
-              <span> {{ content }} </span>
-            </template>
-
-            <template v-slot:button>
-              <button v-for="(button, b) of buttons" :key="b"
-                      @click="button.click()">
-                {{ button.text }}
-              </button>
-            </template>
-          </Notification>
+          <MacOsNotifications />
 
           <MacOsAlert v-if="displayAlert"
                       @close="hideAlert"
@@ -186,7 +147,7 @@ import Installation from '@/components/Installation.vue';
 import MacOsLoginView from '@/components/macos/LoginView.vue';
 import IOSUnlockView from '@/components/ios/UnlockView.vue';
 import Checkbox from '@/components/macos/Checkbox.vue';
-import Notification from '@/components/utilities/macos/Notification.vue';
+import MacOsNotifications from '@/components/utilities/macos/Notifications.vue';
 
 import iconCdInstall from '@/assets/icon-cd-install-mac.png';
 import appstore from '@/assets/dock/appstore.png';
@@ -207,7 +168,7 @@ const { charging, chargingTime, dischargingTime, level } = useBattery();
 const { width: screenWidth } = useWindowSize();
 const { currentApp, setCurrentApp } = useCurrentApp();
 const { installed, skipped: installSkipped, isInstalled, isNotInstalled, isSkipped, isNotSkipped } = useInstalled();
-const { notifications, createNotification, deleteNotification, closeNotification, cleanNotifications } = useNotifications();
+const { createNotification, deleteNotification, cleanNotifications } = useNotifications();
 const { systemLoading, setSystemLoading } = useSystemLoading();
 const { screenId/*, screenNumber*/, isMultiScreen, post, on } = useScreens();
 
@@ -273,55 +234,83 @@ const installMac = () => {
 const installNotifyOpened = computed(() => (installSkipped.value === null
     ? false : installSkipped.value) && displayInstallNotify.value);
 
+const initNotifications = () => {
+    if (installNotifyOpened.value) {
+        createNotification({
+            image: iconCdInstall,
+            title: 'Installez macOS',
+            content: `Une npuvelle version de macOS est disponible`,
+            opened: installNotifyOpened,
+            buttons: [
+                {
+                    text: 'Installer',
+                    click() {
+                        deleteNotification(0);
+                        installMac();
+                    }
+                },
+                {
+                    text: 'Fermer',
+                    click() {
+                        displayInstallNotify.value = false;
+                        deleteNotification(0);
+                    }
+                }
+            ]
+        });
+
+        createNotification({
+            image: appstore,
+            title: alertAppInDev.title,
+            content: alertAppInDev.content.join(''),
+            opened: computed(() => true),
+            buttons: [
+                {
+                    text: 'OK',
+                    click() {
+                        displayAlertAppInDev.value = false;
+                        deleteNotification(1);
+                    }
+                },
+                {
+                    text: 'Ne plus voir',
+                    click() {
+                        alertAppInDev.dontShowAgain = true;
+                        deleteNotification(1);
+                    }
+                }
+            ]
+        });
+    }
+    else {
+        createNotification({
+            image: appstore,
+            title: alertAppInDev.title,
+            content: alertAppInDev.content.join(''),
+            opened: computed(() => displayAlertAppInDev.value && alertAppInDev.show),
+            buttons: [
+                {
+                    text: 'OK',
+                    click() {
+                        displayAlertAppInDev.value = false;
+                        deleteNotification(0);
+                    }
+                },
+                {
+                    text: 'Ne plus voir',
+                    click() {
+                        alertAppInDev.dontShowAgain = true;
+                        deleteNotification(0);
+                    }
+                }
+            ]
+        });
+    }
+}
+
 const initNotifsQueue = () => {
   cleanNotifications();
-
-  createNotification({
-    image: iconCdInstall,
-    title: 'Installez macOS',
-    content: `Une npuvelle version de macOS est disponible`,
-    opened: installNotifyOpened,
-    buttons: [
-      {
-        text: 'Installer',
-        click() {
-          deleteNotification(0);
-          installMac();
-        }
-      },
-      {
-        text: 'Fermer',
-        click() {
-          displayInstallNotify.value = false;
-          deleteNotification(0);
-        }
-      }
-    ]
-  });
-
-  createNotification({
-    index: (installNotifyOpened.value ? 1 : 0),
-    image: appstore,
-    title: alertAppInDev.title,
-    content: alertAppInDev.content.join(''),
-    opened: computed(() => displayAlertAppInDev.value && alertAppInDev.show),
-    buttons: [
-      {
-        text: 'OK',
-        click() {
-          displayAlertAppInDev.value = false;
-          deleteNotification(1);
-        }
-      },
-      {
-        text: 'Ne plus voir',
-        click() {
-          alertAppInDev.dontShowAgain = true;
-          deleteNotification(1);
-        }
-      }
-    ]
-  });
+  initNotifications();
 }
 const handleSystemLoaded = (initNotifs: boolean) => {
   setSystemLoading(false);

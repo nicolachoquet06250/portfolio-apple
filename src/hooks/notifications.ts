@@ -1,6 +1,10 @@
-import {ref, computed, ComputedRef, Ref} from 'vue';
+import {ref, computed, ComputedRef, Ref, watch} from 'vue';
 
 const queue = ref<MacOsNotification[]>([]);
+
+watch(queue, queue => {
+    console.log(queue, 6)
+})
 
 type NotificationAction = {
     text: string,
@@ -50,17 +54,19 @@ export const useNotifications = () => ({
         }, []) as unknown as MacOsNotification[];
     },
     closeNotification(index: number) {
-        queue.value = queue.value.reduce<{
+        type Reducer = {
             t: MacOsNotification[],
             i: number
-        //  @ts-expect-error
-        }>((r: {
-            t: MacOsNotification[],
-            i: number
-        }, c) => {
+        };
+
+        // @ts-expect-error
+        queue.value = queue.value.reduce<Reducer>((r, c) => {
             if (r.i === index) {
                 return {
-                    t: [...r.t, c],
+                    t: [
+                        ...(r.t ?? []),
+                        c
+                    ],
                     i: r.i + 1
                 };
             }
@@ -68,17 +74,22 @@ export const useNotifications = () => ({
             return {
                 i: r.i + 1,
                 t: [
-                    ...r.t,
+                    ...(r.t ?? []),
                     {
                         ...c,
                         index: (c.index > index ? c.index - 1 : c.index)
                     }
                 ]
-            }
-        // @ts-expect-error
+            };
+            // @ts-expect-error
         }, { i: 0, t: []}).t;
+        console.log(queue.value, 86)
     },
     cleanNotifications() {
         queue.value = [];
+    },
+    removeNotification(i: number) {
+        console.log(i, 92)
+        queue.value = queue.value.filter((_, index) => index !== i);
     }
 });

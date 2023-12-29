@@ -21,16 +21,30 @@ export default {
             );
         const getQueryString = (key: string) => queryString[key] ?? false;
 
-        if (
-            import.meta.env.MODE === 'development' ||
-            getQueryString('debug')
-        ) {
+        if (getQueryString('debug')) {
             eruda.init();
 
             eruda.add(erudaDom);
             eruda.add(erudaFeatures);
             eruda.add(erudaTiming);
             eruda.add(erudaCode);
+        }
+
+        if (import.meta.env.MODE === 'development') {
+            const banner = document.createElement('div');
+            banner.innerHTML = 'Développement';
+            banner.style.backgroundColor = 'darkgreen';
+            banner.style.position = 'absolute';
+            banner.style.top = '50px';
+            banner.style.left = '20px';
+            banner.style.display = 'flex';
+            banner.style.justifyContent = 'center';
+            banner.style.alignItems = 'center';
+            banner.style.color = 'white';
+            banner.style.padding = '10px';
+            banner.style.borderRadius = '10px';
+
+            document.querySelector('body').insertBefore(banner, document.querySelector('#app'))
         }
     }
 };
