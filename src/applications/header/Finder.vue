@@ -65,7 +65,7 @@ const { selectedTab, backInPath } = useFinder(5);
 const { isDark } = useDark();
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .app-header-bar {
     &.dark * {
         color: white!important;

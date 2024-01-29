@@ -1,8 +1,9 @@
 <template>
     <div :class="{
         notification: true,
-        open: open
-    }" ref="notif" v-if="!closed">
+        open,
+        opened: isOpened
+    }" ref="notify">
         <img :src="image" alt="notification illustration" />
 
         <div class="body">
@@ -18,42 +19,73 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue';
+import {ref, watch} from 'vue';
+import {useNotifications} from '@/hooks/notifications.ts';
+import {toRefs} from '@vueuse/core';
 
 const props = withDefaults(defineProps<{
+  i?: number,
   index: number,
   image: string,
   latence: number,
-  opened: boolean
+  opened: boolean,
+  autoClose?: number|boolean
 }>(), {
   index: 0,
   latence: 0,
-  opened: true
+  opened: true,
+  autoClose: false
 });
+const opened = defineModel<boolean>('opened', {required: false})
+const {i, image, latence, index, autoClose} = toRefs(props);
 
 const emit = defineEmits(['closed']);
 
-const notif = ref(null);
+const notify = ref<HTMLDivElement|null>(null);
 const open = ref(false);
-const closed = ref(!props.opened);
-const index = computed(() => props.index);
+const isOpened = ref(false);
+const closed = ref(!opened.value);
+
+const {removeNotification} = useNotifications();
 
 setTimeout(() => {
+    isOpened.value = true;
     open.value = true;
-}, props.latence);
+}, latence.value);
 
-const onAnimEnd = () => {
-    emit('closed');
-    closed.value = true;
-}
-
-watch(() => props.opened, () => {
-    if (!props.opened) {
+watch(opened, opened => {
+    if (!opened) {
         open.value = false;
+        isOpened.value = false;
 
-        setTimeout(onAnimEnd, 500);
+        setTimeout(() => {
+            emit('closed');
+            closed.value = true;
+        }, 500);
     }
 });
+
+watch(open, () => {
+    if (open.value && autoClose.value) {
+        setTimeout(() => {
+          opened.value = false;
+        }, autoClose.value as number)
+    }
+});
+
+watch(notify, notify => {
+    if (typeof i?.value === 'number') {
+        notify?.addEventListener('transitionend', (e: TransitionEvent) => {
+            const wasOpened = (e.target as HTMLElement).classList.contains('open');
+
+            if (!wasOpened) {
+                setTimeout(() => {
+                    closed.value && removeNotification(i?.value!);
+                }, 500);
+            }
+        })
+    }
+})
 </script>
 
 <style lang="scss" scoped>
@@ -73,7 +105,7 @@ watch(() => props.opened, () => {
     transform: translateX(410px);
     transition: transform .5s ease-out;
 
-    &.open {
+    &.open, &.opened {
         transform: translateX(0);   
     }
 

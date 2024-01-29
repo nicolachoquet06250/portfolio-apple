@@ -90,7 +90,8 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import { useNetwork, useBattery } from "@vueuse/core";
+import { useNetwork } from "@vueuse/core";
+import { useBattery } from '@/hooks/helpers/useBattery';
 import { useWait } from '@/hooks/wait';
 import { useDatabase } from '@/hooks/database/hooks';
 import { useAuthUser } from '@/hooks/account';

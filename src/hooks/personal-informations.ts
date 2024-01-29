@@ -1,4 +1,4 @@
-import profilePicture from '@/assets/icons/facebook-profile-pic.png';
+// import profilePicture from '@/assets/icons/facebook-profile-pic.png';
 
 export enum InformationsType {
     ALL = 0,
@@ -35,7 +35,21 @@ type PersonalInformations = {
         }[],
     }[],
     speakLanguages: string[],
-    profilePicture: string
+    profilePicture: string,
+    description: string|string[],
+    postTitle: string,
+    society: string,
+    location: {
+        city: string,
+        region: string,
+        country: string
+    },
+    summary: string|string[],
+    phoneNumber: `${number}${number}.${number}${number}.${number}${number}.${number}${number}.${number}${number}.${number}${number}`,
+    sites: {
+        url: string,
+        label: string
+    }[]
 }
 type PersonalInformationsNeofetch = {
     firstname: string,
@@ -89,7 +103,7 @@ export const usePersonalInformations: UsePersonalInformations = (type = Informat
         ...general,
         email: 'nicolachoquet06250@gmail.com',
         github: 'https://github.com/nicolachoquet06250',
-        profilePicture,
+        profilePicture: 'https://media.licdn.com/dms/image/D4D03AQFTmZCf8bLwNg/profile-displayphoto-shrink_800_800/0/1703607251330?e=1709164800&v=beta&t=v5PkiqgSs1Sd2h-1eb6Q5y6SicUgSzIsbLF2tEGNweM',
         programationLanguages: [
             {
                 label: 'HTML 5',
@@ -198,6 +212,39 @@ export const usePersonalInformations: UsePersonalInformations = (type = Informat
         speakLanguages: [
             'Français',
             'Anglais'
+        ],
+        postTitle: 'Ingénieur Développeur FullStack',
+        society: 'norsys',
+        location: {
+            city: 'Sophia-Antipolis',
+            region: 'Provence-Alpes-Côte d\'Azur',
+            country: 'France'
+        },
+        summary: [
+            "Passionné par le développement, je passe mon temps à étudier",
+            "de nouvelles technologies et de nouveaux langages dans le but de",
+            "m’adapter plus facilement aux différents contextes projets",
+            "",
+            "PS: J'adore les karaokés."
+        ],
+        phoneNumber: '07.63.20.76.30',
+        sites: [
+            {
+                url: 'https://www.linkedin.com/nicolqs-choquet-23323993',
+                label: 'Linkedin'
+            },
+            {
+                url: ((href: string) => {
+                    const splitHref = href.split('/');
+                    splitHref.pop();
+                    return splitHref.join('/')
+                })(window.location.href),
+                label: 'Personnel'
+            },
+            {
+                url: 'https://devengers.slidelist.nicolaschoquet.fr',
+                label: 'Autre'
+            },
         ]
     }
 }

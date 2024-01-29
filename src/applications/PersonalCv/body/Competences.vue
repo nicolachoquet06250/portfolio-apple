@@ -5,13 +5,14 @@
     <table>
       <template v-for="language of personalInformations.programationLanguages" :key="language.label">
         <tr>
-          <th style="display: flex; justify-content: flex-start">
+          <th colspan="2" style="display: flex; justify-content: flex-start">
             <i :class="language.icon"/>
             <strong style="margin-left: 5px">{{language.label}}</strong>
           </th>
-
-          <td>
-            <Stars :note="language.stars" />
+        </tr>
+        <tr>
+          <td colspan="2">
+            <ProgressBar :note="language.stars" />
           </td>
         </tr>
 
@@ -22,16 +23,19 @@
             </th>
           </tr>
 
-          <tr v-for="runtime of language.runtimes" :key="runtime.label">
-            <td style="padding-left: 15px">
-              <i :class="runtime.icon"/>
-              <strong style="margin-left: 5px">{{runtime.label}}</strong>
-            </td>
-
-            <td>
-              <Stars :note="runtime.stars" v-if="runtime.stars !== undefined" />
-            </td>
-          </tr>
+          <template v-for="runtime of language.runtimes" :key="runtime.label">
+            <tr>
+              <td colspan="2" style="padding-left: 15px">
+                <i :class="runtime.icon"/>
+                <strong style="margin-left: 5px">{{runtime.label}}</strong>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2" style="padding-left: 15px">
+                <ProgressBar :note="runtime.stars" v-if="runtime.stars !== undefined" />
+              </td>
+            </tr>
+          </template>
         </template>
 
         <template v-if="language.libraries">
@@ -41,16 +45,19 @@
             </th>
           </tr>
 
-          <tr v-for="library of language.libraries" :key="library.label">
-            <td style="padding-left: 15px">
-              <i :class="library.icon"/>
-              <strong style="margin-left: 5px">{{library.label}}</strong>
-            </td>
-
-            <td>
-              <Stars :note="library.stars" v-if="library.stars !== undefined" />
-            </td>
-          </tr>
+          <template v-for="library of language.libraries" :key="library.label">
+            <tr>
+              <td colspan="2" style="padding-left: 15px">
+                <i :class="library.icon"/>
+                <strong style="margin-left: 5px">{{library.label}}</strong>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2" style="padding-left: 15px">
+                <ProgressBar :note="library.stars" v-if="library.stars !== undefined" />
+              </td>
+            </tr>
+          </template>
         </template>
 
         <template v-if="language.frameworks">
@@ -60,16 +67,20 @@
             </th>
           </tr>
 
-          <tr v-for="framework of language.frameworks" :key="framework.label">
-            <td style="padding-left: 15px">
-              <i :class="framework.icon"/>
-              <strong style="margin-left: 5px">{{framework.label}}</strong>
-            </td>
+          <template v-for="framework of language.frameworks" :key="framework.label">
+            <tr>
+              <td colspan="2" style="padding-left: 15px">
+                <i :class="framework.icon"/>
+                <strong style="margin-left: 5px">{{framework.label}}</strong>
+              </td>
+            </tr>
 
-            <td>
-              <Stars :note="framework.stars" v-if="framework.stars !== undefined" />
-            </td>
-          </tr>
+            <tr>
+              <td colspan="2" style="padding-left: 15px">
+                <ProgressBar :note="framework.stars" v-if="framework.stars !== undefined" />
+              </td>
+            </tr>
+          </template>
         </template>
       </template>
     </table>
@@ -78,7 +89,7 @@
 
 <script setup lang="ts">
 import {InformationsType, usePersonalInformations} from '@/hooks/personal-informations.ts';
-import Stars from '@/applications/PersonalCv/utils/Stars.vue';
+import ProgressBar from '@/applications/PersonalCv/utils/ProgressBar.vue';
 
 const personalInformations = usePersonalInformations(InformationsType.ALL)
 </script>

@@ -6,7 +6,7 @@
 
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 h1 {
   font-size: 20px;
   margin: 0;
