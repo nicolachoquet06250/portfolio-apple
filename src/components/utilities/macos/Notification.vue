@@ -28,20 +28,23 @@ const props = withDefaults(defineProps<{
   index: number,
   image: string,
   latence: number,
-  opened: boolean
+  opened: boolean,
+  autoClose?: number|boolean
 }>(), {
   index: 0,
   latence: 0,
-  opened: true
+  opened: true,
+  autoClose: false
 });
-const {i, image, latence, index} = toRefs(props);
+const opened = defineModel<boolean>('opened', {required: false})
+const {i, image, latence, index, autoClose} = toRefs(props);
 
 const emit = defineEmits(['closed']);
 
 const notify = ref<HTMLDivElement|null>(null);
 const open = ref(false);
 const isOpened = ref(false);
-const closed = ref(!props.opened);
+const closed = ref(!opened.value);
 
 const {removeNotification} = useNotifications();
 
@@ -50,7 +53,7 @@ setTimeout(() => {
     open.value = true;
 }, latence.value);
 
-watch(() => props.opened, opened => {
+watch(opened, opened => {
     if (!opened) {
         open.value = false;
         isOpened.value = false;
@@ -59,6 +62,14 @@ watch(() => props.opened, opened => {
             emit('closed');
             closed.value = true;
         }, 500);
+    }
+});
+
+watch(open, () => {
+    if (open.value && autoClose.value) {
+        setTimeout(() => {
+          opened.value = false;
+        }, autoClose.value as number)
     }
 });
 

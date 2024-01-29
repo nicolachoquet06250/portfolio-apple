@@ -28,7 +28,6 @@ import StoreMenu from '@/applications/menu/Store.vue';
 import MailsMenu from '@/applications/menu/Mail.vue';
 import PhotosMenu from '@/applications/menu/Photos.vue';
 import TextEditMenu from '@/applications/menu/TextEdit.vue';
-import PersonalCvMenu from '@/applications/menu/PersonalCv.vue';
 
 export enum APPLICATION {
     FINDER = 'finder',
@@ -104,7 +103,6 @@ export const APPLICATION_COMPONENT: ApplicationComponent = {
     [APPLICATION.MY_CV]: {
         body: PersonalCv,
         header: PersonalCvHeader,
-        menu: PersonalCvMenu
     },
 };
 

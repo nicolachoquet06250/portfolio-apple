@@ -153,7 +153,8 @@ import iconCdInstall from '@/assets/icon-cd-install-mac.png';
 import appstore from '@/assets/dock/appstore.png';
 
 import { ref, computed, reactive, watch } from "vue";
-import { useNetwork, useBattery, useWindowSize } from "@vueuse/core";
+import { useNetwork, useWindowSize } from "@vueuse/core";
+import { useBattery } from '@/hooks/helpers/useBattery';
 import { APPLICATION, useCurrentApp } from "@/hooks/apps";
 import { useInstalled } from '@/hooks/installed';
 import { useNotifications } from '@/hooks/notifications';
@@ -241,6 +242,7 @@ const initNotifications = () => {
             title: 'Installez macOS',
             content: `Une npuvelle version de macOS est disponible`,
             opened: installNotifyOpened,
+            autoClose: false,
             buttons: [
                 {
                     text: 'Installer',
@@ -264,6 +266,7 @@ const initNotifications = () => {
             title: alertAppInDev.title,
             content: alertAppInDev.content.join(''),
             opened: computed(() => true),
+            autoClose: false,
             buttons: [
                 {
                     text: 'OK',
@@ -288,6 +291,7 @@ const initNotifications = () => {
             title: alertAppInDev.title,
             content: alertAppInDev.content.join(''),
             opened: computed(() => displayAlertAppInDev.value && alertAppInDev.show),
+            autoClose: false,
             buttons: [
                 {
                     text: 'OK',

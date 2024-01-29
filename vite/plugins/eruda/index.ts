@@ -43,6 +43,7 @@ export default {
             banner.style.color = 'white';
             banner.style.padding = '10px';
             banner.style.borderRadius = '10px';
+            banner.style.zIndex = 1000000;
 
             document.querySelector('body').insertBefore(banner, document.querySelector('#app'))
         }

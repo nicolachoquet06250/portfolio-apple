@@ -246,7 +246,7 @@
             </template>
         </ul>
 
-        <Grid v-if="screenId === 0">
+        <Grid v-if="!isMultiscreen || screenId === 0">
             <Column v-for="(treeColumn, x) of treeToGrid" :key="x">
                 <template v-for="(treeCel, y) of treeColumn" :key="y">
                     <Directory v-if="treeCel.type === 'directory'"
@@ -308,9 +308,9 @@
 </template>
 
 <script setup lang="ts">
-import siriIcon from '@/assets/icons/siri.png'
-import musicIcon from '@/assets/icons/icon-Music.png'
-import {ref, computed, watch, reactive, onMounted} from "vue";
+import siriIcon from '@/assets/icons/siri.png';
+import musicIcon from '@/assets/icons/icon-Music.png';
+import { ref, computed, watch, reactive, onMounted } from "vue";
 import { APPLICATION, APPLICATION_STATE, useOpenedApplications, useCurrentApp } from '@/hooks/apps';
 import { useAuthUser } from '@/hooks/account';
 import finder from '@/hooks/finder';
@@ -328,11 +328,16 @@ import File from '@/components/utilities/macos/FileIcon.vue';
 import MacApplication from '@/components/macos/MacApplication.vue';
 import ToogleLiteDarkMode from '@/components/macos/ToogleLiteDarkMode.vue';
 import Spotlight from '@/components/macos/Spotlight.vue';
-import {useScreens} from "@/hooks/screens";
-import {Menu} from '@/App.vue';
-import {Item} from '@/hooks/finder/types';
+import { useScreens } from "@/hooks/screens";
+import { Menu } from '@/App.vue';
+import { Item } from '@/hooks/finder/types';
 
-const { useRootDirectory, useTreeActions, useFinder, initBreadcrumb } = finder();
+const {
+    useRootDirectory,
+    useTreeActions,
+    useFinder,
+    initBreadcrumb
+} = finder();
 
 const props = defineProps<{
   backgroundImage: string,
@@ -357,7 +362,7 @@ const { setRoot, setSubDirectory } = useRootDirectory();
 const { tree: treeStructure, add, get } = useTreeActions();
 const { isDark } = useDark();
 const { selectTab } = useFinder(5);
-const { screenId } = useScreens();
+const { isMultiScreen, screenId } = useScreens();
 
 const treeToGrid = ref<Item[][]>([]);
 const displayNewDirectory = ref(false);

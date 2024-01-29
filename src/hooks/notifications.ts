@@ -18,6 +18,7 @@ type MacOsNotification = {
     title: string,
     content: string,
     opened: ComputedRef<boolean>|Ref<boolean>,
+    autoClose: number|boolean,
     buttons: NotificationAction[]
 };
 
