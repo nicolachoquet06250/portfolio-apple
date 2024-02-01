@@ -9,6 +9,8 @@ import { useNetwork } from './network';
 
 import { useClipboard } from '@/hooks/kernel/clipboard';
 
+import { useGeolocation } from './geolocation';
+
 export type UseKernel = () => {
     keyboard: KernelKeyboard,
     scheduler: KernelScheduler
@@ -23,5 +25,6 @@ export const useKernel: UseKernel = () => {
 export default () => ({
     useKernel, useScheduler,
     useProcess, useKeyboard,
-    useNetwork, useClipboard
+    useNetwork, useClipboard,
+    useGeolocation
 })
