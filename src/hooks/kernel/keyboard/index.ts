@@ -1,9 +1,11 @@
-import type {DeepReadonly, ToRefs} from 'vue';
+import {ComputedRef, toRef, ToRefs} from 'vue';
+import {UnwrapRefSimple} from '@vue/reactivity'
 import {onKeyDown, onKeyStroke, onKeyUp} from '@vueuse/core';
-import {reactive, readonly, ref, toRefs} from 'vue';
+import {ref} from 'vue';
 import {useKernel} from '@/hooks/kernel';
 import type {Events, LastCharKey, ControlActions, KernelKeyboard} from './types';
 import {KeyboardEvent} from './enums';
+import {toComputed, ToMultiComputed} from '@/macros/vue.ts';
 
 const eventsDefault: Events = {
     [KeyboardEvent.INPUT]: {
@@ -90,24 +92,49 @@ onKeyUp('AltGraph', () => {
 });
 
 export const useKeyboard = <
-    N extends (typeof KeyboardEvent)[keyof typeof KeyboardEvent],
-    E extends Events[N],
-    Refs extends boolean,
-    Return = Refs extends true ? ToRefs<E> : DeepReadonly<E>
->(eventName: N, refs: Refs = false as Refs): Return => {
+    N extends (typeof KeyboardEvent)[keyof typeof KeyboardEvent]|(keyof typeof KeyboardEvent),
+    E extends Events[N extends keyof typeof KeyboardEvent ? typeof KeyboardEvent[N] : N],
+    Trigger extends (params: E) => void = (params: E) => void,
+    Return = ToMultiComputed<E> & { watch: (name: string, trigger: Trigger) => void }
+>(eventName: N): Return => {
     const { keyboard } = useKernel();
-    const d = reactive(eventsDefault[eventName] as E);
+    const triggers = ref<Trigger[]>([]);
 
-    keyboard.listen(eventName, (e) => {
+    const newEventName = Array.from(Object.keys(KeyboardEvent)).includes(eventName) ? KeyboardEvent[eventName as keyof typeof KeyboardEvent] : eventName as KeyboardEvent;
+
+    const d: ToRefs<E> =
+        Array.from(Object.keys(eventsDefault[newEventName]))
+            .reduce(
+                (r, c) => ({
+                    ...r,
+                    [c]: toRef((eventsDefault[newEventName] as ToRefs<E>)[c as keyof ToRefs<E>])
+                }),
+                {} as ToRefs<E>
+            );
+
+    keyboard.listen(newEventName, (e) => {
         for (const k in e) {
-            (d as E)[k] = (e as E)[k];
+            (d[k as keyof ToRefs<E>].value as E[keyof E]) = (e as E)[k as keyof E];
         }
+        triggers.value.map(trigger => trigger?.(e as E));
     });
 
-    const data = readonly(d as Required<E>) as DeepReadonly<Required<E>>;
-
-    if (refs) return toRefs(data) as Return;
-    return data as Return;
+    return {
+        ...Array.from(Object.keys(d))
+            .reduce<{ [K in keyof E]: ComputedRef<K> }>(
+                (r, c) => ({
+                    ...r,
+                    [c]: toComputed((d as ToRefs<E>)[c as keyof ToRefs<E>])
+                }),
+                {} as { [K in keyof E]: ComputedRef<K> }
+            ),
+        watch(_n: string, watcher: Trigger) {
+            triggers.value = [
+                ...triggers.value,
+                watcher as UnwrapRefSimple<Trigger>
+            ];
+        }
+    } as Return;
 }
 
 const addAltGraphAndGetEvent = <

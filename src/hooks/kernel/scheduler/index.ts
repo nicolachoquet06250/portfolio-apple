@@ -1,6 +1,6 @@
 import {ref, computed} from "vue";
 import type { ComputedRef } from "vue";
-import { useUuid } from '@/hooks/uuid';
+import { useUuid } from '@/hooks/uuid.ts';
 
 export type Process<D extends Record<string, any>> = {
     id: string,
