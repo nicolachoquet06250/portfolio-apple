@@ -11,6 +11,12 @@ import { useClipboard } from '@/hooks/kernel/clipboard';
 
 import { useGeolocation } from './geolocation';
 
+import {
+    useFileSystem, useFSTree,
+    useFiles, useFolders,
+    useDirectories, useMock
+} from './filesystem';
+
 export type UseKernel = () => {
     keyboard: KernelKeyboard,
     scheduler: KernelScheduler
@@ -26,5 +32,8 @@ export default () => ({
     useKernel, useScheduler,
     useProcess, useKeyboard,
     useNetwork, useClipboard,
-    useGeolocation
+    useGeolocation,
+    useFileSystem, useFSTree,
+    useFiles, useFolders,
+    useDirectories, useMock
 })
